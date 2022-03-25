@@ -6,8 +6,8 @@
 #include <string>
 
 
-const int SCREEN_WIDTH = 1020;
-const int SCREEN_HEIGHT = 980;
+const int SCREEN_WIDTH = 1520;
+const int SCREEN_HEIGHT = 1020;
 
 //The window we'll be rendering to
 SDL_Window* gWindow = NULL;
@@ -117,36 +117,44 @@ int main(int argc, char const *argv[])
 
 			// Karakoram       
 
-			SDL_Rect fillRect2 = { SCREEN_WIDTH / 22 + 200, SCREEN_HEIGHT / 22, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16 };
+			SDL_Rect karakoram = { SCREEN_WIDTH / 22 + 200, SCREEN_HEIGHT / 22, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16 };
             SDL_SetRenderDrawColor( gRenderer, 52, 61, 236, 0xFF ); 
 
             // SDL_SetTextInputRect(&fillRect);
        
-            SDL_RenderFillRect( gRenderer, &fillRect2 );			
+            SDL_RenderFillRect( gRenderer, &karakoram );			
 
             // Aravali
-			SDL_Rect fillRect3 = { SCREEN_WIDTH / 22 + 400, SCREEN_HEIGHT / 22, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16 };
+			SDL_Rect aravali = { SCREEN_WIDTH / 22 + 400, SCREEN_HEIGHT / 22, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16 };
             SDL_SetRenderDrawColor( gRenderer, 52, 61, 236, 0xFF ); 
 
             // SDL_SetTextInputRect(&fillRect);
        
-            SDL_RenderFillRect( gRenderer, &fillRect3 );	
+            SDL_RenderFillRect( gRenderer, &aravali);	
 
             // Jwala
-			SDL_Rect fillRect4 = { SCREEN_WIDTH / 22 + 800, SCREEN_HEIGHT / 22, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16 };
+			SDL_Rect jwala = { SCREEN_WIDTH / 22 + 800, SCREEN_HEIGHT / 22, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16 };
             SDL_SetRenderDrawColor( gRenderer, 52, 61, 236, 0xFF ); 
 
             // SDL_SetTextInputRect(&fillRect);
        
-            SDL_RenderFillRect( gRenderer, &fillRect4 );	
+            SDL_RenderFillRect( gRenderer, &jwala );	
 
             // Kumaon
-            SDL_Rect fillRect5 = { SCREEN_WIDTH / 22 + 800, SCREEN_HEIGHT / 22+100, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16 };
+            SDL_Rect kumaon = { SCREEN_WIDTH / 22 + 800, SCREEN_HEIGHT / 22+100, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16 };
             SDL_SetRenderDrawColor( gRenderer, 52, 61, 236, 0xFF ); 
 
             // SDL_SetTextInputRect(&fillRect);
        
-            SDL_RenderFillRect( gRenderer, &fillRect5 );
+            SDL_RenderFillRect( gRenderer, &kumaon );
+
+            // Vidyanchal
+            SDL_Rect vidyanchal = { SCREEN_WIDTH / 22 + 800, SCREEN_HEIGHT / 22+250, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16 };
+            SDL_SetRenderDrawColor( gRenderer, 52, 61, 236, 0xFF ); 
+
+            // SDL_SetTextInputRect(&fillRect);
+       
+            SDL_RenderFillRect( gRenderer, &vidyanchal );
 
 
              // Delhi - 16
@@ -159,14 +167,14 @@ int main(int argc, char const *argv[])
 
             // Tennis Court
 
-            SDL_Rect tennisCourt = { SCREEN_WIDTH / 22 + 200, SCREEN_HEIGHT / 22+200, SCREEN_WIDTH / 8, SCREEN_HEIGHT / 6 };
+            SDL_Rect tennisCourt = { SCREEN_WIDTH / 22 + 200, SCREEN_HEIGHT / 22+200, SCREEN_WIDTH / 8, SCREEN_HEIGHT / 12 };
             SDL_SetRenderDrawColor( gRenderer,15, 77, 125, 0xFF ); 
 
             // SDL_SetTextInputRect(&fillRect);
        
             SDL_RenderFillRect( gRenderer, &tennisCourt );
             // Volley Ball Court
-           	SDL_Rect volleyBallCourt = { SCREEN_WIDTH / 22 + 375, SCREEN_HEIGHT / 22+200, SCREEN_WIDTH / 8, SCREEN_HEIGHT / 6 };
+           	SDL_Rect volleyBallCourt = { SCREEN_WIDTH / 22 + 400, SCREEN_HEIGHT / 22+200, SCREEN_WIDTH / 8, SCREEN_HEIGHT / 12 };
             SDL_SetRenderDrawColor( gRenderer,92, 8, 8, 0xFF ); 
 
             // SDL_SetTextInputRect(&fillRect);
@@ -175,7 +183,7 @@ int main(int argc, char const *argv[])
 
             // Shivalik
 
-            SDL_Rect shivalik = { SCREEN_WIDTH / 22 + 350, SCREEN_HEIGHT / 22+400, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16 };
+            SDL_Rect shivalik = { SCREEN_WIDTH / 22 + 375, SCREEN_HEIGHT / 22+300, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16 };
             SDL_SetRenderDrawColor( gRenderer,52, 61, 236, 0xFF  ); 
 
             // SDL_SetTextInputRect(&fillRect);
@@ -184,7 +192,7 @@ int main(int argc, char const *argv[])
 
             // Zanskar
 
-            SDL_Rect zanskar = { SCREEN_WIDTH / 22 + 200, SCREEN_HEIGHT / 22+400, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16 };
+            SDL_Rect zanskar = { SCREEN_WIDTH / 22 + 200, SCREEN_HEIGHT / 22+300, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16 };
             SDL_SetRenderDrawColor( gRenderer,52, 61, 236, 0xFF  ); 
 
             // SDL_SetTextInputRect(&fillRect);
@@ -194,7 +202,7 @@ int main(int argc, char const *argv[])
 
             // SAC
 
-            SDL_Rect sac = { SCREEN_WIDTH / 22, SCREEN_HEIGHT / 22+400, SCREEN_WIDTH / 16, SCREEN_HEIGHT / 10 };
+            SDL_Rect sac = { SCREEN_WIDTH / 22, SCREEN_HEIGHT / 22+270, SCREEN_WIDTH / 16, SCREEN_HEIGHT / 10 };
             SDL_SetRenderDrawColor( gRenderer,164, 191, 31, 0xFF  ); 
 
             // SDL_SetTextInputRect(&fillRect);
@@ -203,31 +211,134 @@ int main(int argc, char const *argv[])
 
 
 			// Masala Mix
-			SDL_Rect masalaMix = { SCREEN_WIDTH / 22+200, SCREEN_HEIGHT / 22+410+SCREEN_HEIGHT / 16, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 16 };
+	    SDL_Rect masalaMix = { SCREEN_WIDTH / 22+200,  SCREEN_HEIGHT / 22+310+SCREEN_HEIGHT / 16, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 16 };
             SDL_SetRenderDrawColor( gRenderer, 46, 8, 15, 0xFF ); 
 
             SDL_RenderFillRect( gRenderer, &masalaMix );
 
 
             // Rajdhani
-			SDL_Rect rajdhani = { SCREEN_WIDTH / 22+210+SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+410+SCREEN_HEIGHT / 16, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 16 };
+			SDL_Rect rajdhani = { SCREEN_WIDTH / 22+210+SCREEN_WIDTH / 12,SCREEN_HEIGHT / 22+310+SCREEN_HEIGHT / 16, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 16 };
             SDL_SetRenderDrawColor( gRenderer, 19, 105, 191, 0xFF ); 
 
             SDL_RenderFillRect( gRenderer, &rajdhani );
 
             // Chaayos
-			SDL_Rect chaayos = { SCREEN_WIDTH / 22+220+2*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+410+SCREEN_HEIGHT / 16, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 16 };
+			SDL_Rect chaayos = { SCREEN_WIDTH / 22+220+2*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+310+SCREEN_HEIGHT / 16, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 16 };
             SDL_SetRenderDrawColor( gRenderer, 22, 115, 39, 0xFF ); 
 
             SDL_RenderFillRect( gRenderer, &chaayos );
 
             // IIT-D Hospital
+			SDL_Rect hospital = {  SCREEN_WIDTH / 22+200, SCREEN_HEIGHT / 22+410+SCREEN_HEIGHT / 16, SCREEN_WIDTH / 8, SCREEN_HEIGHT / 10 };
+            SDL_SetRenderDrawColor( gRenderer, 255, 0, 0, 0xFF ); 
+
+            SDL_RenderFillRect( gRenderer, &hospital );
 
 
-            SDL_RenderPresent(gRenderer);
+
+
+            // Bharti - School of AI
+			SDL_Rect bharti = {  SCREEN_WIDTH / 22+200 , SCREEN_HEIGHT / 22+430+SCREEN_HEIGHT / 16+  SCREEN_HEIGHT / 10, SCREEN_WIDTH / 8, SCREEN_HEIGHT / 10 };
+            SDL_SetRenderDrawColor( gRenderer, 164, 191, 31, 0xFF ); 
+
+            SDL_RenderFillRect( gRenderer, &bharti );
+
+            // Large ground 
+
+            SDL_Rect largeGround = {  SCREEN_WIDTH / 22 , SCREEN_HEIGHT / 22+450, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 4 };
+            SDL_SetRenderDrawColor( gRenderer, 92, 8, 8, 0xFF ); 
+
+            SDL_RenderFillRect( gRenderer, &largeGround );
+
+            // Staff canteen
+
+            SDL_Rect staffCanteen = {  SCREEN_WIDTH / 22 , SCREEN_HEIGHT / 22+470 + SCREEN_HEIGHT / 4, SCREEN_WIDTH / 16, SCREEN_HEIGHT / 16 };
+            SDL_SetRenderDrawColor( gRenderer, 4, 76, 201, 0xFF ); 
+
+            SDL_RenderFillRect( gRenderer, &staffCanteen);            
 
 
 
+            // LHC
+
+            SDL_Rect LHC = {  SCREEN_WIDTH / 22 , SCREEN_HEIGHT / 22+490 + SCREEN_HEIGHT / 4 +  SCREEN_HEIGHT / 16, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 12 };
+            SDL_SetRenderDrawColor( gRenderer, 164, 191, 31, 0xFF ); 
+
+            SDL_RenderFillRect( gRenderer, &LHC);            
+
+
+
+            // Satpura
+
+            SDL_Rect satpura ={ SCREEN_WIDTH / 22+230+3*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+310+SCREEN_HEIGHT / 16+40, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16 };
+            SDL_SetRenderDrawColor( gRenderer, 52, 61, 236, 0xFF ); 
+
+            SDL_RenderFillRect( gRenderer, &satpura);  
+
+
+
+
+            // Shiru's cafe
+
+            SDL_Rect shiru ={ SCREEN_WIDTH / 22+220+2*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+470 + SCREEN_HEIGHT / 4, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 16 };
+            SDL_SetRenderDrawColor( gRenderer, 171, 138, 29, 0xFF ); 
+
+            SDL_RenderFillRect( gRenderer, &shiru);  
+
+            // Amul
+            SDL_Rect amul ={ SCREEN_WIDTH / 22+230+3*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+470 + SCREEN_HEIGHT / 4, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 16 };
+            SDL_SetRenderDrawColor( gRenderer, 224, 4, 12, 0xFF ); 
+
+            SDL_RenderFillRect( gRenderer, &amul);  
+
+            // Nescafe
+            SDL_Rect nescafe ={ SCREEN_WIDTH / 22+240+4*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+470 + SCREEN_HEIGHT / 4, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 16 };
+            SDL_SetRenderDrawColor( gRenderer, 71, 0, 0, 0xFF ); 
+
+            SDL_RenderFillRect( gRenderer, &nescafe);  
+
+
+            // CCD 
+
+
+            SDL_Rect ccd ={ SCREEN_WIDTH / 22+300+5*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+440 + SCREEN_HEIGHT / 4, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 16 };
+            SDL_SetRenderDrawColor( gRenderer,224, 4, 12, 0xFF ); 
+
+            SDL_RenderFillRect( gRenderer, &ccd); 
+
+            // Dogra hall
+
+            SDL_Rect dograHall ={ SCREEN_WIDTH / 22+300+5*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+440 + SCREEN_HEIGHT / 4+ SCREEN_HEIGHT / 16+40, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 16 };
+            SDL_SetRenderDrawColor( gRenderer,164, 191, 31, 0xFF ); 
+
+            SDL_RenderFillRect( gRenderer, &dograHall); 
+
+
+            // Main building
+
+            SDL_Rect mainBuilding ={  SCREEN_WIDTH / 22+220+2*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+540 + SCREEN_HEIGHT / 4+ SCREEN_HEIGHT / 16+40, SCREEN_WIDTH / 4, SCREEN_HEIGHT / 12 };
+            SDL_SetRenderDrawColor( gRenderer,164, 191, 31, 0xFF ); 
+
+            SDL_RenderFillRect( gRenderer, &mainBuilding); 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            SDL_RenderPresent(gRenderer);                     
 
 		}
 
