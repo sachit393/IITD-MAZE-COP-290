@@ -71,7 +71,7 @@ void disptext(SDL_Renderer* gRenderer, int x, int y, int w, int h, char* s){
     // Don't forget to free your surface and texture
     SDL_FreeSurface(surfaceMessage);
     SDL_DestroyTexture(Message);
-                TTF_CloseFont(font);
+                TTF_CloseFont(Sans);
                 TTF_Quit();
 
 
