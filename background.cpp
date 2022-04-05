@@ -1,10 +1,10 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
-
 #include <stdio.h>
 #include <string>
-
+#include <vector>
+using namespace std;
 const int HOSPITAL_BILL = 90;
 
 const int PLAYER_RADIUS = 10;
@@ -28,19 +28,19 @@ enum KeyPress
 
 TTF_Font* font;
 
-void disptext(SDL_Renderer* gRenderer, int x, int y, int w, int h, char* s){
+void disptext(SDL_Renderer* gRenderer, int x, int y, int w, int h, char* s,int r,int g,int b){
     //writing text in the box
 
 
     TTF_Init();
                 //this opens a font style and sets a size
     
-    TTF_Font* Sans = TTF_OpenFont("/Library/Fonts/Arial Unicode.ttf", 24);          //CHANGE THE FONT PATH TO AN APPROPRIATE ONE ACCORDING TO YOUR SYSTEM
+    TTF_Font* Sans = TTF_OpenFont("Lato-Black.ttf", 30);          //CHANGE THE FONT PATH TO AN APPROPRIATE ONE ACCORDING TO YOUR SYSTEM
 
     // this is the color in rgb format,
     // maxing out all would give you the color white,
     // and it will be your text's color
-    SDL_Color White = {255, 255, 255};
+    SDL_Color White = {r, g, b};
 
     // as TTF_RenderText_Solid could only be used on
     // SDL_Surface then you have to create the surface first
@@ -71,7 +71,7 @@ void disptext(SDL_Renderer* gRenderer, int x, int y, int w, int h, char* s){
     // Don't forget to free your surface and texture
     SDL_FreeSurface(surfaceMessage);
     SDL_DestroyTexture(Message);
-                TTF_CloseFont(font);
+                TTF_CloseFont(Sans);
                 TTF_Quit();
 
 
@@ -228,6 +228,7 @@ const int SCREEN_HEIGHT = 1020;
 
 bool init(){
 
+
 	bool success = true;
 	if(SDL_Init(SDL_INIT_VIDEO)<0){
 		success = false;
@@ -297,22 +298,25 @@ void close()
 int main(int argc, char const *argv[])
 {
 	
+
 	if (!init()){
 		printf ("failed to initialize\n");
 	}
 	else{
+                SDL_Rect textRect = {SCREEN_WIDTH-160,800,140,50};
+                // gFont = TTF_OpenFont( "Pacifico.ttf", 1000 );
+
+                Player player1 = Player(20,20);
+                Player player2 = Player(SCREEN_WIDTH-20,20);
 		bool quit = false;
 
 		SDL_Event e;
 
 		while(!quit){
 
-			while(SDL_PollEvent(&e)!=0){
-				if(e.type == SDL_QUIT){
-					quit = true;
-				}
+			
 
-			}
+			
 			SDL_SetRenderDrawColor(gRenderer,0x00,0x00,0x00,0x00);
 			SDL_RenderClear(gRenderer);
 			
@@ -326,7 +330,7 @@ int main(int argc, char const *argv[])
            
 //writing text in the box
 
-            disptext(gRenderer, SCREEN_WIDTH / 22, SCREEN_HEIGHT / 22, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16, "Nilgiri") ;
+            disptext(gRenderer, SCREEN_WIDTH / 22, SCREEN_HEIGHT / 22, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16, "Nilgiri",203, 230, 2) ;
 
 			// Karakoram       
 
@@ -338,7 +342,7 @@ int main(int argc, char const *argv[])
             SDL_RenderFillRect( gRenderer, &karakoram );			
             
             
-            disptext(gRenderer, SCREEN_WIDTH / 22 + 200, SCREEN_HEIGHT / 22, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16, "Karakoram" ) ;
+            disptext(gRenderer, SCREEN_WIDTH / 22 + 200, SCREEN_HEIGHT / 22, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16, "Karakoram",203, 230, 2 ) ;
             
             
             
@@ -352,7 +356,7 @@ int main(int argc, char const *argv[])
             SDL_RenderFillRect( gRenderer, &aravali);
             
             
-            disptext(gRenderer, SCREEN_WIDTH / 22 + 400, SCREEN_HEIGHT / 22, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16, "Aravali" ) ;
+            disptext(gRenderer, SCREEN_WIDTH / 22 + 400, SCREEN_HEIGHT / 22, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16, "Aravali",203, 230, 2 ) ;
             
 
             // Jwala
@@ -364,7 +368,7 @@ int main(int argc, char const *argv[])
             SDL_RenderFillRect( gRenderer, &jwala );
             
             
-            disptext(gRenderer, SCREEN_WIDTH / 22 + 800, SCREEN_HEIGHT / 22, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16, "Jwala" ) ;
+            disptext(gRenderer, SCREEN_WIDTH / 22 + 800, SCREEN_HEIGHT / 22, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16, "Jwala",203, 230, 2 ) ;
 
             // Kumaon
             SDL_Rect kumaon = { SCREEN_WIDTH / 22 + 800, SCREEN_HEIGHT / 22+100, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16 };
@@ -374,7 +378,7 @@ int main(int argc, char const *argv[])
        
             SDL_RenderFillRect( gRenderer, &kumaon );
 
-            disptext(gRenderer, SCREEN_WIDTH / 22 + 800, SCREEN_HEIGHT / 22 + 100, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16, "Kumaon" ) ;
+            disptext(gRenderer, SCREEN_WIDTH / 22 + 800, SCREEN_HEIGHT / 22 + 100, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16, "Kumaon",203, 230, 2 ) ;
             
             
             // Vidyanchal
@@ -386,7 +390,7 @@ int main(int argc, char const *argv[])
             SDL_RenderFillRect( gRenderer, &vidyanchal );
 
 
-            disptext(gRenderer, SCREEN_WIDTH / 22 + 800, SCREEN_HEIGHT / 22 + 250, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16, "Vidyanchal" ) ;
+            disptext(gRenderer, SCREEN_WIDTH / 22 + 800, SCREEN_HEIGHT / 22 + 250, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16, "Vidyanchal",203, 230, 2 ) ;
             
              // Delhi - 16
             SDL_Rect fillRect6 = { SCREEN_WIDTH / 22 + 400, SCREEN_HEIGHT / 22+120, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16 };
@@ -397,7 +401,7 @@ int main(int argc, char const *argv[])
             SDL_RenderFillRect( gRenderer, &fillRect6 );
             
             
-            disptext(gRenderer, SCREEN_WIDTH / 22 + 400, SCREEN_HEIGHT / 22 + 120, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16, "Dilli-16" ) ;
+            disptext(gRenderer, SCREEN_WIDTH / 22 + 400, SCREEN_HEIGHT / 22 + 120, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16, "Dilli-16" ,255, 255, 255) ;
 
             // Tennis Court
 
@@ -410,11 +414,11 @@ int main(int argc, char const *argv[])
             
             
             
-            disptext(gRenderer, SCREEN_WIDTH / 22 + 200, SCREEN_HEIGHT / 22+200, SCREEN_WIDTH / 8, SCREEN_HEIGHT / 12, "Tennis Court" ) ;
+            disptext(gRenderer, SCREEN_WIDTH / 22 + 200, SCREEN_HEIGHT / 22+200, SCREEN_WIDTH / 8, SCREEN_HEIGHT / 12, "Tennis Court" ,255, 255, 255) ;
             
             
             // Volley Ball Court
-           	SDL_Rect volleyBallCourt = { SCREEN_WIDTH / 22 + 400, SCREEN_HEIGHT / 22+200, SCREEN_WIDTH / 8, SCREEN_HEIGHT / 12 };
+           	SDL_Rect volleyBallCourt = { SCREEN_WIDTH / 22 + 400, SCREEN_HEIGHT / 22+200, SCREEN_WIDTH / 8, SCREEN_HEIGHT / 12};
             SDL_SetRenderDrawColor( gRenderer,92, 8, 8, 0xFF ); 
 
             // SDL_SetTextInputRect(&fillRect);
@@ -423,7 +427,7 @@ int main(int argc, char const *argv[])
             
             
             
-            disptext(gRenderer, SCREEN_WIDTH / 22 + 400, SCREEN_HEIGHT / 22+200, SCREEN_WIDTH / 8, SCREEN_HEIGHT / 12, "Volleyball Court" ) ;
+            disptext(gRenderer, SCREEN_WIDTH / 22 + 400, SCREEN_HEIGHT / 22+200, SCREEN_WIDTH / 8, SCREEN_HEIGHT / 12, "Volleyball Court",255, 255, 255 ) ;
             
             
             
@@ -438,7 +442,7 @@ int main(int argc, char const *argv[])
             SDL_RenderFillRect( gRenderer, &shivalik );
             
             
-            disptext(gRenderer, SCREEN_WIDTH / 22 + 375, SCREEN_HEIGHT / 22+300, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16, "Shivalik" ) ;
+            disptext(gRenderer, SCREEN_WIDTH / 22 + 375, SCREEN_HEIGHT / 22+300, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16, "Shivalik",203, 230, 2 ) ;
             
             
 
@@ -452,7 +456,7 @@ int main(int argc, char const *argv[])
             SDL_RenderFillRect( gRenderer, &zanskar );            
 
             
-            disptext(gRenderer, SCREEN_WIDTH / 22 + 200, SCREEN_HEIGHT / 22+300, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16, "Zanskar" ) ;
+            disptext(gRenderer, SCREEN_WIDTH / 22 + 200, SCREEN_HEIGHT / 22+300, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16, "Zanskar",203, 230, 2 ) ;
             
 
             // SAC
@@ -466,7 +470,7 @@ int main(int argc, char const *argv[])
             
             
             
-            disptext(gRenderer, SCREEN_WIDTH / 22, SCREEN_HEIGHT / 22+270, SCREEN_WIDTH / 16, SCREEN_HEIGHT / 10, "SAC" ) ;
+            disptext(gRenderer, SCREEN_WIDTH / 22, SCREEN_HEIGHT / 22+270, SCREEN_WIDTH / 16, SCREEN_HEIGHT / 10, "SAC",255,255,255 ) ;
 
 
 
@@ -478,7 +482,7 @@ int main(int argc, char const *argv[])
             
             
             
-            disptext(gRenderer,  SCREEN_WIDTH / 22+200,  SCREEN_HEIGHT / 22+310+SCREEN_HEIGHT / 16, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 16, "Masala Mix" ) ;
+            disptext(gRenderer,  SCREEN_WIDTH / 22+200,  SCREEN_HEIGHT / 22+310+SCREEN_HEIGHT / 16, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 16, "Masala Mix",252, 186, 3 ) ;
 
 
 
@@ -489,7 +493,7 @@ int main(int argc, char const *argv[])
             SDL_RenderFillRect( gRenderer, &rajdhani );
             
             
-            disptext(gRenderer,  SCREEN_WIDTH / 22+210+SCREEN_WIDTH / 12,SCREEN_HEIGHT / 22+310+SCREEN_HEIGHT / 16, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 16 , "Rajdhani" ) ;
+            disptext(gRenderer,  SCREEN_WIDTH / 22+210+SCREEN_WIDTH / 12,SCREEN_HEIGHT / 22+310+SCREEN_HEIGHT / 16, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 16 , "Rajdhani",255,255,255 ) ;
             
             
 
@@ -500,7 +504,7 @@ int main(int argc, char const *argv[])
             SDL_RenderFillRect( gRenderer, &chaayos );
             
             
-            disptext(gRenderer,  SCREEN_WIDTH / 22+220+2*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+310+SCREEN_HEIGHT / 16, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 16, "Chaayos" ) ;
+            disptext(gRenderer,  SCREEN_WIDTH / 22+220+2*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+310+SCREEN_HEIGHT / 16, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 16, "Chaayos",255,255,255 ) ;
             
             
 
@@ -511,7 +515,7 @@ int main(int argc, char const *argv[])
             SDL_RenderFillRect( gRenderer, &hospital );
 
                 
-            disptext(gRenderer,  SCREEN_WIDTH / 22+200, SCREEN_HEIGHT / 22+410+SCREEN_HEIGHT / 16, SCREEN_WIDTH / 8, SCREEN_HEIGHT / 10, "Hospital" ) ;
+            disptext(gRenderer,  SCREEN_WIDTH / 22+200, SCREEN_HEIGHT / 22+410+SCREEN_HEIGHT / 16, SCREEN_WIDTH / 8, SCREEN_HEIGHT / 10, "Hospital",255,255,255 ) ;
 
 
             // Bharti - School of AI
@@ -520,8 +524,8 @@ int main(int argc, char const *argv[])
 
             SDL_RenderFillRect( gRenderer, &bharti );
             
-            disptext(gRenderer,  SCREEN_WIDTH / 22+200 , SCREEN_HEIGHT / 22+430+SCREEN_HEIGHT / 16+  SCREEN_HEIGHT / 10, SCREEN_WIDTH / 8, SCREEN_HEIGHT / 10 , "Bharti Building" ) ;
-
+            disptext(gRenderer,  SCREEN_WIDTH / 22+200 , SCREEN_HEIGHT / 22+430+SCREEN_HEIGHT / 16+  SCREEN_HEIGHT / 10, SCREEN_WIDTH / 8, SCREEN_HEIGHT / 10 , "Bharti Building",255,255,255 ) ;
+// 
             // Large ground 
 
             SDL_Rect largeGround = {  SCREEN_WIDTH / 22 , SCREEN_HEIGHT / 22+450, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 4 };
@@ -531,7 +535,7 @@ int main(int argc, char const *argv[])
             
             
             
-            disptext(gRenderer,  SCREEN_WIDTH / 22 , SCREEN_HEIGHT / 22+450, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 4 , "Large Ground" ) ;
+            disptext(gRenderer,  SCREEN_WIDTH / 22 , SCREEN_HEIGHT / 22+450, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 4 , "Large Ground",255,255,255 ) ;
 
             // Staff canteen
 
@@ -542,7 +546,7 @@ int main(int argc, char const *argv[])
 
             
             
-            disptext(gRenderer,  SCREEN_WIDTH / 22 , SCREEN_HEIGHT / 22+470 + SCREEN_HEIGHT / 4, SCREEN_WIDTH / 16, SCREEN_HEIGHT / 16  , "Staff Canteen" ) ;
+            disptext(gRenderer,  SCREEN_WIDTH / 22 , SCREEN_HEIGHT / 22+470 + SCREEN_HEIGHT / 4, SCREEN_WIDTH / 16, SCREEN_HEIGHT / 16  , "Staff Canteen",255,255,255 ) ;
 
 
             // LHC
@@ -554,7 +558,7 @@ int main(int argc, char const *argv[])
             
             
             
-            disptext(gRenderer,  SCREEN_WIDTH / 22 , SCREEN_HEIGHT / 22+490 + SCREEN_HEIGHT / 4 +  SCREEN_HEIGHT / 16, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 12  , "LHC" ) ;
+            disptext(gRenderer,  SCREEN_WIDTH / 22 , SCREEN_HEIGHT / 22+490 + SCREEN_HEIGHT / 4 +  SCREEN_HEIGHT / 16, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 12  , "LHC",255,255,255 ) ;
 
 
 
@@ -568,7 +572,7 @@ int main(int argc, char const *argv[])
 
             
             
-            disptext(gRenderer,  SCREEN_WIDTH / 22+230+3*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+310+SCREEN_HEIGHT / 16+40, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16  , "Satpura" ) ;
+            disptext(gRenderer,  SCREEN_WIDTH / 22+230+3*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+310+SCREEN_HEIGHT / 16+40, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16  , "Satpura",203, 230, 2  ) ;
 
 
 
@@ -581,7 +585,7 @@ int main(int argc, char const *argv[])
             
             
             
-            disptext(gRenderer,  SCREEN_WIDTH / 22+220+2*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+470 + SCREEN_HEIGHT / 4, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 16  , "Shiru's Cafe" ) ;
+            disptext(gRenderer,  SCREEN_WIDTH / 22+220+2*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+470 + SCREEN_HEIGHT / 4, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 16  , "Shiru's Cafe",163, 163, 162 ) ;
             
             
 
@@ -594,15 +598,15 @@ int main(int argc, char const *argv[])
             
             
             
-            disptext(gRenderer,   SCREEN_WIDTH / 22+230+3*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+470 + SCREEN_HEIGHT / 4, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 16 , "Amul" ) ;
+            disptext(gRenderer,   SCREEN_WIDTH / 22+230+3*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+470 + SCREEN_HEIGHT / 4, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 16 , "Amul",255,255,255 ) ;
 
             // Nescafe
             SDL_Rect nescafe ={ SCREEN_WIDTH / 22+240+4*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+470 + SCREEN_HEIGHT / 4, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 16 };
-            SDL_SetRenderDrawColor( gRenderer, 71, 0, 0, 0xFF ); 
+            SDL_SetRenderDrawColor( gRenderer, 66, 60, 52, 0xFF ); 
 
             SDL_RenderFillRect( gRenderer, &nescafe);
             
-            disptext(gRenderer,   SCREEN_WIDTH / 22+240+4*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+470 + SCREEN_HEIGHT / 4, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 16 , "Nescafe" ) ;
+            disptext(gRenderer,   SCREEN_WIDTH / 22+240+4*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+470 + SCREEN_HEIGHT / 4, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 16 , "Nescafe",255,255,255 ) ;
 
 
             // CCD 
@@ -616,7 +620,7 @@ int main(int argc, char const *argv[])
             
             
             
-            disptext(gRenderer,   SCREEN_WIDTH / 22+300+5*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+440 + SCREEN_HEIGHT / 4, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 16 , "Cafe Coffee Day" ) ;
+            disptext(gRenderer,   SCREEN_WIDTH / 22+300+5*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+440 + SCREEN_HEIGHT / 4, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 16 , "Cafe Coffee Day",255,255,255 ) ;
 
             // Dogra hall
 
@@ -624,10 +628,10 @@ int main(int argc, char const *argv[])
             SDL_SetRenderDrawColor( gRenderer,164, 191, 31, 0xFF ); 
 
             SDL_RenderFillRect( gRenderer, &dograHall);
-            
-            
-            
-            disptext(gRenderer,   SCREEN_WIDTH / 22+300+5*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+440 + SCREEN_HEIGHT / 4+ SCREEN_HEIGHT / 16+40, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 16, "Dogra Hall" ) ;
+            char* str = "Dogra hall";
+            // std::vector<char> cstr(str.c_str(), str.c_str() + str.size() + 1);
+            // 
+            disptext(gRenderer,   SCREEN_WIDTH / 22+310+5*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+450 + SCREEN_HEIGHT / 4+ SCREEN_HEIGHT / 16+40, SCREEN_WIDTH / 16, SCREEN_HEIGHT / 20, "Dogra Hall",255,255,255 ) ;
             
             
 
@@ -641,15 +645,14 @@ int main(int argc, char const *argv[])
 
 
             
-            disptext(gRenderer,  SCREEN_WIDTH / 22+220+2*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+540 + SCREEN_HEIGHT / 4+ SCREEN_HEIGHT / 16+40, SCREEN_WIDTH / 4, SCREEN_HEIGHT / 12 , "Main Building" ) ;
+            disptext(gRenderer,  SCREEN_WIDTH / 22+220+2*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+540 + SCREEN_HEIGHT / 4+ SCREEN_HEIGHT / 16+40, SCREEN_WIDTH / 4, SCREEN_HEIGHT / 12 , "Main Building",255,255,255 ) ;
 
 
 
-            SDL_RenderPresent(gRenderer);                     
 
-		}
+		
 
-	}
+	
 
 
 
@@ -667,32 +670,79 @@ int main(int argc, char const *argv[])
             player2.renderPlayer();
 
 
-            while( SDL_PollEvent( &e ) != 0 )
-                {
-                        //User requests quit
-                        if( e.type == SDL_QUIT )
+                    while( SDL_PollEvent( &e ) != 0 )
                         {
-                                quit = true;
-                        }
-                        else if(e.type == SDL_KEYDOWN){
-                                switch (e.key.keysym.sym){
-                                        case SDLK_UP:
-                                                player1.move(KEY_PRESS_UP);
-                                                break;
-                                        case SDLK_DOWN:
-                                                player1.move(KEY_PRESS_DOWN);
-                                                break;
-                                        case SDLK_LEFT:
-                                                player1.move(KEY_PRESS_LEFT);
-                                                break;
-                                        case SDLK_RIGHT:
-                                                player1.move(KEY_PRESS_RIGHT);
-                                                break;
+                                //User requests quit
+                                if( e.type == SDL_QUIT )
+                                {
+                                        quit = true;
                                 }
+                                else if(e.type == SDL_KEYDOWN){
+                                        switch (e.key.keysym.sym){
+                                                case SDLK_UP:
+                                                        player1.move(KEY_PRESS_UP);
+                                                        break;
+                                                case SDLK_DOWN:
+                                                        player1.move(KEY_PRESS_DOWN);
+                                                        break;
+                                                case SDLK_LEFT:
+                                                        player1.move(KEY_PRESS_LEFT);
+                                                        break;
+                                                case SDLK_RIGHT:
+                                                        player1.move(KEY_PRESS_RIGHT);
+                                                        break;
+                                        }
+                                }
+                                SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
+                                player1.renderPlayer();
+
                         }
-                        SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
-                        player1.renderPlayer();
+        string s= "Player happiness:-"+to_string(player1.happiness);
+        int n = s.length();
+        char char_array1[n + 1];
+        strcpy(char_array1, s.c_str());
+        disptext(gRenderer,  SCREEN_WIDTH-160,750,140,50, char_array1,235, 52, 155) ;
+
+        s= "Player money:-"+to_string(player1.money);
+        n = s.length();
+        char char_array2[n + 1];
+        strcpy(char_array2, s.c_str());
+        disptext(gRenderer,  SCREEN_WIDTH-160,700,140,50, char_array2,235, 52, 155) ;
+
+        s= "Player knowledge:-"+to_string(player1.knowledge);
+        n = s.length();
+        char char_array3[n + 1];
+        strcpy(char_array3, s.c_str());
+        disptext(gRenderer,  SCREEN_WIDTH-160,650,140,50, char_array3,235, 52, 155) ;
+
+        s= "Player energy:-"+to_string(player1.energy);
+        n = s.length();
+        char char_array4[n + 1];
+        strcpy(char_array4, s.c_str());
+        disptext(gRenderer,  SCREEN_WIDTH-160,600,140,50, char_array4,235, 52, 155) ;
+
+        s= "Player health:-"+to_string(player1.health);
+        n = s.length();
+        char char_array5[n + 1];
+        strcpy(char_array5, s.c_str());
+        disptext(gRenderer,  SCREEN_WIDTH-160,800,140,50, char_array5,235, 52, 155) ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+                SDL_RenderPresent(gRenderer);                     
+
                 }
+        }
 
 
 
@@ -701,12 +751,9 @@ int main(int argc, char const *argv[])
 
 
 
+	
 
-            SDL_RenderPresent(gRenderer);                     
-
-		}
-
-	}
+	
 
 
 
