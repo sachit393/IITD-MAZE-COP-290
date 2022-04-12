@@ -25,7 +25,7 @@ enum KeyPress
 
 SDL_Texture* imageTexture = NULL;
 
-bool loadFromFile( std::string path )
+SDL_Texture* loadFromFile( std::string path )
 {
  
         //The final texture
@@ -57,7 +57,7 @@ bool loadFromFile( std::string path )
 
         //Return success
 
-        return imageTexture != NULL;
+        return imageTexture;
 }
 
 TTF_Font* font;
@@ -112,50 +112,12 @@ void disptext(SDL_Renderer* gRenderer, int x, int y, int w, int h, char* s,int r
 }
 
 
-void DrawCircle(SDL_Renderer * renderer, int32_t centreX, int32_t centreY, int32_t radius)
-{
-   const int32_t diameter = (radius * 2);
-
-   int32_t x = (radius - 1);
-   int32_t y = 0;
-   int32_t tx = 1;
-   int32_t ty = 1;
-   int32_t error = (tx - diameter);
-
-   while (x >= y)
-   {
-      //  Each of the following renders an octant of the circle
-      SDL_RenderDrawPoint(renderer, centreX + x, centreY - y);
-      SDL_RenderDrawPoint(renderer, centreX + x, centreY + y);
-      SDL_RenderDrawPoint(renderer, centreX - x, centreY - y);
-      SDL_RenderDrawPoint(renderer, centreX - x, centreY + y);
-      SDL_RenderDrawPoint(renderer, centreX + y, centreY - x);
-      SDL_RenderDrawPoint(renderer, centreX + y, centreY + x);
-      SDL_RenderDrawPoint(renderer, centreX - y, centreY - x);
-      SDL_RenderDrawPoint(renderer, centreX - y, centreY + x);
-
-      if (error <= 0)
-      {
-         ++y;
-         error += ty;
-         ty += 2;
-      }
-
-      if (error > 0)
-      {
-         --x;
-         tx += 2;
-         error += (tx - diameter);
-      }
-   }
-}
-
 class Player{
 
         public:
                 int x;
                 int y;
-                int speed = 2;
+                int speed = 7;
                 int health;
                 int energy;
                 int happiness;
@@ -191,6 +153,8 @@ class Player{
                 energy = 100;
                 health = 100;
                 happiness = 50;
+                x = 500;
+                y = 500;
         }
 
         void changeEnergy(int amount){
@@ -221,22 +185,100 @@ class Player{
                 knowledge+=amount;
         }
         void updateSpeed(){
-                speed = 2+energy/10;
+                speed +=energy/10;
         }
 
         void move(int keyPress){
-                if(keyPress == KEY_PRESS_UP){
-                        y-=speed;
-                }
-                if(keyPress == KEY_PRESS_DOWN){
-                        y+=speed;
-                }
-                if(keyPress == KEY_PRESS_LEFT){
-                        x-=speed;
-                }
-                if(keyPress == KEY_PRESS_RIGHT){
-                        x+=speed;
-                }
+
+                
+
+
+                        if(keyPress == KEY_PRESS_UP){
+                                if(y+speed<=178 && y-speed>=172 && x<=1000 && x>=0){
+                                        y-=speed;                                        
+                                }
+                                if(x<=255 && x>=230 && y-speed>=172){
+                                        y-=speed;
+                                }
+                                if(x<=995 && x>=981 && y-speed>=750){
+                                        y-=speed;
+                                }
+                                if(x<=672 && x>=660 && y-speed>=312){
+                                        y-=speed;
+                                }
+                                if(x<=600 && x>=575 && y-speed>=547){
+                                        y-=speed;
+                                }
+
+                                if(x<=800 && x>=760 && y-speed>=172){
+                                        y-=speed;
+                                }
+                        }
+                        if(keyPress == KEY_PRESS_DOWN){
+                                if(y+speed<=178 && x<=1000 && x>=0){
+                                        y+=speed;
+                                }
+                                if(x<=255 && x>=230 && y+speed<=990){
+                                        y+=speed;
+                                }
+                                if(x<=995 && x>=981 && y+speed<=990){
+                                        y+=speed;
+                                }
+
+                                if(x<=672 && x>=660 && y+speed<=557){
+                                        y+=speed;
+                                }
+
+                                if(x<=600 && x>=575 && y+speed<=690){
+                                        y+=speed;
+                                }
+                                if(x<=800 && x>=760 && y+speed<=470){
+                                        y+=speed;
+                                }
+                        }
+                        if(keyPress == KEY_PRESS_LEFT){
+                                if(y>=172 && y<=178 &&  x-speed>=0){
+                                        x-=speed;
+                                }
+                                if(987<=y && y<=990 && x-speed>=230){
+                                        x-=speed;
+                                }
+                                if(y>=740 && y<=760 && x-speed>=230){
+                                        x-=speed;
+                                }
+                                if(y>=307 && y<=320 && x-speed>=130){
+                                        x-=speed;
+                                }
+                                if(y>=480 && y<=497 && x-speed>=225){
+                                        x-=speed;
+                                }
+
+                                if(y>=543 && y<=560 && x-speed>=575){
+                                        x-=speed;
+                                }
+                        }
+                        if(keyPress == KEY_PRESS_RIGHT){
+                                if(172<=y && y<=178 && x+speed<=1000){
+                                        x+=speed;
+                                }
+                                if(987<=y && y<=990 && x+speed<=1000){
+                                        x+=speed;
+                                }
+                                if(y>=740 && y<=760 && x+speed<=995){
+                                        x+=speed;
+                                }
+                                if(y>=307 && y<=320 && x+speed<=787){
+                                        x+=speed;
+                                }
+                                if(y>=480 && y<=497 && x+speed<=672){
+                                        x+=speed;
+                                }
+                                if(y>=543 && y<=560 && x+speed<=672){
+                                        x+=speed;
+                                }
+                        }
+                
+
         }
 
         void renderPlayer(){
@@ -259,12 +301,12 @@ const int SCREEN_HEIGHT = 1020;
 bool init(){
 
 
-	bool success = true;
-	if(SDL_Init(SDL_INIT_VIDEO)<0){
-		success = false;
-	}
+        bool success = true;
+        if(SDL_Init(SDL_INIT_VIDEO)<0){
+                success = false;
+        }
 
-	else{
+        else{
                 //Set texture filtering to linear
                 if( !SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "1" ) )
                 {
@@ -303,8 +345,8 @@ bool init(){
                 }
 
 
-	}
-	return success;
+        }
+        return success;
 
 }
 void close()
@@ -313,13 +355,13 @@ void close()
         SDL_DestroyTexture( gTexture );
         SDL_DestroyTexture( imageTexture );
         gTexture = NULL;
+        imageTexture = NULL;
 
         //Destroy window        
         SDL_DestroyRenderer( gRenderer );
         SDL_DestroyWindow( gWindow );
         gWindow = NULL;
         gRenderer = NULL;
-        imageTexture = NULL;
         //Quit SDL subsystems
         IMG_Quit();
         SDL_Quit();
@@ -328,51 +370,101 @@ void close()
 
 int main(int argc, char const *argv[])
 {
-	
+        
 
-	if (!init()){
-		printf ("failed to initialize\n");
-	}
-	else{
+        if (!init()){
+                printf ("failed to initialize\n");
+        }
+        else{
+
+                SDL_Texture* nilgiriTex=loadFromFile("nilgiri.png"); 
+                SDL_Texture* karakoramTex = loadFromFile("karakoram.png");
+                SDL_Texture* aravaliTex = loadFromFile("aravali.png");
+                SDL_Texture* jwalaTex = loadFromFile("jwalamukhi.png");
+                SDL_Texture* kumaonTex = loadFromFile("kumaon.png");
+                SDL_Texture* vidyanchalTex = loadFromFile("vidyanchal.png");
+                SDL_Texture* deli16Tex  = loadFromFile("deli16.png");
+                SDL_Texture* tennisCourtTex = loadFromFile("tennis_court.png");
+                SDL_Texture* volleyBallCourtTex = loadFromFile("volleyball.png");
+                SDL_Texture* shivalikTex = loadFromFile("shivalik.png");
+                SDL_Texture* zanskarTex = loadFromFile("zanskar.png");
+                SDL_Texture* masalaMixTex = loadFromFile("masalamix.png");
+                SDL_Texture* rajdhaniTex = loadFromFile("rajdhani.png");
+                SDL_Texture* chaayosTex = loadFromFile("chaayos.png");
+                SDL_Texture* hospitalTex = loadFromFile("iitd-hospital.png");
+                SDL_Texture* bhartiTex = loadFromFile("bharti.png");
+                SDL_Texture* largeGroundTex = loadFromFile("grass.png");
+                SDL_Texture* gtree1Tex = loadFromFile("tree-top.png");
+                SDL_Texture* gtree2Tex = loadFromFile("tree-top.png");
+                SDL_Texture* gtree3Tex = loadFromFile("tree-top.png");
+                SDL_Texture* gtree4Tex = loadFromFile("tree-top.png");
+                SDL_Texture* gtree5Tex = loadFromFile("tree-top.png");
+                SDL_Texture* gtree6Tex = loadFromFile("tree-top.png");
+                SDL_Texture* gtree7Tex = loadFromFile("tree-top.png");
+                SDL_Texture* gtree8Tex = loadFromFile("tree-top.png");
+                SDL_Texture* gtree9Tex = loadFromFile("tree-top.png");
+                SDL_Texture* gtree10Tex = loadFromFile("tree-top.png");
+                SDL_Texture* gtree11Tex = loadFromFile("tree-top.png");
+                SDL_Texture* gtree12Tex = loadFromFile("tree-top.png");
+                SDL_Texture* staffCanteenTex = loadFromFile("staffcanteen.png");
+                SDL_Texture* LHCTex = loadFromFile("lecturehall.png");
+                SDL_Texture* dograHallTex = loadFromFile("dograhall.png");
+                SDL_Texture* cscTex = loadFromFile("csc.png");
+                SDL_Texture* satpuraTex = loadFromFile("satpura.png");
+                SDL_Texture* girnarTex = loadFromFile("girnar.png");
+                SDL_Texture* udaigiriTex = loadFromFile("udaigiri.png");
+                SDL_Texture* shiruTex = loadFromFile("shirucafe.png");
+                SDL_Texture* amulTex = loadFromFile("amul.png");
+                SDL_Texture* nescafeTex = loadFromFile("nescafe.png");
+                SDL_Texture* ccdTex = loadFromFile("ccd.png");
+                SDL_Texture* clibraryTex = loadFromFile("centrallibrary.png");
+                SDL_Texture* mainBuildingTex = loadFromFile("mainbuilding.png");
+                SDL_Texture* interConnectingRoadsTex = loadFromFile("interconnecting.png");
+                SDL_Texture* sacCircleTex = loadFromFile("saccircle.png");
+                SDL_Texture* vrTex = loadFromFile("verticalroad.png");
+                SDL_Texture* hr1Tex = loadFromFile("horizontalroad.png");
+                SDL_Texture* hr2Tex = loadFromFile("horizontalroad2.png");
+                SDL_Texture* tpTex = loadFromFile("tpoint.png");
+                SDL_Texture* sacTex = loadFromFile("SAC.png");
+                SDL_Texture* interConnectingRoads2Tex = loadFromFile("interconnecting2.png");
                 SDL_Rect textRect = {SCREEN_WIDTH-160,800,140,50};
                 // gFont = TTF_OpenFont( "Pacifico.ttf", 1000 );
 
-                Player player1 = Player(0,0,"pink");
+                Player player1 = Player(60,175,"pink");
                 Player player2 = Player(SCREEN_WIDTH-20,20,"purple");
-		bool quit = false;
+                bool quit = false;
 
-		SDL_Event e;
+                SDL_Event e;
 
-		while(!quit){
+                while(!quit){
 
-			
+                        
 
-			SDL_SetRenderDrawColor(gRenderer,0x00,0x00,0x00,0x00);
-			SDL_RenderClear(gRenderer);
-			
-			// Nilgiri
-	    SDL_Rect nilgiri = { SCREEN_WIDTH / 22, SCREEN_HEIGHT / 22, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 10 };
-            loadFromFile("nilgiri.png");
+                        SDL_SetRenderDrawColor(gRenderer,0x00,0x00,0x00,0x00);
+                        SDL_RenderClear(gRenderer);
+                        
+                        // Nilgiri
+            SDL_Rect nilgiri = { SCREEN_WIDTH / 22, SCREEN_HEIGHT / 22, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 10 };
+            
 
             // SDL_SetTextInputRect(&fillRect);
-       
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&nilgiri);
-            SDL_DestroyTexture(imageTexture);
-			// SDL_RenderCopy(gRenderer,gTexture, NULL, NULL);
+        
+            SDL_RenderCopy(gRenderer,nilgiriTex,NULL,&nilgiri);
+                        // SDL_RenderCopy(gRenderer,gTexture, NULL, NULL);
 
            
 //writing text in the box
 
             // disptext(gRenderer, SCREEN_WIDTH / 22, SCREEN_HEIGHT / 22, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16, "Nilgiri",203, 230, 2) ;
 
-			// Karakoram       
+                        // Karakoram       
 
-	    SDL_Rect karakoram = { SCREEN_WIDTH / 22 + 200, SCREEN_HEIGHT / 22,SCREEN_WIDTH / 10, SCREEN_HEIGHT / 10 };
-            loadFromFile("karakoram.png");
+            SDL_Rect karakoram = { SCREEN_WIDTH / 22 + 200, SCREEN_HEIGHT / 22,SCREEN_WIDTH / 10, SCREEN_HEIGHT / 10 };
+            
 
             // SDL_SetTextInputRect(&fillRect);
        
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&karakoram);
+            SDL_RenderCopy(gRenderer,karakoramTex,NULL,&karakoram);
             SDL_DestroyTexture(imageTexture);            
             // SDL_SetTextInputRect(&fillRect);
        
@@ -384,27 +476,27 @@ int main(int argc, char const *argv[])
             
             
             // Aravali
-	    SDL_Rect aravali = { SCREEN_WIDTH / 22 + 400, SCREEN_HEIGHT / 22, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 10 };
+            SDL_Rect aravali = { SCREEN_WIDTH / 22 + 400, SCREEN_HEIGHT / 22, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 10 };
 
             // SDL_SetTextInputRect(&fillRect);
        
-            loadFromFile("aravali.png");
+            
 
             // SDL_SetTextInputRect(&fillRect);
        
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&aravali);
+            SDL_RenderCopy(gRenderer,aravaliTex,NULL,&aravali);
             SDL_DestroyTexture(imageTexture);            
             
             // disptext(gRenderer, SCREEN_WIDTH / 22 + 400, SCREEN_HEIGHT / 22, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16, "Aravali",203, 230, 2 ) ;
             
 
             // Jwala
-	    SDL_Rect jwala = { SCREEN_WIDTH / 22 + 740, SCREEN_HEIGHT / 22, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 10};
-            loadFromFile("jwalamukhi.png");
+            SDL_Rect jwala = { SCREEN_WIDTH / 22 + 740, SCREEN_HEIGHT / 22, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 10};
+            
 
             // SDL_SetTextInputRect(&fillRect);
        
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&jwala);  
+            SDL_RenderCopy(gRenderer,jwalaTex,NULL,&jwala);  
             SDL_DestroyTexture(imageTexture);
             
             
@@ -412,11 +504,11 @@ int main(int argc, char const *argv[])
 
             // Kumaon
             SDL_Rect kumaon = { SCREEN_WIDTH / 22 + 740, SCREEN_HEIGHT / 22+140, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 10 };
-            loadFromFile("kumaon.png");
+            
 
             // SDL_SetTextInputRect(&fillRect);
        
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&kumaon);
+            SDL_RenderCopy(gRenderer,kumaonTex,NULL,&kumaon);
             SDL_DestroyTexture(imageTexture);
 
             // SDL_SetTextInputRect(&fillRect);
@@ -427,11 +519,11 @@ int main(int argc, char const *argv[])
             
             // Vidyanchal
             SDL_Rect vidyanchal = { SCREEN_WIDTH / 22 + 740, SCREEN_HEIGHT / 22+250, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 10 };
-            loadFromFile("vidyanchal.png");
+            
 
             // SDL_SetTextInputRect(&fillRect);
        
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&vidyanchal);
+            SDL_RenderCopy(gRenderer,vidyanchalTex,NULL,&vidyanchal);
             SDL_DestroyTexture(imageTexture);
 
 
@@ -439,11 +531,11 @@ int main(int argc, char const *argv[])
             
              // Delhi - 16
             SDL_Rect deli16 = { SCREEN_WIDTH / 22 + 400, SCREEN_HEIGHT / 22+135, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 8 };
-            loadFromFile("deli16.png"); 
+             
 
             // SDL_SetTextInputRect(&fillRect);
        
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&deli16);
+            SDL_RenderCopy(gRenderer,deli16Tex,NULL,&deli16);
             
             
             // disptext(gRenderer, SCREEN_WIDTH / 22 + 400, SCREEN_HEIGHT / 22 + 120, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16, "Dilli-16" ,255, 255, 255) ;
@@ -451,8 +543,8 @@ int main(int argc, char const *argv[])
             // Tennis Court
 
             SDL_Rect tennisCourt = { SCREEN_WIDTH / 22 + 200, SCREEN_HEIGHT / 22+200, SCREEN_WIDTH / 8, SCREEN_HEIGHT / 12 };
-            loadFromFile("tennis_court.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&tennisCourt);
+            
+            SDL_RenderCopy(gRenderer,tennisCourtTex,NULL,&tennisCourt);
             SDL_DestroyTexture(imageTexture);
        
             
@@ -461,9 +553,9 @@ int main(int argc, char const *argv[])
             
             
             // Volley Ball Court
-           	SDL_Rect volleyBallCourt = { SCREEN_WIDTH / 22 + 350, SCREEN_HEIGHT / 22+195, SCREEN_WIDTH / 8, SCREEN_HEIGHT / 10};
-            loadFromFile("volleyball.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&volleyBallCourt);
+                SDL_Rect volleyBallCourt = { SCREEN_WIDTH / 22 + 350, SCREEN_HEIGHT / 22+195, SCREEN_WIDTH / 8, SCREEN_HEIGHT / 10};
+            
+            SDL_RenderCopy(gRenderer,volleyBallCourtTex,NULL,&volleyBallCourt);
             SDL_DestroyTexture(imageTexture);
 
             // SDL_SetTextInputRect(&fillRect);
@@ -477,11 +569,11 @@ int main(int argc, char const *argv[])
 
             // Shivalik
 
-            SDL_Rect shivalik = { SCREEN_WIDTH / 22 + 365, SCREEN_HEIGHT / 22+270, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 10 };
-            loadFromFile("shivalik.png");
+            SDL_Rect shivalik = { SCREEN_WIDTH / 22 + 365, SCREEN_HEIGHT / 22+290, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 10 };
+            
             // SDL_SetTextInputRect(&fillRect);
        
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&shivalik);
+            SDL_RenderCopy(gRenderer,shivalikTex,NULL,&shivalik);
             SDL_DestroyTexture(imageTexture);
             
             
@@ -490,12 +582,12 @@ int main(int argc, char const *argv[])
 
             // Zanskar
 
-            SDL_Rect zanskar = { SCREEN_WIDTH / 22 + 240, SCREEN_HEIGHT / 22+270, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 10 };
-            loadFromFile("zanskar.png");
+            SDL_Rect zanskar = { SCREEN_WIDTH / 22 + 240, SCREEN_HEIGHT / 22+290, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 10 };
+            
 
             // SDL_SetTextInputRect(&fillRect);
        
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&zanskar); 
+            SDL_RenderCopy(gRenderer,zanskarTex,NULL,&zanskar); 
             SDL_DestroyTexture(imageTexture);          
 
             
@@ -504,24 +596,22 @@ int main(int argc, char const *argv[])
 
             // SAC
 
-            SDL_Rect sac = { SCREEN_WIDTH / 22, SCREEN_HEIGHT / 22+270, SCREEN_WIDTH / 16, SCREEN_HEIGHT / 10 };
-            SDL_SetRenderDrawColor( gRenderer,164, 191, 31, 0xFF  ); 
+            SDL_Rect sac = { 0, SCREEN_HEIGHT / 22+270, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 12 };
 
-            // SDL_SetTextInputRect(&fillRect);
        
-            SDL_RenderFillRect( gRenderer, &sac );
-            
+            SDL_RenderCopy(gRenderer,sacTex,NULL,&sac); 
+            SDL_DestroyTexture(imageTexture);
             
             
             // disptext(gRenderer, SCREEN_WIDTH / 22, SCREEN_HEIGHT / 22+270, SCREEN_WIDTH / 16, SCREEN_HEIGHT / 10, "SAC",255,255,255 ) ;
 
 
 
-			// Masala Mix
-	    SDL_Rect masalaMix = { SCREEN_WIDTH / 22+230,  SCREEN_HEIGHT / 22+280+SCREEN_HEIGHT / 16, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 8 };
-            loadFromFile("masalamix.png"); 
+                        // Masala Mix
+            SDL_Rect masalaMix = { SCREEN_WIDTH / 22+230,  SCREEN_HEIGHT / 22+300+SCREEN_HEIGHT / 16, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 8 };
+             
 
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&masalaMix);
+            SDL_RenderCopy(gRenderer,masalaMixTex,NULL,&masalaMix);
             SDL_DestroyTexture(imageTexture);
             
             
@@ -531,9 +621,9 @@ int main(int argc, char const *argv[])
 
 
             // Rajdhani
-			SDL_Rect rajdhani = { SCREEN_WIDTH / 22+200+SCREEN_WIDTH / 12,SCREEN_HEIGHT / 22+290+SCREEN_HEIGHT / 16, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 12 };
-            loadFromFile("rajdhani.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&rajdhani);
+                        SDL_Rect rajdhani = { SCREEN_WIDTH / 22+200+SCREEN_WIDTH / 12,SCREEN_HEIGHT / 22+310+SCREEN_HEIGHT / 16, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 12 };
+            
+            SDL_RenderCopy(gRenderer,rajdhaniTex,NULL,&rajdhani);
             SDL_DestroyTexture(imageTexture);
             
             
@@ -542,9 +632,8 @@ int main(int argc, char const *argv[])
             
 
             // Chaayos
-	    SDL_Rect chaayos = { SCREEN_WIDTH / 22+200+2*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+300+SCREEN_HEIGHT / 16, SCREEN_WIDTH / 14, SCREEN_HEIGHT / 14 };
-            loadFromFile("chaayos.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&chaayos);
+            SDL_Rect chaayos = { SCREEN_WIDTH / 22+200+2*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+320+SCREEN_HEIGHT / 16, SCREEN_WIDTH / 14, SCREEN_HEIGHT / 14 };
+            SDL_RenderCopy(gRenderer,chaayosTex,NULL,&chaayos);
             SDL_DestroyTexture(imageTexture);
             
             
@@ -553,10 +642,10 @@ int main(int argc, char const *argv[])
             
 
             // IIT-D Hospital
-			SDL_Rect hospital = {  SCREEN_WIDTH / 22+200, SCREEN_HEIGHT / 22+410+SCREEN_HEIGHT / 16, SCREEN_WIDTH / 6, SCREEN_HEIGHT / 8 };
+                        SDL_Rect hospital = {  SCREEN_WIDTH / 22+200, SCREEN_HEIGHT / 22+410+SCREEN_HEIGHT / 16, SCREEN_WIDTH / 6, SCREEN_HEIGHT / 8 };
             SDL_SetRenderDrawColor( gRenderer, 255, 0, 0, 0xFF ); 
-            loadFromFile("iitd-hospital.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&hospital);
+            
+            SDL_RenderCopy(gRenderer,hospitalTex,NULL,&hospital);
             SDL_DestroyTexture(imageTexture);
 
 
@@ -564,9 +653,9 @@ int main(int argc, char const *argv[])
 
 
             // Bharti - School of AI
-	    SDL_Rect bharti = {  SCREEN_WIDTH / 22+200 , SCREEN_HEIGHT / 22+430+SCREEN_HEIGHT / 16+  SCREEN_HEIGHT / 10, SCREEN_WIDTH / 6, SCREEN_HEIGHT / 8 };
-            loadFromFile("bharti.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&bharti);
+            SDL_Rect bharti = {  SCREEN_WIDTH / 22+200 , SCREEN_HEIGHT / 22+430+SCREEN_HEIGHT / 16+  SCREEN_HEIGHT / 10, SCREEN_WIDTH / 6, SCREEN_HEIGHT / 8 };
+            
+            SDL_RenderCopy(gRenderer,bhartiTex,NULL,&bharti);
             SDL_DestroyTexture(imageTexture);
             // SDL_SetRenderDrawColor( gRenderer, 164, 191, 31, 0xFF ); 
 
@@ -577,75 +666,71 @@ int main(int argc, char const *argv[])
             // Large ground 
 
             SDL_Rect largeGround = {  SCREEN_WIDTH / 22 , SCREEN_HEIGHT / 22+450, SCREEN_WIDTH /12, SCREEN_HEIGHT / 6 };
-            loadFromFile("grass.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&largeGround);
+            
+            SDL_RenderCopy(gRenderer,largeGroundTex,NULL,&largeGround);
             SDL_DestroyTexture(imageTexture);
 
             SDL_Rect gtree1 = {8 , SCREEN_HEIGHT / 22+400, 100,100};
-            loadFromFile("tree-top.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&gtree1);  
+            
+            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree1);  
             SDL_DestroyTexture(imageTexture); 
 
 
             SDL_Rect gtree2 = {8 , SCREEN_HEIGHT / 22+400+30, 100,100};
-            loadFromFile("tree-top.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&gtree2); 
+            
+            SDL_RenderCopy(gRenderer,gtree2Tex,NULL,&gtree2); 
             SDL_DestroyTexture(imageTexture);
 
 
             SDL_Rect gtree3 = {8 , SCREEN_HEIGHT / 22+400+60, 100,100};
-            loadFromFile("tree-top.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&gtree3); 
+            
+            SDL_RenderCopy(gRenderer,gtree3Tex,NULL,&gtree3); 
             SDL_DestroyTexture(imageTexture);
 
             SDL_Rect gtree4 = {8 , SCREEN_HEIGHT / 22+400+90, 100,100};
-            loadFromFile("tree-top.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&gtree4); 
+            SDL_RenderCopy(gRenderer,gtree4Tex,NULL,&gtree4); 
             SDL_DestroyTexture(imageTexture);
 
             SDL_Rect gtree5 = {8 , SCREEN_HEIGHT / 22+400+120, 100,100};
-            loadFromFile("tree-top.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&gtree5);   
+            SDL_RenderCopy(gRenderer,gtree5Tex,NULL,&gtree5);   
             SDL_DestroyTexture(imageTexture);
 
 
             SDL_Rect gtree6 = {8 , SCREEN_HEIGHT / 22+400+150, 100,100};
-            loadFromFile("tree-top.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&gtree6); 
+            SDL_RenderCopy(gRenderer,gtree6Tex,NULL,&gtree6); 
             SDL_DestroyTexture(imageTexture);
 
 
             SDL_Rect gtree7 = {8+SCREEN_WIDTH /12+22 , SCREEN_HEIGHT / 22+400, 100,100};
-            loadFromFile("tree-top.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&gtree7);  
+            SDL_RenderCopy(gRenderer,gtree7Tex,NULL,&gtree7);  
             SDL_DestroyTexture(imageTexture); 
 
 
             SDL_Rect gtree8 = {8+SCREEN_WIDTH /12+22 , SCREEN_HEIGHT / 22+400+30, 100,100};
-            loadFromFile("tree-top.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&gtree8); 
+            // loadFromFile("tree-top.png");
+            SDL_RenderCopy(gRenderer,gtree8Tex,NULL,&gtree8); 
             SDL_DestroyTexture(imageTexture);
 
 
             SDL_Rect gtree9 = {8+SCREEN_WIDTH /12+22 , SCREEN_HEIGHT / 22+400+60, 100,100};
-            loadFromFile("tree-top.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&gtree9); 
+            // loadFromFile("tree-top.png");
+            SDL_RenderCopy(gRenderer,gtree9Tex,NULL,&gtree9); 
             SDL_DestroyTexture(imageTexture);
 
             SDL_Rect gtree10 = {8+SCREEN_WIDTH /12+22 , SCREEN_HEIGHT / 22+400+90, 100,100};
-            loadFromFile("tree-top.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&gtree10); 
+            // loadFromFile("tree-top.png");
+            SDL_RenderCopy(gRenderer,gtree10Tex,NULL,&gtree10); 
             SDL_DestroyTexture(imageTexture);
 
             SDL_Rect gtree11 = {8+SCREEN_WIDTH /12+22 , SCREEN_HEIGHT / 22+400+120, 100,100};
-            loadFromFile("tree-top.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&gtree11); 
+            // loadFromFile("tree-top.png");
+            SDL_RenderCopy(gRenderer,gtree11Tex,NULL,&gtree11); 
             SDL_DestroyTexture(imageTexture);  
 
 
             SDL_Rect gtree12 = {8+SCREEN_WIDTH /12+22 , SCREEN_HEIGHT / 22+400+150, 100,100};
-            loadFromFile("tree-top.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&gtree12);
+            // loadFromFile("tree-top.png");
+            SDL_RenderCopy(gRenderer,gtree12Tex,NULL,&gtree12);
             SDL_DestroyTexture(imageTexture); 
 
 
@@ -660,8 +745,7 @@ int main(int argc, char const *argv[])
             // Staff canteen
 
             SDL_Rect staffCanteen = {  SCREEN_WIDTH / 22 , SCREEN_HEIGHT / 22+470 + SCREEN_HEIGHT / 4, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 10 };
-            loadFromFile("staffcanteen.png");            
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&staffCanteen);
+            SDL_RenderCopy(gRenderer,staffCanteenTex,NULL,&staffCanteen);
             SDL_DestroyTexture(imageTexture);
             
             
@@ -671,8 +755,7 @@ int main(int argc, char const *argv[])
             // LHC
 
             SDL_Rect LHC = {  SCREEN_WIDTH / 22 , SCREEN_HEIGHT / 22+490 + SCREEN_HEIGHT / 4 +  SCREEN_HEIGHT / 16, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 10 };
-            loadFromFile("lecturehall.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&LHC);
+            SDL_RenderCopy(gRenderer,LHCTex,NULL,&LHC);
             SDL_DestroyTexture(imageTexture);
 
             // SDL_RenderFillRect( gRenderer, &LHC);
@@ -680,15 +763,13 @@ int main(int argc, char const *argv[])
             // dogra hall
 
             SDL_Rect dograHall = {  SCREEN_WIDTH / 22+260 , SCREEN_HEIGHT / 22+490 + SCREEN_HEIGHT / 4 +  SCREEN_HEIGHT / 16, SCREEN_WIDTH / 8, SCREEN_HEIGHT / 8 };
-            loadFromFile("dograhall.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&dograHall);
+            SDL_RenderCopy(gRenderer,dograHallTex,NULL,&dograHall);
             SDL_DestroyTexture(imageTexture);
 
             // csc
 
             SDL_Rect csc ={ SCREEN_WIDTH / 22+300+5*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+520 + SCREEN_HEIGHT / 4+ SCREEN_HEIGHT / 16+40, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 8 };
-            loadFromFile("csc.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&csc);
+            SDL_RenderCopy(gRenderer,cscTex,NULL,&csc);
             SDL_DestroyTexture(imageTexture);
             
             // disptext(gRenderer,  SCREEN_WIDTH / 22 , SCREEN_HEIGHT / 22+490 + SCREEN_HEIGHT / 4 +  SCREEN_HEIGHT / 16, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 10  , "LHC",255,255,255 ) ;
@@ -698,27 +779,24 @@ int main(int argc, char const *argv[])
             // Satpura
 
             SDL_Rect satpura ={ SCREEN_WIDTH / 22+230+3*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+310+SCREEN_HEIGHT / 16+40, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 10 };
-            loadFromFile("satpura.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&satpura); 
+            SDL_RenderCopy(gRenderer,satpuraTex,NULL,&satpura); 
             SDL_DestroyTexture(imageTexture);
 
 
             // girnar
 
             SDL_Rect girnar={ SCREEN_WIDTH / 22+160+3*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+310+SCREEN_HEIGHT / 16+140, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 10 };
-            loadFromFile("girnar.png");
             // SDL_SetTextInputRect(&fillRect);
        
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&girnar); 
+            SDL_RenderCopy(gRenderer,girnarTex,NULL,&girnar); 
             SDL_DestroyTexture(imageTexture);
 
             // udaigiri
 
             SDL_Rect udaigiri={ SCREEN_WIDTH / 22+160+3*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+310+SCREEN_HEIGHT / 16+110+SCREEN_HEIGHT / 10, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 10 };
-            loadFromFile("udaigiri.png");
             // SDL_SetTextInputRect(&fillRect);
        
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&udaigiri);
+            SDL_RenderCopy(gRenderer,udaigiriTex,NULL,&udaigiri);
             SDL_DestroyTexture(imageTexture); 
 
 
@@ -731,8 +809,7 @@ int main(int argc, char const *argv[])
             // Shiru's cafe
 
             SDL_Rect shiru ={ SCREEN_WIDTH / 22+220+2*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+470 + SCREEN_HEIGHT / 4, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 10 };
-            loadFromFile("shirucafe.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&shiru);
+            SDL_RenderCopy(gRenderer,shiruTex,NULL,&shiru);
             SDL_DestroyTexture(imageTexture);
             
             
@@ -742,9 +819,8 @@ int main(int argc, char const *argv[])
 
             // Amul
             SDL_Rect amul ={ SCREEN_WIDTH / 22+230+3*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+470 + SCREEN_HEIGHT / 4, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 10 };
-            loadFromFile("amul.png"); 
 
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&amul);
+            SDL_RenderCopy(gRenderer,amulTex,NULL,&amul);
             SDL_DestroyTexture(imageTexture);
             
             
@@ -753,8 +829,7 @@ int main(int argc, char const *argv[])
 
             // Nescafe
             SDL_Rect nescafe ={ SCREEN_WIDTH / 22+260+4*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+420 + SCREEN_HEIGHT / 4, SCREEN_WIDTH / 9, SCREEN_HEIGHT / 4 };
-            loadFromFile("nescafe.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&nescafe);
+            SDL_RenderCopy(gRenderer,nescafeTex,NULL,&nescafe);
             SDL_DestroyTexture(imageTexture);        
             
 
@@ -763,8 +838,7 @@ int main(int argc, char const *argv[])
 
 
             SDL_Rect ccd ={ SCREEN_WIDTH / 22+300+5*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+500 + SCREEN_HEIGHT / 4, SCREEN_WIDTH / 8, SCREEN_HEIGHT / 6 };
-            loadFromFile("ccd.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&ccd);
+            SDL_RenderCopy(gRenderer,ccdTex,NULL,&ccd);
             SDL_DestroyTexture(imageTexture);
             
             
@@ -782,15 +856,13 @@ int main(int argc, char const *argv[])
             // central library
 
             SDL_Rect clibrary = {SCREEN_WIDTH / 22+220+2*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+500 + SCREEN_HEIGHT / 4+ SCREEN_HEIGHT / 16, SCREEN_WIDTH / 6, SCREEN_HEIGHT / 12 +80};
-            loadFromFile("centrallibrary.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&clibrary);
+            SDL_RenderCopy(gRenderer,clibraryTex,NULL,&clibrary);
             SDL_DestroyTexture(imageTexture);
 
             // Main building
 
             SDL_Rect mainBuilding ={  SCREEN_WIDTH / 22+850+2*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+500 + SCREEN_HEIGHT / 4+ SCREEN_HEIGHT / 16, SCREEN_WIDTH / 6, SCREEN_HEIGHT / 12 +80};
-            loadFromFile("mainbuilding.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&mainBuilding);
+            SDL_RenderCopy(gRenderer,mainBuildingTex,NULL,&mainBuilding);
             SDL_DestroyTexture(imageTexture);
             // SDL_SetRenderDrawColor( gRenderer,164, 191, 31, 0xFF ); 
             // SDL_RenderFillRect( gRenderer, &mainBuilding); 
@@ -803,39 +875,36 @@ int main(int argc, char const *argv[])
 
             // SAC CIRCLE ROAD
             SDL_Rect sacCircle ={  SCREEN_WIDTH / 22+70,SCREEN_HEIGHT / 22+200, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
-            loadFromFile("saccircle.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&sacCircle);
+            SDL_RenderCopy(gRenderer,sacCircleTex,NULL,&sacCircle);
             SDL_DestroyTexture(imageTexture);
 
             SDL_Rect vr1 ={  SCREEN_WIDTH / 22+70,SCREEN_HEIGHT / 22+290, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
-            loadFromFile("verticalroad.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&vr1);
+            SDL_RenderCopy(gRenderer,vrTex,NULL,&vr1);
+            SDL_DestroyTexture(imageTexture);
+
+            SDL_Rect vr1dash ={  SCREEN_WIDTH / 22+67,SCREEN_HEIGHT / 22+30, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
+            SDL_RenderCopy(gRenderer,vrTex,NULL,&vr1dash);
             SDL_DestroyTexture(imageTexture);
 
             SDL_Rect vr2 ={  SCREEN_WIDTH / 22+70,SCREEN_HEIGHT / 22+380, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
-            loadFromFile("verticalroad.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&vr2);
+            SDL_RenderCopy(gRenderer,vrTex,NULL,&vr2);
             SDL_DestroyTexture(imageTexture);
 
             SDL_Rect vr3 ={  SCREEN_WIDTH / 22+70,SCREEN_HEIGHT / 22+470, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
-            loadFromFile("verticalroad.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&vr3);
+            SDL_RenderCopy(gRenderer,vrTex,NULL,&vr3);
             SDL_DestroyTexture(imageTexture);
-		
+                
 
             SDL_Rect vr4 ={  SCREEN_WIDTH / 22+70,SCREEN_HEIGHT / 22+560, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
-            loadFromFile("verticalroad.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&vr4);
+            SDL_RenderCopy(gRenderer,vrTex,NULL,&vr4);
             SDL_DestroyTexture(imageTexture);
 
             SDL_Rect vr5 ={  SCREEN_WIDTH / 22+70,SCREEN_HEIGHT / 22+650, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
-            loadFromFile("verticalroad.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&vr5);
+            SDL_RenderCopy(gRenderer,vrTex,NULL,&vr5);
             SDL_DestroyTexture(imageTexture);
 
             SDL_Rect vr6 ={  SCREEN_WIDTH / 22+70,SCREEN_HEIGHT / 22+710, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 4};
-            loadFromFile("verticalroad.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&vr6);
+            SDL_RenderCopy(gRenderer,vrTex,NULL,&vr6);
             SDL_DestroyTexture(imageTexture);
 
 
@@ -844,239 +913,233 @@ int main(int argc, char const *argv[])
             // loadFromFile("verticalroad2.png");
             // SDL_RenderCopy(gRenderer,imageTexture,NULL,&vr6);
 
-	
+        
             SDL_Rect tp1 ={  SCREEN_WIDTH / 22+70,SCREEN_HEIGHT / 22+96, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
-            loadFromFile("tpoint.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&tp1);  
+            SDL_RenderCopy(gRenderer,tpTex,NULL,&tp1);  
             SDL_DestroyTexture(imageTexture);      
 
 
             SDL_Rect hr1 = {SCREEN_WIDTH / 22+350,SCREEN_HEIGHT / 22+96, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("horizontalroad.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&hr1);
+            SDL_RenderCopy(gRenderer,hr1Tex,NULL,&hr1);
+            SDL_DestroyTexture(imageTexture);
+
+            SDL_Rect hr1dash = {SCREEN_WIDTH / 22+48,SCREEN_HEIGHT / 22+96, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
+
+            SDL_RenderCopy(gRenderer,hr1Tex,NULL,&hr1dash);
             SDL_DestroyTexture(imageTexture);
 
             SDL_Rect hr2 = {SCREEN_WIDTH / 22+350+SCREEN_WIDTH / 5,SCREEN_HEIGHT / 22+96, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("horizontalroad.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&hr2);
+            SDL_RenderCopy(gRenderer,hr1Tex,NULL,&hr2);
             SDL_DestroyTexture(imageTexture);
 
 
             SDL_Rect hr3 = {SCREEN_WIDTH / 22-100,SCREEN_HEIGHT / 22+96, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("horizontalroad.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&hr3);
+            SDL_RenderCopy(gRenderer,hr1Tex,NULL,&hr3);
             SDL_DestroyTexture(imageTexture);
 
 
             SDL_Rect hr4 = {SCREEN_WIDTH / 22+150,SCREEN_HEIGHT / 22+200, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("horizontalroad2.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&hr4);
+            SDL_RenderCopy(gRenderer,hr2Tex,NULL,&hr4);
             SDL_DestroyTexture(imageTexture);
 
 
             SDL_Rect hr5 = {SCREEN_WIDTH / 22+150+95,SCREEN_HEIGHT / 22+200, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("horizontalroad2.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&hr5);
+            SDL_RenderCopy(gRenderer,hr2Tex,NULL,&hr5);
             SDL_DestroyTexture(imageTexture);
 
             SDL_Rect hr6 = {SCREEN_WIDTH / 22+150+95+95,SCREEN_HEIGHT / 22+200, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("horizontalroad2.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&hr6);
+            SDL_RenderCopy(gRenderer,hr2Tex,NULL,&hr6);
             SDL_DestroyTexture(imageTexture);
 
 
             SDL_Rect hr7 = {SCREEN_WIDTH / 22+150+95+95+95,SCREEN_HEIGHT / 22+200, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("horizontalroad2.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&hr7);
+            SDL_RenderCopy(gRenderer,hr2Tex,NULL,&hr7);
             SDL_DestroyTexture(imageTexture);
 
 
 
             SDL_Rect hr8 = {SCREEN_WIDTH / 22+150,SCREEN_HEIGHT / 22+200+430, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("horizontalroad2.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&hr8);
+            SDL_RenderCopy(gRenderer,hr2Tex,NULL,&hr8);
             SDL_DestroyTexture(imageTexture);
 
             SDL_Rect hr9 = {SCREEN_WIDTH / 22+150+95,SCREEN_HEIGHT / 22+200+430, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("horizontalroad2.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&hr9);
+            SDL_RenderCopy(gRenderer,hr2Tex,NULL,&hr9);
             SDL_DestroyTexture(imageTexture);
 
 
             SDL_Rect hr10 = {SCREEN_WIDTH / 22+150+95+95,SCREEN_HEIGHT / 22+200+430, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("horizontalroad2.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&hr10);
+            // loadFromFile("horizontalroad2.png");
+            SDL_RenderCopy(gRenderer,hr2Tex,NULL,&hr10);
             SDL_DestroyTexture(imageTexture);
 
             SDL_Rect hr11 = {SCREEN_WIDTH / 22+150+95+95+95,SCREEN_HEIGHT / 22+200+430, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("horizontalroad2.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&hr11);
+            // loadFromFile("horizontalroad2.png");
+            SDL_RenderCopy(gRenderer,hr2Tex,NULL,&hr11);
             SDL_DestroyTexture(imageTexture);
 
             SDL_Rect hr12 = {SCREEN_WIDTH / 22+50,SCREEN_HEIGHT / 22+200+430, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("horizontalroad2.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&hr12);
+            // loadFromFile("horizontalroad2.png");
+            SDL_RenderCopy(gRenderer,hr2Tex,NULL,&hr12);
             SDL_DestroyTexture(imageTexture);
 
             SDL_Rect hr13 = {SCREEN_WIDTH / 22+10,SCREEN_HEIGHT / 22+200+430, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("horizontalroad2.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&hr13);
+            // loadFromFile("horizontalroad2.png");
+            SDL_RenderCopy(gRenderer,hr2Tex,NULL,&hr13);
             SDL_DestroyTexture(imageTexture);
 
             SDL_Rect hr14 = {SCREEN_WIDTH / 22+150+95+95+95+95,SCREEN_HEIGHT / 22+200+430, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("horizontalroad2.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&hr14);
+            // loadFromFile("horizontalroad2.png");
+            SDL_RenderCopy(gRenderer,hr2Tex,NULL,&hr14);
             SDL_DestroyTexture(imageTexture);
 
             SDL_Rect hr15 = {SCREEN_WIDTH / 22+150+95+95+95+95,SCREEN_HEIGHT / 22+200+430, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("horizontalroad2.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&hr15);
+            // loadFromFile("horizontalroad2.png");
+            SDL_RenderCopy(gRenderer,hr2Tex,NULL,&hr15);
             SDL_DestroyTexture(imageTexture);
 
 
             SDL_Rect hr16 = {SCREEN_WIDTH / 22+150+95+95+95+95+95,SCREEN_HEIGHT / 22+200+430, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("horizontalroad2.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&hr16);
+            // loadFromFile("horizontalroad2.png");
+            SDL_RenderCopy(gRenderer,hr2Tex,NULL,&hr16);
             SDL_DestroyTexture(imageTexture);
 
             SDL_Rect hr17 = {SCREEN_WIDTH / 22,SCREEN_HEIGHT / 22+200+430+240, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("horizontalroad2.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&hr17);
+            // loadFromFile("horizontalroad2.png");
+            SDL_RenderCopy(gRenderer,hr2Tex,NULL,&hr17);
             SDL_DestroyTexture(imageTexture);
 
 
             SDL_Rect hr18 = {SCREEN_WIDTH / 22+95,SCREEN_HEIGHT / 22+200+430+240, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("horizontalroad2.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&hr18);
+            // loadFromFile("horizontalroad2.png");
+            SDL_RenderCopy(gRenderer,hr2Tex,NULL,&hr18);
             SDL_DestroyTexture(imageTexture);
 
 
             SDL_Rect hr19 = {SCREEN_WIDTH / 22+190,SCREEN_HEIGHT / 22+200+430+240, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("horizontalroad2.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&hr19);
+            // loadFromFile("horizontalroad2.png");
+            SDL_RenderCopy(gRenderer,hr2Tex,NULL,&hr19);
             SDL_DestroyTexture(imageTexture);
 
 
             SDL_Rect hr20 = {SCREEN_WIDTH / 22+285,SCREEN_HEIGHT / 22+200+430+240, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("horizontalroad2.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&hr20);
+            // loadFromFile("horizontalroad2.png");
+            SDL_RenderCopy(gRenderer,hr2Tex,NULL,&hr20);
             SDL_DestroyTexture(imageTexture);
 
 
             SDL_Rect hr21 = {SCREEN_WIDTH / 22+370,SCREEN_HEIGHT / 22+200+430+240, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("horizontalroad2.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&hr21);
+            // loadFromFile("horizontalroad2.png");
+            SDL_RenderCopy(gRenderer,hr2Tex,NULL,&hr21);
             SDL_DestroyTexture(imageTexture);
 
             SDL_Rect hr22 = {SCREEN_WIDTH / 22+465,SCREEN_HEIGHT / 22+200+430+240, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("horizontalroad2.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&hr22);
+            // loadFromFile("horizontalroad2.png");
+            SDL_RenderCopy(gRenderer,hr2Tex,NULL,&hr22);
             SDL_DestroyTexture(imageTexture);
 
 
             SDL_Rect hr23 = {SCREEN_WIDTH / 22+560,SCREEN_HEIGHT / 22+200+430+240, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("horizontalroad2.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&hr23);
+            // loadFromFile("horizontalroad2.png");
+            SDL_RenderCopy(gRenderer,hr2Tex,NULL,&hr23);
             SDL_DestroyTexture(imageTexture);
 
             SDL_Rect hr24 = {SCREEN_WIDTH / 22+655,SCREEN_HEIGHT / 22+200+430+240, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("horizontalroad2.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&hr24);
+            // loadFromFile("horizontalroad2.png");
+            SDL_RenderCopy(gRenderer,hr2Tex,NULL,&hr24);
             SDL_DestroyTexture(imageTexture);
 
 
             SDL_Rect vr7 = {SCREEN_WIDTH / 22+150+95+95+95+95+95+180,SCREEN_HEIGHT / 22+200+393, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("verticalroad.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&vr7);
+            SDL_RenderCopy(gRenderer,vrTex,NULL,&vr7);
             SDL_DestroyTexture(imageTexture);
 
 
             SDL_Rect vr8 = {SCREEN_WIDTH / 22+150+95+95+95+95+95+180,SCREEN_HEIGHT / 22+200+393+80, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("verticalroad.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&vr8);
+            // loadFromFile("verticalroad.png");
+            SDL_RenderCopy(gRenderer,vrTex,NULL,&vr8);
             SDL_DestroyTexture(imageTexture);
 
 
             SDL_Rect vr9 = {SCREEN_WIDTH / 22+150+95+95+95+95+95+180,SCREEN_HEIGHT / 22+200+393+80+80, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("verticalroad.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&vr9);
+            // loadFromFile("verticalroad.png");
+            SDL_RenderCopy(gRenderer,vrTex,NULL,&vr9);
             SDL_DestroyTexture(imageTexture);
 
             SDL_Rect vr10 = {SCREEN_WIDTH / 22+150+95+95+79+180,SCREEN_HEIGHT / 22+170, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("verticalroad.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&vr10);
+            // loadFromFile("verticalroad.png");
+            SDL_RenderCopy(gRenderer,vrTex,NULL,&vr10);
             SDL_DestroyTexture(imageTexture);
 
 
             SDL_Rect vr11 = {SCREEN_WIDTH / 22+150+95+95+79+180,SCREEN_HEIGHT / 22+170+70, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("verticalroad.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&vr11);
+            // loadFromFile("verticalroad.png");
+            SDL_RenderCopy(gRenderer,vrTex,NULL,&vr11);
             SDL_DestroyTexture(imageTexture);
 
 
             SDL_Rect vr12 = {SCREEN_WIDTH / 22+150+80+79+180,SCREEN_HEIGHT / 22+170, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("verticalroad.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&vr12);
+            // loadFromFile("verticalroad.png");
+            SDL_RenderCopy(gRenderer,vrTex,NULL,&vr12);
             SDL_DestroyTexture(imageTexture);
 
 
             SDL_Rect vr13 = {SCREEN_WIDTH / 22+150+80+79+180,SCREEN_HEIGHT / 22+170+80, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("verticalroad.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&vr13);
+            // loadFromFile("verticalroad.png");
+            SDL_RenderCopy(gRenderer,vrTex,NULL,&vr13);
             SDL_DestroyTexture(imageTexture);
 
 
 
             SDL_Rect vr14 = {SCREEN_WIDTH / 22+150+80+79+180,SCREEN_HEIGHT / 22+170+80+80, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("verticalroad.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&vr14);
+            // loadFromFile("verticalroad.png");
+            SDL_RenderCopy(gRenderer,vrTex,NULL,&vr14);
             SDL_DestroyTexture(imageTexture);
 
 
             SDL_Rect vr15 = {SCREEN_WIDTH / 22+150+95+95+79+180,SCREEN_HEIGHT / 22+40, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("verticalroad.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&vr15);
+            // loadFromFile("verticalroad.png");
+            SDL_RenderCopy(gRenderer,vrTex,NULL,&vr15);
             SDL_DestroyTexture(imageTexture);
 
 
 
             SDL_Rect vr16 = {SCREEN_WIDTH / 22+150+95+95+79+180,SCREEN_HEIGHT / 22+80, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("verticalroad.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&vr16);
+            // loadFromFile("verticalroad.png");
+            SDL_RenderCopy(gRenderer,vrTex,NULL,&vr16);
             SDL_DestroyTexture(imageTexture);
 
 
@@ -1086,55 +1149,94 @@ int main(int argc, char const *argv[])
 
             SDL_Rect hr26 = {SCREEN_WIDTH / 22+150+175,SCREEN_HEIGHT / 22+370, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("horizontalroad2.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&hr26);
+            // loadFromFile("horizontalroad2.png");
+            SDL_RenderCopy(gRenderer,hr2Tex,NULL,&hr26);
             SDL_DestroyTexture(imageTexture);
 
 
             SDL_Rect hr27 = {SCREEN_WIDTH / 22+150+80,SCREEN_HEIGHT / 22+370, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("horizontalroad2.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&hr27);
+            // loadFromFile("horizontalroad2.png");
+            SDL_RenderCopy(gRenderer,hr2Tex,NULL,&hr27);
             SDL_DestroyTexture(imageTexture);
 
             SDL_Rect hr28 = {SCREEN_WIDTH / 22+135,SCREEN_HEIGHT / 22+370, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("horizontalroad2.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&hr28);
+            // loadFromFile("horizontalroad2.png");
+            SDL_RenderCopy(gRenderer,hr2Tex,NULL,&hr28);
             SDL_DestroyTexture(imageTexture);
 
             SDL_Rect hr29 = {SCREEN_WIDTH / 22+40,SCREEN_HEIGHT / 22+370, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("horizontalroad2.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&hr29);
+            // loadFromFile("horizontalroad2.png");
+            SDL_RenderCopy(gRenderer,hr2Tex,NULL,&hr29);
             SDL_DestroyTexture(imageTexture);
 
 
             SDL_Rect hr30 = {SCREEN_WIDTH / 22+20,SCREEN_HEIGHT / 22+370, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("horizontalroad2.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&hr30);
+            // loadFromFile("horizontalroad2.png");
+            SDL_RenderCopy(gRenderer,hr2Tex,NULL,&hr30);
             SDL_DestroyTexture(imageTexture);
 
 
             SDL_Rect hr31 = {SCREEN_WIDTH / 22+150+175,SCREEN_HEIGHT / 22+440, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("horizontalroad2.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&hr31);
+            // loadFromFile("horizontalroad2.png");
+            SDL_RenderCopy(gRenderer,hr2Tex,NULL,&hr31);
             SDL_DestroyTexture(imageTexture);
 
 
             SDL_Rect vr17 = {SCREEN_WIDTH / 22+150+95+168,SCREEN_HEIGHT / 22+410, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("verticalroad.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&vr17);
+            // loadFromFile("verticalroad.png");
+            SDL_RenderCopy(gRenderer,vrTex,NULL,&vr17);
             SDL_DestroyTexture(imageTexture);
 
             SDL_Rect vr18 = {SCREEN_WIDTH / 22+150+95+168,SCREEN_HEIGHT / 22+450, SCREEN_WIDTH / 5, SCREEN_HEIGHT / 5};
 
-            loadFromFile("verticalroad.png");
-            SDL_RenderCopy(gRenderer,imageTexture,NULL,&vr18);
+            // loadFromFile("verticalroad.png");
+            SDL_RenderCopy(gRenderer,vrTex,NULL,&vr18);
             SDL_DestroyTexture(imageTexture);
+
+            SDL_Rect interRoadMasalaMix = {SCREEN_WIDTH / 22+95+130,SCREEN_HEIGHT / 22+425, SCREEN_WIDTH / 15, SCREEN_HEIGHT / 20};
+            SDL_RenderCopy(gRenderer,interConnectingRoadsTex,NULL,&interRoadMasalaMix);
+
+
+            SDL_Rect interRoadRajdhani = {SCREEN_WIDTH / 22+95+130+100,SCREEN_HEIGHT / 22+425, SCREEN_WIDTH / 15, SCREEN_HEIGHT / 20};
+            SDL_RenderCopy(gRenderer,interConnectingRoadsTex,NULL,&interRoadRajdhani);
+
+            SDL_Rect interRoadChaayos = {SCREEN_WIDTH / 22+95+130+200,SCREEN_HEIGHT / 22+425, SCREEN_WIDTH / 15, SCREEN_HEIGHT / 20};
+            SDL_RenderCopy(gRenderer,interConnectingRoadsTex,NULL,&interRoadChaayos);
+
+            SDL_Rect interRoadZanskar = {SCREEN_WIDTH / 22+95+130+40,SCREEN_HEIGHT / 22+280, SCREEN_WIDTH / 15, SCREEN_HEIGHT / 20};
+            SDL_RenderCopy(gRenderer,interConnectingRoadsTex,NULL,&interRoadZanskar);
+
+            SDL_Rect interRoadShivalik = {SCREEN_WIDTH / 22+95+130+40+100,SCREEN_HEIGHT / 22+280, SCREEN_WIDTH / 15, SCREEN_HEIGHT / 20};
+            SDL_RenderCopy(gRenderer,interConnectingRoadsTex,NULL,&interRoadShivalik);
+
+            SDL_Rect interRoadDeli16 = {SCREEN_WIDTH / 22+95+130+40+160,SCREEN_HEIGHT / 22+134, SCREEN_WIDTH / 15, SCREEN_HEIGHT / 20};
+            SDL_RenderCopy(gRenderer,interConnectingRoadsTex,NULL,&interRoadDeli16);
+
+            SDL_Rect interRoadArav = {SCREEN_WIDTH / 22+95+130+40+160,SCREEN_HEIGHT / 22+100, SCREEN_WIDTH / 15, SCREEN_HEIGHT / 20};
+            SDL_RenderCopy(gRenderer,interConnectingRoadsTex,NULL,&interRoadArav);
+
+            SDL_Rect interRoadKara = {SCREEN_WIDTH / 22+95+130,SCREEN_HEIGHT / 22+100, SCREEN_WIDTH / 15, SCREEN_HEIGHT / 20};
+            SDL_RenderCopy(gRenderer,interConnectingRoadsTex,NULL,&interRoadKara);
+
+            SDL_Rect interRoadNil = {SCREEN_WIDTH / 22+25,SCREEN_HEIGHT / 22+100, SCREEN_WIDTH / 15, SCREEN_HEIGHT / 20};
+            SDL_RenderCopy(gRenderer,interConnectingRoadsTex,NULL,&interRoadNil);
+
+            SDL_Rect interRoadJwala = {SCREEN_WIDTH / 22+95+130+40+160+350,SCREEN_HEIGHT / 22+100, SCREEN_WIDTH / 15, SCREEN_HEIGHT / 20};
+            SDL_RenderCopy(gRenderer,interConnectingRoadsTex,NULL,&interRoadJwala);
+
+            SDL_Rect interRoadKum = {SCREEN_WIDTH / 22+95+130+40+160+350,SCREEN_HEIGHT / 22+130, SCREEN_WIDTH / 15, SCREEN_HEIGHT / 20};
+            SDL_RenderCopy(gRenderer,interConnectingRoadsTex,NULL,&interRoadKum);
+
+            SDL_Rect interRoadVindy = {SCREEN_WIDTH / 22+95+130+40+160+300,SCREEN_HEIGHT / 22+930, SCREEN_WIDTH / 15, SCREEN_HEIGHT / 15};
+            SDL_RenderCopy(gRenderer,interConnectingRoads2Tex,NULL,&interRoadVindy);
+
+
 ///////////////////////////////////////////////////////////////////
 
 
@@ -1181,31 +1283,32 @@ int main(int argc, char const *argv[])
         int n = s.length();
         char char_array1[n + 1];
         strcpy(char_array1, s.c_str());
-        // disptext(gRenderer,  SCREEN_WIDTH-160,750,140,50, char_array1,235, 52, 155) ;
+        disptext(gRenderer,  SCREEN_WIDTH-160,750,140,50, char_array1,235, 52, 155) ;
 
         s= "Player money:-"+to_string(player1.money);
         n = s.length();
         char char_array2[n + 1];
         strcpy(char_array2, s.c_str());
-        // disptext(gRenderer,  SCREEN_WIDTH-160,700,140,50, char_array2,235, 52, 155) ;
+        disptext(gRenderer,  SCREEN_WIDTH-160,700,140,50, char_array2,235, 52, 155) ;
 
         s= "Player knowledge:-"+to_string(player1.knowledge);
         n = s.length();
         char char_array3[n + 1];
         strcpy(char_array3, s.c_str());
-        // disptext(gRenderer,  SCREEN_WIDTH-160,650,140,50, char_array3,235, 52, 155) ;
+        disptext(gRenderer,  SCREEN_WIDTH-160,650,140,50, char_array3,235, 52, 155) ;
 
         s= "Player energy:-"+to_string(player1.energy);
         n = s.length();
         char char_array4[n + 1];
         strcpy(char_array4, s.c_str());
-        // disptext(gRenderer,  SCREEN_WIDTH-160,600,140,50, char_array4,235, 52, 155) ;
+        disptext(gRenderer,  SCREEN_WIDTH-160,600,140,50, char_array4,235, 52, 155) ;
 
         s= "Player health:-"+to_string(player1.health);
         n = s.length();
         char char_array5[n + 1];
         strcpy(char_array5, s.c_str());
-        // disptext(gRenderer,  SCREEN_WIDTH-160,800,140,50, char_array5,235, 52, 155) ;
+        disptext(gRenderer,  SCREEN_WIDTH-160,800,140,50, char_array5,235, 52, 155) ;
+
 
 
 
@@ -1231,11 +1334,11 @@ int main(int argc, char const *argv[])
 
 
 
-	
+        
 
-	
+        
 
 
 
-	return 0;
+        return 0;
 }
