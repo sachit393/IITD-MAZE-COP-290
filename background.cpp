@@ -4,14 +4,15 @@
 #include <stdio.h>
 #include <string>
 #include <vector>
+#include <sstream>
 using namespace std;
 const int HOSPITAL_BILL = 30;
 const int SCREEN_WIDTH = 1520;
 const int SCREEN_HEIGHT = 1020;
 const int PLAYER_RADIUS = 10;
 SDL_Window* gWindow = NULL;
-
-//The window renderer
+Uint32 start = 0;
+bool running = false;
 SDL_Renderer* gRenderer = NULL;
 
 //Current displayed texture
@@ -131,6 +132,10 @@ class Player{
                 bool inLargeGround = false;
                 bool inTennisCourt = false;
                 bool inVolleyCourt = false;
+                bool inLHC = false;
+                bool inLHC108 = false;
+                bool inLHC114 = false;
+                bool inLHC325 = false;
         Player(int xP,int yP,string colorP){
                 health = 50;
                 energy = 100;
@@ -527,7 +532,109 @@ class Player{
                         y = 320;
                 }
 
-                // 
+                // enter lhc
+                else if(y>=870 && y<=890 && x>=140 && x<=220){
+                        inLHC = true;
+                        inLargeGround = false;
+                        enterShivalik = false;
+                        inTennisCourt = false;
+                        inVolleyCourt = false;
+                        inMain = false;
+                        x = 1300;
+                        y = 500;
+                }
+
+                // study in lh108(lamda calculas)
+
+                else if(inLHC && y>=450 && y<=650 && x>=400 && x<=580){
+                        inLHC108 = true;
+                        inLHC = false;
+                        inLargeGround = false;
+                        enterShivalik = false;
+                        inTennisCourt = false;
+                        inVolleyCourt = false;
+                        inMain = false;
+                }
+                // exit lhc108
+                else if (inLHC108 && x>=1350 && x<=1490 && y<=520 && y>=450){
+                        inLargeGround = false;
+                        inMain = false;
+                        enterShivalik = false;
+                        inTennisCourt = false;
+                        inLHC = true;
+                        inLHC108 = false;
+                        x = 500;
+                        y = 500;
+                }
+
+
+                // study in lh114(arm)
+
+                else if(inLHC && y>=450 && y<=650 && x>=680 && x<=860){
+                        inLHC108 = false;
+                        inLHC114 = true;
+                        inLHC = false;
+                        inLargeGround = false;
+                        enterShivalik = false;
+                        inTennisCourt = false;
+                        inVolleyCourt = false;
+                        inMain = false;
+                }
+                // exit lhc114
+                else if (inLHC114 && x>=1350 && x<=1490 && y<=520 && y>=450){
+                        inLargeGround = false;
+                        inMain = false;
+                        enterShivalik = false;
+                        inTennisCourt = false;
+                        inLHC = true;
+                        inLHC108 = false;
+                        inLHC114 = false;
+                        x = 700;
+                        y = 500;
+                }
+
+
+                // study in lh325(stats)
+
+                else if(inLHC && y>=450 && y<=650 && x>=140 && x<=300){
+                        inLHC108 = false;
+                        inLHC114 = false;
+                        inLHC325 = true;
+                        inLHC = false;
+                        inLargeGround = false;
+                        enterShivalik = false;
+                        inTennisCourt = false;
+                        inVolleyCourt = false;
+                        inMain = false;
+                }
+                // exit lhc325
+                else if (inLHC325 && x>=1350 && x<=1490 && y<=520 && y>=450){
+                        inLargeGround = false;
+                        inMain = false;
+                        enterShivalik = false;
+                        inTennisCourt = false;
+                        inLHC = true;
+                        inLHC108 = false;
+                        inLHC114 = false;
+                        inLHC325 = false;
+                        x = 300;
+                        y = 500;
+                }
+
+                
+                // exit lhc
+
+                else if (inLHC && x>=1350 && x<=1490 && y<=520 && y>=450){
+                        inLargeGround = false;
+                        inMain = true;
+                        enterShivalik = false;
+                        inTennisCourt = false;
+                        inLHC108 = false;
+                        inLHC= false;
+
+                        x = 250;
+                        y = 890;
+                }
 
 
         }
@@ -623,6 +730,7 @@ int main(int argc, char const *argv[])
                 printf ("failed to initialize\n");
         }
         else{
+                start = SDL_GetTicks();
                 // hostel textures
                 SDL_Texture* tileTex = loadFromFile("tile.png");
                 SDL_Texture* ttableTex = loadFromFile("tabletennis.png");
@@ -700,7 +808,17 @@ int main(int argc, char const *argv[])
                 // volley ball court
                 SDL_Texture* volleyCourtInnerTex = loadFromFile("volleyballInner.png");
 
+                // LHC
+                SDL_Texture* LHCInnerTex = loadFromFile("lhcInner.png");
 
+                //LHC108
+                SDL_Texture* LH108Tex = loadFromFile("LH108.png");
+
+                //LHC114
+                SDL_Texture* LHC114Tex = loadFromFile("LH114.png");
+
+                //LHC325
+                SDL_Texture* LHC325Tex = loadFromFile("LH325.png");
 
                 Player player1 = Player(60,175,"pink");
                 Player player2 = Player(SCREEN_WIDTH-20,20,"purple");
@@ -1789,6 +1907,150 @@ int main(int argc, char const *argv[])
                 else if(player1.inVolleyCourt){
                          SDL_Rect volleyCourtInner= {0,0,SCREEN_HEIGHT,SCREEN_HEIGHT};
                         SDL_RenderCopy(gRenderer,volleyCourtInnerTex,NULL,&volleyCourtInner);
+                        SDL_Rect exit1= {1300,400,300,300};
+                        SDL_RenderCopy(gRenderer,exitTex,NULL,&exit1);
+
+                        SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
+                        player1.renderPlayer();
+                        while( SDL_PollEvent( &e ) != 0 )
+                        {
+                                //User requests quit
+                                if( e.type == SDL_QUIT )
+                                {
+                                        quit = true;
+                                }
+                                else if(e.type == SDL_KEYDOWN){
+                                        switch (e.key.keysym.sym){
+                                                                case SDLK_UP:
+                                                                        player1.move(KEY_PRESS_UP);
+                                                                        break;
+                                                                case SDLK_DOWN:
+                                                                        player1.move(KEY_PRESS_DOWN);
+                                                                        break;
+                                                                case SDLK_LEFT:
+                                                                        player1.move(KEY_PRESS_LEFT);
+                                                                        break;
+                                                                case SDLK_RIGHT:
+                                                                        player1.move(KEY_PRESS_RIGHT);
+                                                                        break;
+                                                                case SDLK_e:
+                                                                        player1.enter();
+                                        }
+                                }
+                                
+                        }
+                }
+                else if(player1.inLHC){
+                        SDL_Rect lhcInner = {0,0,SCREEN_HEIGHT,SCREEN_HEIGHT};
+                        SDL_RenderCopy(gRenderer,LHCInnerTex,NULL,&lhcInner);
+                        SDL_Rect exit1= {1300,400,300,300};
+                        SDL_RenderCopy(gRenderer,exitTex,NULL,&exit1);
+
+                        SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
+                        player1.renderPlayer();
+                        while( SDL_PollEvent( &e ) != 0 )
+                        {
+                                //User requests quit
+                                if( e.type == SDL_QUIT )
+                                {
+                                        quit = true;
+                                }
+                                else if(e.type == SDL_KEYDOWN){
+                                        switch (e.key.keysym.sym){
+                                                                case SDLK_UP:
+                                                                        player1.move(KEY_PRESS_UP);
+                                                                        break;
+                                                                case SDLK_DOWN:
+                                                                        player1.move(KEY_PRESS_DOWN);
+                                                                        break;
+                                                                case SDLK_LEFT:
+                                                                        player1.move(KEY_PRESS_LEFT);
+                                                                        break;
+                                                                case SDLK_RIGHT:
+                                                                        player1.move(KEY_PRESS_RIGHT);
+                                                                        break;
+                                                                case SDLK_e:
+                                                                        player1.enter();
+                                        }
+                                }
+                                
+                        }
+                }
+                else if(player1.inLHC108){
+                        SDL_Rect lhc108 = {0,0,SCREEN_HEIGHT,SCREEN_HEIGHT};
+                        SDL_RenderCopy(gRenderer,LH108Tex,NULL,&lhc108);
+                        SDL_Rect exit1= {1300,400,300,300};
+                        SDL_RenderCopy(gRenderer,exitTex,NULL,&exit1);
+
+                        SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
+                        player1.renderPlayer();
+                        while( SDL_PollEvent( &e ) != 0 )
+                        {
+                                //User requests quit
+                                if( e.type == SDL_QUIT )
+                                {
+                                        quit = true;
+                                }
+                                else if(e.type == SDL_KEYDOWN){
+                                        switch (e.key.keysym.sym){
+                                                                case SDLK_UP:
+                                                                        player1.move(KEY_PRESS_UP);
+                                                                        break;
+                                                                case SDLK_DOWN:
+                                                                        player1.move(KEY_PRESS_DOWN);
+                                                                        break;
+                                                                case SDLK_LEFT:
+                                                                        player1.move(KEY_PRESS_LEFT);
+                                                                        break;
+                                                                case SDLK_RIGHT:
+                                                                        player1.move(KEY_PRESS_RIGHT);
+                                                                        break;
+                                                                case SDLK_e:
+                                                                        player1.enter();
+                                        }
+                                }
+                                
+                        }
+                }
+                else if(player1.inLHC114){
+                        SDL_Rect lhc114 = {0,0,SCREEN_HEIGHT,SCREEN_HEIGHT};
+                        SDL_RenderCopy(gRenderer,LHC114Tex,NULL,&lhc114);
+                        SDL_Rect exit1= {1300,400,300,300};
+                        SDL_RenderCopy(gRenderer,exitTex,NULL,&exit1);
+
+                        SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
+                        player1.renderPlayer();
+                        while( SDL_PollEvent( &e ) != 0 )
+                        {
+                                //User requests quit
+                                if( e.type == SDL_QUIT )
+                                {
+                                        quit = true;
+                                }
+                                else if(e.type == SDL_KEYDOWN){
+                                        switch (e.key.keysym.sym){
+                                                                case SDLK_UP:
+                                                                        player1.move(KEY_PRESS_UP);
+                                                                        break;
+                                                                case SDLK_DOWN:
+                                                                        player1.move(KEY_PRESS_DOWN);
+                                                                        break;
+                                                                case SDLK_LEFT:
+                                                                        player1.move(KEY_PRESS_LEFT);
+                                                                        break;
+                                                                case SDLK_RIGHT:
+                                                                        player1.move(KEY_PRESS_RIGHT);
+                                                                        break;
+                                                                case SDLK_e:
+                                                                        player1.enter();
+                                        }
+                                }
+                                
+                        }
+                }
+                else if(player1.inLHC325){
+                        SDL_Rect lhc325 = {0,0,SCREEN_HEIGHT,SCREEN_HEIGHT};
+                        SDL_RenderCopy(gRenderer,LHC325Tex,NULL,&lhc325);
                         SDL_Rect exit1= {1300,400,300,300};
                         SDL_RenderCopy(gRenderer,exitTex,NULL,&exit1);
 
