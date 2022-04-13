@@ -128,7 +128,9 @@ class Player{
                 bool hasCycle;
                 bool inMain = true;
                 bool enterShivalik = false;
-        
+                bool inLargeGround = false;
+                bool inTennisCourt = false;
+                bool inVolleyCourt = false;
         Player(int xP,int yP,string colorP){
                 health = 50;
                 energy = 100;
@@ -165,6 +167,9 @@ class Player{
                 y = 550;
                 inMain = true;
                 enterShivalik = false;
+                inTennisCourt = false;
+                inLargeGround = false;
+
         }
 
         void changeEnergy(int amount){
@@ -216,11 +221,11 @@ class Player{
                                         if(x<=672 && x>=660 && y-speed>=312){
                                                 y-=speed+energy/40;
                                         }
-                                        if(x<=600 && x>=575 && y-speed>=547){
+                                        if(x<=600 && x>=575 && y-speed>=547 && y<720){
                                                 y-=speed+energy/40;
                                         }
 
-                                        if(x<=800 && x>=760 && y-speed>=172){
+                                        if(x<=800 && x>=760 && y-speed>=172 && y<600){
                                                 y-=speed+energy/40;
                                         }
                                         if(x>=355 && x<=380 && y-speed>=302){
@@ -230,6 +235,19 @@ class Player{
                                         if(x>=455 && x<=480 && y-speed>=302){
                                                 y-=speed+energy/40;
                                         }
+                                        // to enter shiru cafe
+                                        if(x>=565 && x<=585 && y-speed>=750){
+                                                y-=speed+energy/40;
+                                        }
+                                        // to enter amul
+                                        if(x>=700 && x<=715 && y-speed>=750){
+                                                y-=speed+energy/40;
+                                        }
+                                        // to enter nesacfe
+                                        if(x>=850 && x<=865 && y-speed>=750){
+                                                y-=speed+energy/40;
+                                        }
+
                                 }
                                 if(keyPress == KEY_PRESS_DOWN){
                                         if(y+speed<=178 && x<=1000 && x>=0){
@@ -259,12 +277,22 @@ class Player{
                                         if(x>=455 && x<=480 && y+speed<=350){
                                                 y+=speed+energy/40;
                                         }
+                                        if(x>=565 && x<=585 && y+speed<=780 && y>700){
+                                                y+=speed+energy/40;
+                                        }
+
+                                        if(x>=700 && x<=715 && y+speed<=780){
+                                                y+=speed+energy/40;
+                                        }
+                                        if(x>=850 && x<=865 && y+speed<=780){
+                                                y+=speed+energy/40;
+                                        }
                                 }
                                 if(keyPress == KEY_PRESS_LEFT){
                                         if(y>=172 && y<=178 &&  x-speed>=0){
                                                 x-=speed+energy/40;
                                         }
-                                        if(987<=y && y<=990 && x-speed>=230){
+                                        if(984<=y && y<=990 && x-speed>=230){
                                                 x-=speed+energy/40;
                                         }
                                         if(y>=740 && y<=760 && x-speed>=230){
@@ -284,12 +312,22 @@ class Player{
                                         if(y>=543 && y<=560 && x-speed>=130 && x<400){
                                                 x-=speed+energy/40;
                                         }
+                                        if(y>=785 && y<=800 && x-speed>=160 && x<400){
+                                                x-=speed+energy/40;
+                                        }
+                                        if(y>=875 && y<=895 && x-speed>=160 && x<400){
+                                                x-=speed+energy/40;
+                                        }
+                                        if(y>=835 && y<=850 && x-speed>=980 && x>700){
+                                                x-=speed+energy/40;
+                                        }
+
                                 }
                                 if(keyPress == KEY_PRESS_RIGHT){
                                         if(172<=y && y<=178 && x+speed<=1000){
                                                 x+=speed+energy/40;
                                         }
-                                        if(987<=y && y<=990 && x+speed<=1000){
+                                        if(984<=y && y<=990 && x+speed<=1000){
                                                 x+=speed+energy/40;
                                         }
                                         if(y>=740 && y<=760 && x+speed<=995){
@@ -307,9 +345,20 @@ class Player{
                                         if(y>=543 && y<=560 && x+speed<=265){
                                                 x+=speed+energy/40;
                                         }
+                                        if(y>=785 && y<=800 && x+speed<=250 && x<400){
+                                                x+=speed+energy/40;
+                                        }
+                                        if(y>=875 && y<=895 && x+speed<=250 && x<400){
+                                                x+=speed+energy/40;
+                                        }
+
+                                        if(y>=835 && y<=850 && x+speed<=1040 && x>700){
+                                                x+=speed+energy/40;
+                                        }
+
                                 }
                         }
-                        else if(enterShivalik){
+                        else if(!inMain){
                                   if (keyPress ==KEY_PRESS_UP){
                                         if(y-speed>=0){
                                                 y-=speed+energy/40;
@@ -343,6 +392,7 @@ class Player{
                         x = 150;
                         y = 150;
                         inMain = false;
+                        inLargeGround = false;
                 }
                 // exit from shivalik building
 
@@ -370,6 +420,116 @@ class Player{
                 else if(enterShivalik && x>=1280 && x<=1450){
                         energy = min(energy+20,100);
                 }
+
+                // entering largeGround
+                else if(inMain && x>=120 && x<=220 && y>=540 && y<=570){
+                        inLargeGround = true;
+                        inMain = false;
+                        enterShivalik = false;
+                        x = 1300;
+                        y = 500;
+                }
+                // exit large ground
+                else if (inLargeGround && x>=1350 && x<=1490 && y<=520 && y>=450){
+                        inLargeGround = false;
+                        inMain = true;
+                        enterShivalik = false;
+                        inTennisCourt = false;
+                        x = 220;
+                        y = 550;
+                }
+                // play football
+                else if(inLargeGround && x>=450 && x<=530 && y<=200 && y>=130){
+                        energy-=10;
+                        if(energy<=0){
+                                hospitalize();
+                        }
+                        health = min(100,health+10);
+                        happiness = min(100,happiness+10);
+                }
+                // play cricket
+                else if(inLargeGround && x>=300 && x<=400 && y<=680 && y>=460){
+                        energy-=10;
+                        if(energy<=0){
+                                hospitalize();
+                        }
+                        health = min(100,health+10);
+                        happiness = min(100,happiness+10);
+                }
+
+                // play hockey
+                else if(inLargeGround && x>=450 && x<=530 && y<=920 && y>=780){
+                        energy-=10;
+                        if(energy<=0){
+                                hospitalize();
+                        }
+                        health = min(100,health+10);
+                        happiness = min(100,happiness+10);
+                }
+
+                // entering tennis court
+                else if(inMain && y>=300 && y<=315 && x>=350 && x<=370){
+                        inTennisCourt = true;
+                        inMain = false;
+                        inLargeGround = false;
+                        enterShivalik = false;
+                        x = 1300;
+                        y = 500;
+                }
+
+                // play tennis
+                else if(inTennisCourt && y>=660 && y<=950 && x<=1200 && x>=1000){
+                        energy-=10;
+                        if(energy<=0){
+                                hospitalize();
+                        }
+                        health = min(100,health+10);
+                        happiness = min(100,happiness+10);
+                }
+                // exit tennis court
+                else if (inTennisCourt && x>=1350 && x<=1490 && y<=520 && y>=450){
+                        inLargeGround = false;
+                        inMain = true;
+                        enterShivalik = false;
+                        inTennisCourt = false;
+                        x = 370;
+                        y = 320;
+                }
+
+                // enter volleyBall Court
+                else if(inMain && y>=300 && y<=320 && x>=498 && x<=510){
+                        inTennisCourt = false;
+                        inVolleyCourt = true;
+                        inLargeGround = false;
+                        enterShivalik = false;
+                        inMain = false;
+                        x = 1300;
+                        y = 500;
+                }
+                // playvolleyball
+                else if(inVolleyCourt && x>=630 && x<=740 && y>=800 && y<=900 ){
+                        energy-=10;
+                        if(energy<=0){
+                                hospitalize();
+                        }
+                        health = min(100,health+10);
+                        happiness = min(100,happiness+10);
+                }
+
+                // exit volley court
+                else if (inVolleyCourt && x>=1350 && x<=1490 && y<=520 && y>=450){
+                        inLargeGround = false;
+                        inMain = true;
+                        enterShivalik = false;
+                        inTennisCourt = false;
+                        inVolleyCourt = false;
+                        x = 500;
+                        y = 320;
+                }
+
+                // 
+
+
         }
         void renderPlayer(){
                 SDL_Rect player1 = {x,y,30,30};
@@ -463,7 +623,7 @@ int main(int argc, char const *argv[])
                 printf ("failed to initialize\n");
         }
         else{
-
+                // hostel textures
                 SDL_Texture* tileTex = loadFromFile("tile.png");
                 SDL_Texture* ttableTex = loadFromFile("tabletennis.png");
                 SDL_Texture* messTex = loadFromFile("mess.png");
@@ -478,6 +638,7 @@ int main(int argc, char const *argv[])
                 SDL_Texture* washroomTex = loadFromFile("washroom.png");
                 SDL_Texture* entry_exitTex = loadFromFile("hostelgate.png");
                 ////////////////
+                // main textures
                 SDL_Texture* nilgiriTex=loadFromFile("nilgiri.png"); 
                 SDL_Texture* karakoramTex = loadFromFile("karakoram.png");
                 SDL_Texture* aravaliTex = loadFromFile("aravali.png");
@@ -528,8 +689,18 @@ int main(int argc, char const *argv[])
                 SDL_Texture* tpTex = loadFromFile("tpoint.png");
                 SDL_Texture* sacTex = loadFromFile("SAC.png");
                 SDL_Texture* interConnectingRoads2Tex = loadFromFile("interconnecting2.png");
+                SDL_Texture* exitTex = loadFromFile("exit.png");
                 SDL_Rect textRect = {SCREEN_WIDTH-160,800,140,50};
-                // gFont = TTF_OpenFont( "Pacifico.ttf", 1000 );
+                // large ground textures
+                SDL_Texture* largeGroundInnerTex = loadFromFile("largegroundInner.png");
+
+                // tennisCourt
+                SDL_Texture* tennisCourtInnerTex = loadFromFile("tennisInner.png");
+
+                // volley ball court
+                SDL_Texture* volleyCourtInnerTex = loadFromFile("volleyballInner.png");
+
+
 
                 Player player1 = Player(60,175,"pink");
                 Player player2 = Player(SCREEN_WIDTH-20,20,"purple");
@@ -554,7 +725,6 @@ int main(int argc, char const *argv[])
                                         // SDL_RenderCopy(gRenderer,gTexture, NULL, NULL);
 
                            
-                //writing text in the box
 
                             // disptext(gRenderer, SCREEN_WIDTH / 22, SCREEN_HEIGHT / 22, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 16, "Nilgiri",203, 230, 2) ;
 
@@ -1514,6 +1684,117 @@ int main(int argc, char const *argv[])
                     SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
                     player1.renderPlayer();
                     while( SDL_PollEvent( &e ) != 0 )
+                        {
+                                //User requests quit
+                                if( e.type == SDL_QUIT )
+                                {
+                                        quit = true;
+                                }
+                                else if(e.type == SDL_KEYDOWN){
+                                        switch (e.key.keysym.sym){
+                                                                case SDLK_UP:
+                                                                        player1.move(KEY_PRESS_UP);
+                                                                        break;
+                                                                case SDLK_DOWN:
+                                                                        player1.move(KEY_PRESS_DOWN);
+                                                                        break;
+                                                                case SDLK_LEFT:
+                                                                        player1.move(KEY_PRESS_LEFT);
+                                                                        break;
+                                                                case SDLK_RIGHT:
+                                                                        player1.move(KEY_PRESS_RIGHT);
+                                                                        break;
+                                                                case SDLK_e:
+                                                                        player1.enter();
+                                        }
+                                }
+                                
+                        }
+                }
+
+                else if(player1.inLargeGround){
+                        SDL_Rect largeGroundInner= {0,0,SCREEN_WIDTH,SCREEN_HEIGHT};
+                        SDL_RenderCopy(gRenderer,largeGroundInnerTex,NULL,&largeGroundInner);
+                        SDL_Rect exit1= {1300,400,300,300};
+                        SDL_RenderCopy(gRenderer,exitTex,NULL,&exit1);
+
+                        SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
+                        player1.renderPlayer();
+                        while( SDL_PollEvent( &e ) != 0 )
+                        {
+                                //User requests quit
+                                if( e.type == SDL_QUIT )
+                                {
+                                        quit = true;
+                                }
+                                else if(e.type == SDL_KEYDOWN){
+                                        switch (e.key.keysym.sym){
+                                                                case SDLK_UP:
+                                                                        player1.move(KEY_PRESS_UP);
+                                                                        break;
+                                                                case SDLK_DOWN:
+                                                                        player1.move(KEY_PRESS_DOWN);
+                                                                        break;
+                                                                case SDLK_LEFT:
+                                                                        player1.move(KEY_PRESS_LEFT);
+                                                                        break;
+                                                                case SDLK_RIGHT:
+                                                                        player1.move(KEY_PRESS_RIGHT);
+                                                                        break;
+                                                                case SDLK_e:
+                                                                        player1.enter();
+                                        }
+                                }
+                                
+                        }
+                        
+                }
+
+                else if(player1.inTennisCourt){
+                        SDL_Rect tennisCourtInner= {0,0,SCREEN_WIDTH,SCREEN_HEIGHT};
+                        SDL_RenderCopy(gRenderer,tennisCourtInnerTex,NULL,&tennisCourtInner);
+                        SDL_Rect exit1= {1300,400,300,300};
+                        SDL_RenderCopy(gRenderer,exitTex,NULL,&exit1);
+
+                        SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
+                        player1.renderPlayer();
+                        while( SDL_PollEvent( &e ) != 0 )
+                        {
+                                //User requests quit
+                                if( e.type == SDL_QUIT )
+                                {
+                                        quit = true;
+                                }
+                                else if(e.type == SDL_KEYDOWN){
+                                        switch (e.key.keysym.sym){
+                                                                case SDLK_UP:
+                                                                        player1.move(KEY_PRESS_UP);
+                                                                        break;
+                                                                case SDLK_DOWN:
+                                                                        player1.move(KEY_PRESS_DOWN);
+                                                                        break;
+                                                                case SDLK_LEFT:
+                                                                        player1.move(KEY_PRESS_LEFT);
+                                                                        break;
+                                                                case SDLK_RIGHT:
+                                                                        player1.move(KEY_PRESS_RIGHT);
+                                                                        break;
+                                                                case SDLK_e:
+                                                                        player1.enter();
+                                        }
+                                }
+                                
+                        }
+                }
+                else if(player1.inVolleyCourt){
+                         SDL_Rect volleyCourtInner= {0,0,SCREEN_HEIGHT,SCREEN_HEIGHT};
+                        SDL_RenderCopy(gRenderer,volleyCourtInnerTex,NULL,&volleyCourtInner);
+                        SDL_Rect exit1= {1300,400,300,300};
+                        SDL_RenderCopy(gRenderer,exitTex,NULL,&exit1);
+
+                        SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
+                        player1.renderPlayer();
+                        while( SDL_PollEvent( &e ) != 0 )
                         {
                                 //User requests quit
                                 if( e.type == SDL_QUIT )
