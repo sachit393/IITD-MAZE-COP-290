@@ -10,6 +10,8 @@ const int HOSPITAL_BILL = 30;
 const int SCREEN_WIDTH = 1520;
 const int SCREEN_HEIGHT = 1020;
 const int PLAYER_RADIUS = 10;
+int lastx=0;
+int lasty=0;
 SDL_Window* gWindow = NULL;
 Uint32 start = 0;
 bool running = false;
@@ -128,7 +130,7 @@ class Player{
                 int knowledge;
                 bool hasCycle;
                 bool inMain = true;
-                bool enterShivalik = false;
+                bool enterHostel = false;
                 bool inLargeGround = false;
                 bool inTennisCourt = false;
                 bool inVolleyCourt = false;
@@ -171,7 +173,7 @@ class Player{
                 x = 260;
                 y = 550;
                 inMain = true;
-                enterShivalik = false;
+                enterHostel = false;
                 inTennisCourt = false;
                 inLargeGround = false;
 
@@ -214,6 +216,18 @@ class Player{
 
                         if(inMain){
                                 if(keyPress == KEY_PRESS_UP){
+                                        if(x>=870 && x<=890 && y-speed>=140){
+                                                y-=speed+energy/40;
+                                        }
+                                        if(x>=520 && x<=540 && y-speed>=140){
+                                                y-=speed+energy/40;
+                                        }
+                                        if(x>=330 && x<=350 && y-speed>=140){
+                                                y-=speed+energy/40;
+                                        }
+                                        if(x>=120 && x<=145 && y-speed>=140){
+                                                y-=speed+energy/40;
+                                        }
                                         if(y+speed<=178 && y-speed>=172 && x<=1000 && x>=0){
                                                 y-=speed+energy/40;                                        
                                         }
@@ -255,6 +269,18 @@ class Player{
 
                                 }
                                 if(keyPress == KEY_PRESS_DOWN){
+                                        if(x>=870 && x<=890 && y+speed<=200){
+                                                y+=speed+energy/40;
+                                        }
+                                        if(x>=520 && x<=540 && y+speed<=200){
+                                                y+=speed+energy/40;
+                                        }
+                                        if(x>=330 && x<=350 && y+speed<=170){
+                                                y+=speed+energy/40;
+                                        }
+                                        if(x>=120 && x<=145 && y+speed<=170){
+                                                y+=speed+energy/40;
+                                        }
                                         if(y+speed<=178 && x<=1000 && x>=0){
                                                 y+=speed+energy/40;
                                         }
@@ -294,6 +320,9 @@ class Player{
                                         }
                                 }
                                 if(keyPress == KEY_PRESS_LEFT){
+                                        if(y>=335 && y<=350 &&  x-speed>=760){
+                                                x-=speed+energy/40;
+                                        }
                                         if(y>=172 && y<=178 &&  x-speed>=0){
                                                 x-=speed+energy/40;
                                         }
@@ -329,6 +358,9 @@ class Player{
 
                                 }
                                 if(keyPress == KEY_PRESS_RIGHT){
+                                        if(335<=y && y<=350 && x+speed<=820){
+                                                x+=speed+energy/40;
+                                        }
                                         if(172<=y && y<=178 && x+speed<=1000){
                                                 x+=speed+energy/40;
                                         }
@@ -391,9 +423,11 @@ class Player{
 
         void enter(){
                 // enter into shivalik building
-
-                if (x>=455 && x<=480 && y<=350 && y>=330 && inMain){
-                        enterShivalik = true;
+                                // shivalik                                     zanskar                             vidyanchal                            satpura                                   girnar and udaigiri                      nilgiri                                  karakoram                                         aravali                                jwalamukhi                            kumaon   
+                if (inMain && ((x>=455 && x<=480 && y<=350 && y>=330) || (x>=365 && x<=390 && y<=350 && y>=330) || (y>=340 && y<=365 && x>=800 && x<=820) || (x>=755 && x<=800 && 463<=y && y<=480) || (x<=610 && x>=585 && y>=580 && y<=680) || (x>=120 && x<=140 && y>=130 && y<=140) || (x>=330 && x<=350 && y>=130 && y<=140) ||(x>=520 && x<=540 && y<=140 && y>=130) || (x>=870 && x<=890 && y<=140 && y>=130) || (x>=870 && x<=890 && y>=185 && y<=205) )){
+                        enterHostel = true;
+                        lastx = x;
+                        lasty = y;
                         x = 150;
                         y = 150;
                         inMain = false;
@@ -401,14 +435,14 @@ class Player{
                 }
                 // exit from shivalik building
 
-                else if(enterShivalik && x>=65 && x<=210 && y>=65 && y<=210){
-                        enterShivalik = false;
+                else if(enterHostel && x>=65 && x<=210 && y>=65 && y<=210){
+                        enterHostel = false;
                         inMain = true;
-                        x = 470;
-                        y = 345;
+                        x = lastx;
+                        y = lasty;
                 }
                 // play table tennis in Shivalik
-                else if(enterShivalik && x>=830 && x<=1000 && y>=100 && y<=200){
+                else if(enterHostel && x>=830 && x<=1000 && y>=100 && y<=200){
                         energy-=10;
                         if(energy<=0){
                                 hospitalize();
@@ -417,12 +451,12 @@ class Player{
                         happiness = min(100,happiness+10);
                 }
                 // eating mess food
-                else if(enterShivalik && x>=400 && x<=530 && y>=140 && y<=290){
+                else if(enterHostel && x>=400 && x<=530 && y>=140 && y<=290){
                         energy=min(energy+20,100);
                 }
 
                 // sleeping
-                else if(enterShivalik && x>=1280 && x<=1450){
+                else if(enterHostel && x>=1280 && x<=1450){
                         energy = min(energy+20,100);
                 }
 
@@ -430,7 +464,7 @@ class Player{
                 else if(inMain && x>=120 && x<=220 && y>=540 && y<=570){
                         inLargeGround = true;
                         inMain = false;
-                        enterShivalik = false;
+                        enterHostel = false;
                         x = 1300;
                         y = 500;
                 }
@@ -438,7 +472,7 @@ class Player{
                 else if (inLargeGround && x>=1350 && x<=1490 && y<=520 && y>=450){
                         inLargeGround = false;
                         inMain = true;
-                        enterShivalik = false;
+                        enterHostel = false;
                         inTennisCourt = false;
                         x = 220;
                         y = 550;
@@ -477,7 +511,7 @@ class Player{
                         inTennisCourt = true;
                         inMain = false;
                         inLargeGround = false;
-                        enterShivalik = false;
+                        enterHostel = false;
                         x = 1300;
                         y = 500;
                 }
@@ -495,7 +529,7 @@ class Player{
                 else if (inTennisCourt && x>=1350 && x<=1490 && y<=520 && y>=450){
                         inLargeGround = false;
                         inMain = true;
-                        enterShivalik = false;
+                        enterHostel = false;
                         inTennisCourt = false;
                         x = 370;
                         y = 320;
@@ -506,7 +540,7 @@ class Player{
                         inTennisCourt = false;
                         inVolleyCourt = true;
                         inLargeGround = false;
-                        enterShivalik = false;
+                        enterHostel = false;
                         inMain = false;
                         x = 1300;
                         y = 500;
@@ -525,7 +559,7 @@ class Player{
                 else if (inVolleyCourt && x>=1350 && x<=1490 && y<=520 && y>=450){
                         inLargeGround = false;
                         inMain = true;
-                        enterShivalik = false;
+                        enterHostel = false;
                         inTennisCourt = false;
                         inVolleyCourt = false;
                         x = 500;
@@ -536,7 +570,7 @@ class Player{
                 else if(y>=870 && y<=890 && x>=140 && x<=220){
                         inLHC = true;
                         inLargeGround = false;
-                        enterShivalik = false;
+                        enterHostel = false;
                         inTennisCourt = false;
                         inVolleyCourt = false;
                         inMain = false;
@@ -550,7 +584,7 @@ class Player{
                         inLHC108 = true;
                         inLHC = false;
                         inLargeGround = false;
-                        enterShivalik = false;
+                        enterHostel = false;
                         inTennisCourt = false;
                         inVolleyCourt = false;
                         inMain = false;
@@ -559,7 +593,7 @@ class Player{
                 else if (inLHC108 && x>=1350 && x<=1490 && y<=520 && y>=450){
                         inLargeGround = false;
                         inMain = false;
-                        enterShivalik = false;
+                        enterHostel = false;
                         inTennisCourt = false;
                         inLHC = true;
                         inLHC108 = false;
@@ -575,7 +609,7 @@ class Player{
                         inLHC114 = true;
                         inLHC = false;
                         inLargeGround = false;
-                        enterShivalik = false;
+                        enterHostel = false;
                         inTennisCourt = false;
                         inVolleyCourt = false;
                         inMain = false;
@@ -584,7 +618,7 @@ class Player{
                 else if (inLHC114 && x>=1350 && x<=1490 && y<=520 && y>=450){
                         inLargeGround = false;
                         inMain = false;
-                        enterShivalik = false;
+                        enterHostel = false;
                         inTennisCourt = false;
                         inLHC = true;
                         inLHC108 = false;
@@ -602,7 +636,7 @@ class Player{
                         inLHC325 = true;
                         inLHC = false;
                         inLargeGround = false;
-                        enterShivalik = false;
+                        enterHostel = false;
                         inTennisCourt = false;
                         inVolleyCourt = false;
                         inMain = false;
@@ -611,7 +645,7 @@ class Player{
                 else if (inLHC325 && x>=1350 && x<=1490 && y<=520 && y>=450){
                         inLargeGround = false;
                         inMain = false;
-                        enterShivalik = false;
+                        enterHostel = false;
                         inTennisCourt = false;
                         inLHC = true;
                         inLHC108 = false;
@@ -627,7 +661,7 @@ class Player{
                 else if (inLHC && x>=1350 && x<=1490 && y<=520 && y>=450){
                         inLargeGround = false;
                         inMain = true;
-                        enterShivalik = false;
+                        enterHostel = false;
                         inTennisCourt = false;
                         inLHC108 = false;
                         inLHC= false;
@@ -1702,7 +1736,7 @@ int main(int argc, char const *argv[])
 
                                         }
                                 }
-                else if(player1.enterShivalik){
+                else if(player1.enterHostel){
 
                     
                         // loading background
