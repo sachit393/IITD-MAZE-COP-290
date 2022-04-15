@@ -4,7 +4,9 @@
 #include <stdio.h>
 #include <string>
 #include <vector>
+#include <iostream>
 #include <sstream>
+#include <time.h>
 using namespace std;
 const int HOSPITAL_BILL = 30;
 const int SCREEN_WIDTH = 1520;
@@ -12,12 +14,52 @@ const int SCREEN_HEIGHT = 1020;
 const int PLAYER_RADIUS = 10;
 int lastx=0;
 int lasty=0;
+int k=0;
+int oldC = 0;
+int tempClip = 0;
+int newC = 0;
 SDL_Window* gWindow = NULL;
 Uint32 start = 0;
 bool running = false;
+bool notScolded = true;
+bool hungry = true;
+int temp2Clip = 450;
+int temp3Clip = 500;
+int temp4Clip = 500;
+int temp5Clip = 500;
+int temp6Clip = 500;
+int temp7Clip = 500;
+int temp8Clip = 500;
 SDL_Renderer* gRenderer = NULL;
 
 //Current displayed texture
+
+
+
+
+int manhattanDistance(pair<int,int>pr1,pair<int,int>pr2){
+        return abs(pr1.first-pr2.first)+abs(pr2.second-pr1.second);
+}
+
+
+pair<int,int> generateRandomPoint(int m){
+        srand(time(0)+m);
+
+        int x = rand()%1000;
+        int y = rand()%1000;
+
+        return {x,y};
+}
+
+bool delay(){
+        int temp = generateRandomPoint(0).first;
+        if(temp!=oldC) {
+                oldC = temp;
+                return true;
+        }
+        else return false;
+}
+
 SDL_Texture* gTexture = NULL;
 enum KeyPress
 {
@@ -116,6 +158,8 @@ void disptext(SDL_Renderer* gRenderer, int x, int y, int w, int h, char* s,int r
 }
 
 
+
+
 class Player{
 
         public:
@@ -138,11 +182,15 @@ class Player{
                 bool inLHC108 = false;
                 bool inLHC114 = false;
                 bool inLHC325 = false;
+                bool enterSAC = false;
+                bool enterRestaurant = false;
+                bool takenYulu = false;
+                bool isSleeping = false;
         Player(int xP,int yP,string colorP){
                 health = 50;
                 energy = 100;
                 happiness = 50;
-                money = 100;
+                money = 50;
                 knowledge = 10;
                 hasCycle = false;
                 x = xP;
@@ -153,9 +201,9 @@ class Player{
 
 
         void buyCycleIfPossible(){
-                if(money>200 && !hasCycle){
-                        money-=200;
-                        energy*=2;
+                if(money>80 && !hasCycle){
+                        money-=80;
+                        speed +=1;
                         hasCycle = true;
 
                 }
@@ -163,7 +211,7 @@ class Player{
         }
 
         void hospitalize(){
-                if(money<0){
+                if(money<HOSPITAL_BILL){
                         // player loses
                 }
                 money-=HOSPITAL_BILL;
@@ -216,22 +264,22 @@ class Player{
 
                         if(inMain){
                                 if(keyPress == KEY_PRESS_UP){
-                                        if(x>=870 && x<=890 && y-speed>=140){
+                                        if(x>=870 && x<=890 && y-speed>=140 && y<=215){
                                                 y-=speed+energy/40;
                                         }
-                                        if(x>=520 && x<=540 && y-speed>=140){
+                                        if(x>=520 && x<=540 && y-speed>=140 && y<=215){
                                                 y-=speed+energy/40;
                                         }
-                                        if(x>=330 && x<=350 && y-speed>=140){
+                                        if(x>=330 && x<=350 && y-speed>=140 && y<=215){
                                                 y-=speed+energy/40;
                                         }
-                                        if(x>=120 && x<=145 && y-speed>=140){
+                                        if(x>=120 && x<=145 && y-speed>=140 && y<=215){
                                                 y-=speed+energy/40;
                                         }
-                                        if(y+speed<=178 && y-speed>=172 && x<=1000 && x>=0){
+                                        if(y+speed<=190 && y-speed>=160 && x<=1000 && x>=0){
                                                 y-=speed+energy/40;                                        
                                         }
-                                        if(x<=255 && x>=230 && y-speed>=172){
+                                        if(x<=255 && x>=230 && y-speed>=165){
                                                 y-=speed+energy/40;
                                         }
                                         if(x<=995 && x>=981 && y-speed>=750){
@@ -281,7 +329,7 @@ class Player{
                                         if(x>=120 && x<=145 && y+speed<=170){
                                                 y+=speed+energy/40;
                                         }
-                                        if(y+speed<=178 && x<=1000 && x>=0){
+                                        if(y+speed<=190 && x<=1000 && x>=0){
                                                 y+=speed+energy/40;
                                         }
                                         if(x<=255 && x>=230 && y+speed<=990){
@@ -298,14 +346,14 @@ class Player{
                                         if(x<=600 && x>=575 && y+speed<=690 && y>=500){
                                                 y+=speed+energy/40;
                                         }
-                                        if(x<=800 && x>=760 && y+speed<=470){
+                                        if(x<=800 && x>=760 && y+speed<=470 ){
                                                 y+=speed+energy/40;
                                         }
-                                        if(x>=355 && x<=380 && y+speed<=350){
+                                        if(x>=355 && x<=380 && y+speed<=350 && y>=250){
                                                 y+=speed+energy/40;
                                         }
 
-                                        if(x>=455 && x<=480 && y+speed<=350){
+                                        if(x>=455 && x<=480 && y+speed<=350 && y>=250){
                                                 y+=speed+energy/40;
                                         }
                                         if(x>=565 && x<=585 && y+speed<=780 && y>700){
@@ -323,10 +371,10 @@ class Player{
                                         if(y>=335 && y<=350 &&  x-speed>=760){
                                                 x-=speed+energy/40;
                                         }
-                                        if(y>=172 && y<=178 &&  x-speed>=0){
+                                        if(y>=160 && y<=190 &&  x-speed>=0){
                                                 x-=speed+energy/40;
                                         }
-                                        if(984<=y && y<=990 && x-speed>=230){
+                                        if(970<=y && y<=990 && x-speed>=230){
                                                 x-=speed+energy/40;
                                         }
                                         if(y>=740 && y<=760 && x-speed>=230){
@@ -361,10 +409,10 @@ class Player{
                                         if(335<=y && y<=350 && x+speed<=820){
                                                 x+=speed+energy/40;
                                         }
-                                        if(172<=y && y<=178 && x+speed<=1000){
+                                        if(160<=y && y<=190 && x+speed<=1000){
                                                 x+=speed+energy/40;
                                         }
-                                        if(984<=y && y<=990 && x+speed<=1000){
+                                        if(970<=y && y<=990 && x+speed<=1000){
                                                 x+=speed+energy/40;
                                         }
                                         if(y>=740 && y<=760 && x+speed<=995){
@@ -421,10 +469,17 @@ class Player{
 
         }
 
+        void incrementMoney(){
+                if(delay()){
+                        money+=1;
+                        money = min(100,money);
+                }
+        }
+
         void enter(){
                 // enter into shivalik building
                                 // shivalik                                     zanskar                             vidyanchal                            satpura                                   girnar and udaigiri                      nilgiri                                  karakoram                                         aravali                                jwalamukhi                            kumaon   
-                if (inMain && ((x>=455 && x<=480 && y<=350 && y>=330) || (x>=365 && x<=390 && y<=350 && y>=330) || (y>=340 && y<=365 && x>=800 && x<=820) || (x>=755 && x<=800 && 463<=y && y<=480) || (x<=610 && x>=585 && y>=580 && y<=680) || (x>=120 && x<=140 && y>=130 && y<=140) || (x>=330 && x<=350 && y>=130 && y<=140) ||(x>=520 && x<=540 && y<=140 && y>=130) || (x>=870 && x<=890 && y<=140 && y>=130) || (x>=870 && x<=890 && y>=185 && y<=205) )){
+                if (inMain && ((x>=455 && x<=480 && y<=350 && y>=330) || (x>=365 && x<=390 && y<=350 && y>=330) || (y>=340 && y<=365 && x>=800 && x<=820) || (x>=755 && x<=800 && 463<=y && y<=480) || (x<=610 && x>=585 && y>=580 && y<=680) || (x>=115 && x<=145 && y>=125 && y<=145) || (x>=324 && x<=355 && y>=125 && y<=145) ||(x>=515 && x<=545 && y<=145 && y>=125) || (x>=865 && x<=895 && y<=145 && y>=125) || (x>=865 && x<=895 && y>=165 && y<=215) )){
                         enterHostel = true;
                         lastx = x;
                         lasty = y;
@@ -444,6 +499,7 @@ class Player{
                 // play table tennis in Shivalik
                 else if(enterHostel && x>=830 && x<=1000 && y>=100 && y<=200){
                         energy-=10;
+                        temp2Clip = 0;
                         if(energy<=0){
                                 hospitalize();
                         }
@@ -453,11 +509,19 @@ class Player{
                 // eating mess food
                 else if(enterHostel && x>=400 && x<=530 && y>=140 && y<=290){
                         energy=min(energy+20,100);
+                        temp3Clip = 0;
                 }
 
                 // sleeping
                 else if(enterHostel && x>=1280 && x<=1450){
-                        energy = min(energy+20,100);
+                        isSleeping = true;
+                        enterHostel = false;
+                }
+                else if(isSleeping){
+                        isSleeping = false;
+                        enterHostel = true;
+                        x = 1300;
+                        y = 200;
                 }
 
                 // entering largeGround
@@ -485,6 +549,7 @@ class Player{
                         }
                         health = min(100,health+10);
                         happiness = min(100,happiness+10);
+                        temp6Clip = 0;
                 }
                 // play cricket
                 else if(inLargeGround && x>=300 && x<=400 && y<=680 && y>=460){
@@ -494,6 +559,7 @@ class Player{
                         }
                         health = min(100,health+10);
                         happiness = min(100,happiness+10);
+                        temp7Clip = 0; 
                 }
 
                 // play hockey
@@ -504,6 +570,7 @@ class Player{
                         }
                         health = min(100,health+10);
                         happiness = min(100,happiness+10);
+                        temp8Clip = 0;
                 }
 
                 // entering tennis court
@@ -514,6 +581,7 @@ class Player{
                         enterHostel = false;
                         x = 1300;
                         y = 500;
+                        
                 }
 
                 // play tennis
@@ -522,6 +590,7 @@ class Player{
                         if(energy<=0){
                                 hospitalize();
                         }
+                        temp4Clip = 0;
                         health = min(100,health+10);
                         happiness = min(100,happiness+10);
                 }
@@ -553,6 +622,7 @@ class Player{
                         }
                         health = min(100,health+10);
                         happiness = min(100,happiness+10);
+                        temp5Clip = 0;
                 }
 
                 // exit volley court
@@ -669,9 +739,179 @@ class Player{
                         x = 250;
                         y = 890;
                 }
+            // enter into restaurant
+
+                if (x>=(SCREEN_WIDTH / 22+95+130) && x<=((SCREEN_WIDTH / 22)+95+130 + (SCREEN_WIDTH / 15)) && y<=((SCREEN_HEIGHT / 22)+425 + (SCREEN_HEIGHT / 20)) && y>=(SCREEN_HEIGHT / 22+425) && inMain){
+                        enterRestaurant = true;
+                        x = SCREEN_WIDTH - 290;
+                        y = 150;
+                        inMain = false;
+                }
+                // exit from restaurant
+
+                else if(enterRestaurant && x>=SCREEN_WIDTH*0.75 && x<=0.9*SCREEN_WIDTH && y>=0.09*SCREEN_HEIGHT && y<=0.21*SCREEN_HEIGHT){
+                        enterRestaurant = false;
+                        inMain = true;
+                        x = (SCREEN_WIDTH / 22+95+130) + 10;
+                        y = (SCREEN_HEIGHT / 22+425) + 10 ;
+                }
+
+                //Counter
+                else if(enterRestaurant && x>=SCREEN_WIDTH*0.03 && x<=0.68*SCREEN_WIDTH && y>=0.2*SCREEN_HEIGHT && y<=0.3*SCREEN_HEIGHT){
+                        
+                        if(money<20){
+                                //Decide what to do here
+                        }
+                        else{
+                        health=min(health+10, 100);
+                        energy=min(energy+10, 100);
+                        money-=20;
+                        }
+                }
+
+                //SAC
+
+
+
+                // enter into sac
+
+                if (x>=(0) && x<=SCREEN_WIDTH / 10 && y<=SCREEN_HEIGHT / 8  + SCREEN_HEIGHT / 22+220  && y>=SCREEN_HEIGHT / 22+220 && inMain){
+                        enterSAC = true;
+                        x = SCREEN_WIDTH*0.09;
+                        y = 0.75*SCREEN_HEIGHT;
+                        inMain = false;
+                }
+                // exit from restaurant
+
+                else if(enterSAC && x>=SCREEN_WIDTH*0.06 && x<=0.24*SCREEN_WIDTH && y>=0.72*SCREEN_HEIGHT && y<=0.93*SCREEN_HEIGHT){
+                        enterSAC = false;
+                        inMain = true;
+                        x = SCREEN_WIDTH / 20;
+                        y = SCREEN_HEIGHT / 22+220 ;
+                }
+
+                //Music 
+
+                else if(enterSAC && x>=SCREEN_WIDTH*0.14 && x<=0.34*SCREEN_WIDTH && y>=0.34*SCREEN_HEIGHT && y<=0.52*SCREEN_HEIGHT){
+                        
+                        happiness = min(100,happiness+10);
+                        energy-=10;
+                        if(energy<=0){
+                                hospitalize();
+                        }
+                        
+                }
+
+                //GYM
+
+                else if(enterSAC && x>=SCREEN_WIDTH*0.65 && x<=0.83*SCREEN_WIDTH && y>=0.1*SCREEN_HEIGHT && y<=0.27*SCREEN_HEIGHT){
+                        
+                        happiness = min(100,happiness+10);
+                        health=min(health+10, 100);
+                        energy-=10;
+                        if(energy<=0){
+                                hospitalize();
+                        }
+                        
+                }
+
+
+                //Badminton Court
+
+                else if(enterSAC && x>=SCREEN_WIDTH*0.33 && x<=0.56*SCREEN_WIDTH && y>=0*SCREEN_HEIGHT && y<=0.12*SCREEN_HEIGHT){
+                        
+                        happiness = min(100,happiness+10);
+                        health=min(health+10, 100);
+                        energy-=10;
+                        if(energy<=0){
+                                hospitalize();
+                        }
+                        
+                }
 
 
         }
+
+        void changeYulu(){
+                // initially did not have yulu
+                if(x>=138 && x<=215 && y>=307 && y<=320){
+                   if(!takenYulu){
+                        takenYulu = true;
+                        speed+=1;
+                   }
+                   else{   // already had yulu now leaving it
+                        takenYulu = false;
+                        speed-=1;
+                   }     
+                }
+
+                if(y>=420 && y<=465 && x<=255 && x>=230){
+                   if(!takenYulu){
+                        takenYulu = true;
+                        speed+=1;
+                   }
+                   else{   // already had yulu now leaving it
+                        takenYulu = false;
+                        speed-=1;
+                   }     
+                }
+
+                if(y>=630 && y<=670 && x<=255 && x>=230){
+                   if(!takenYulu){
+                        takenYulu = true;
+                        speed+=1;
+                   }
+                   else{   // already had yulu now leaving it
+                        takenYulu = false;
+                        speed-=1;
+                   }     
+                }
+
+                if(y>=820 && y<=854 && x<=255 && x>=230){
+                   if(!takenYulu){
+                        takenYulu = true;
+                        speed+=1;
+                   }
+                   else{   // already had yulu now leaving it
+                        takenYulu = false;
+                        speed-=1;
+                   }     
+                }
+
+                if(x>=947 && x<=994 && y<=180 && y>=165){
+                   if(!takenYulu){
+                        takenYulu = true;
+                        speed+=1;
+                   }
+                   else{   // already had yulu now leaving it
+                        takenYulu = false;
+                        speed-=1;
+                   }     
+                }
+                if(y<=560 && y>=530 && x<=640 && x>=595){
+                   if(!takenYulu){
+                        takenYulu = true;
+                        speed+=1;
+                   }
+                   else{   // already had yulu now leaving it
+                        takenYulu = false;
+                        speed-=1;
+                   }     
+                }
+
+                if(y<=990 && y>=955 && x>=930 && x<=980){
+                   if(!takenYulu){
+                        takenYulu = true;
+                        speed+=1;
+                   }
+                   else{   // already had yulu now leaving it
+                        takenYulu = false;
+                        speed-=1;
+                   }     
+                }
+                
+        }
+
         void renderPlayer(){
                 SDL_Rect player1 = {x,y,30,30};
                 SDL_RenderCopy(gRenderer,colorTex,NULL,&player1);
@@ -771,7 +1011,10 @@ int main(int argc, char const *argv[])
                 SDL_Texture* messTex = loadFromFile("mess.png");
                 SDL_Texture* grassTex = loadFromFile("grass.png");
                 SDL_Texture* rabbitTex = loadFromFile("rabbit.png");
+                SDL_Texture* rabbitfTex = loadFromFile("rabbitf.png");
+                SDL_Texture* rabbitthTex = loadFromFile("rabbitth.png");
                 SDL_Texture* roomTex = loadFromFile("room.png");
+                SDL_Texture* restaurantTex = loadFromFile("restaurant.png");
                 SDL_Texture* tree_topTex = loadFromFile("tree-top.png");
                 SDL_Texture* tree_leftTex = loadFromFile("tree-left.png");
                 SDL_Texture* tree_rightTex = loadFromFile("tree-right.png");
@@ -779,6 +1022,9 @@ int main(int argc, char const *argv[])
                 SDL_Texture* caretakerTex = loadFromFile("CARETAKEROFFICE.png");
                 SDL_Texture* washroomTex = loadFromFile("washroom.png");
                 SDL_Texture* entry_exitTex = loadFromFile("hostelgate.png");
+
+                        // sleep
+                SDL_Texture* sleepTex = loadFromFile("sleeping.png");
                 ////////////////
                 // main textures
                 SDL_Texture* nilgiriTex=loadFromFile("nilgiri.png"); 
@@ -830,8 +1076,74 @@ int main(int argc, char const *argv[])
                 SDL_Texture* hr2Tex = loadFromFile("horizontalroad2.png");
                 SDL_Texture* tpTex = loadFromFile("tpoint.png");
                 SDL_Texture* sacTex = loadFromFile("SAC.png");
+                SDL_Texture* SACinsideTex = loadFromFile("sac-inside-view.png");
                 SDL_Texture* interConnectingRoads2Tex = loadFromFile("interconnecting2.png");
                 SDL_Texture* exitTex = loadFromFile("exit.png");
+                SDL_Texture* angryProfessorTex = loadFromFile("angryProf.png");
+                SDL_Texture* hungryDogTex = loadFromFile("dog.png");
+                SDL_Texture* yuluTex = loadFromFile("yulu.png");
+
+                SDL_Texture* workerSprites = loadFromFile("workersprites.png");
+
+                SDL_Texture* ttframe2Tex = loadFromFile("ttframe2.png");
+                SDL_Texture* ttframe3Tex = loadFromFile("ttframe3.png");
+                SDL_Texture* ttframe4Tex = loadFromFile("ttframe4.png");
+                SDL_Texture* ttframe5Tex = loadFromFile("ttframe5.png");
+                SDL_Texture* ttframe6Tex = loadFromFile("ttframe6.png");
+                SDL_Texture* ttframe7Tex = loadFromFile("ttframe7.png");
+                SDL_Texture* ttframe8Tex = loadFromFile("ttframe8.png");
+                SDL_Texture* ttframe9Tex = loadFromFile("ttframe9.png");
+                SDL_Texture* ttframe10Tex = loadFromFile("ttframe10.png");
+
+                SDL_Texture* messframe1Tex = loadFromFile("messframe1.png");
+                SDL_Texture* messframe2Tex = loadFromFile("messframe2.png");
+                SDL_Texture* messframe3Tex = loadFromFile("messframe3.png");
+                SDL_Texture* messframe4Tex = loadFromFile("messframe4.png");
+
+                SDL_Texture* tennisframe1Tex = loadFromFile("tennisframe1.png");
+                SDL_Texture* tennisframe2Tex = loadFromFile("tennisframe2.png");
+                SDL_Texture* tennisframe3Tex = loadFromFile("tennisframe3.png");
+                SDL_Texture* tennisframe4Tex = loadFromFile("tennisframe4.png");
+                SDL_Texture* tennisframe5Tex = loadFromFile("tennisframe5.png");
+                SDL_Texture* tennisframe6Tex = loadFromFile("tennisframe6.png");
+
+                SDL_Texture* volleyballframeTex1 = loadFromFile("volleyballInner.png");
+                SDL_Texture* volleyballframeTex2 = loadFromFile("volleyballframe2.png");
+                SDL_Texture* volleyballframeTex3 = loadFromFile("volleyballframe3.png");
+                SDL_Texture* volleyballframeTex4 = loadFromFile("volleyballframe4.png");
+                SDL_Texture* volleyballframeTex5 = loadFromFile("volleyballframe5.png");
+                SDL_Texture* volleyballframeTex6 = loadFromFile("volleyballframe6.png");
+
+                SDL_Texture* footballframe1Tex = loadFromFile("footballframe1.png");
+                SDL_Texture* footballframe2Tex = loadFromFile("footballframe2.png");
+                SDL_Texture* footballframe3Tex = loadFromFile("footballframe3.png");
+                SDL_Texture* footballframe4Tex = loadFromFile("footballframe4.png");
+                SDL_Texture* footballframe5Tex = loadFromFile("footballframe5.png");
+                SDL_Texture* footballframe6Tex = loadFromFile("footballframe6.png");
+
+                SDL_Texture* cricketframe1Tex = loadFromFile("cricketframe1.png");
+                SDL_Texture* cricketframe2Tex = loadFromFile("cricketframe2.png");
+                SDL_Texture* cricketframe3Tex = loadFromFile("cricketframe3.png");
+                SDL_Texture* cricketframe4Tex = loadFromFile("cricketframe4.png");
+                SDL_Texture* cricketframe5Tex = loadFromFile("cricketframe5.png");
+                SDL_Texture* cricketframe6Tex = loadFromFile("cricketframe6.png");
+
+                SDL_Texture* hockeyframe1Tex = loadFromFile("hockeyframe1.png");
+                SDL_Texture* hockeyframe2Tex = loadFromFile("hockeyframe2.png");
+                SDL_Texture* hockeyframe3Tex = loadFromFile("hockeyframe3.png");
+                SDL_Texture* hockeyframe4Tex = loadFromFile("hockeyframe4.png");
+                SDL_Texture* hockeyframe5Tex = loadFromFile("hockeyframe5.png");
+                SDL_Texture* hockeyframe6Tex = loadFromFile("hockeyframe6.png");
+                SDL_Texture* hockeyframe7Tex = loadFromFile("hockeyframe7.png");
+                SDL_Texture* hockeyframe8Tex = loadFromFile("hockeyframe8.png");
+                SDL_Texture* hockeyframe9Tex = loadFromFile("hockeyframe9.png");
+
+                SDL_Rect arr[3];
+                arr[0] = {0,0,700/3,700};
+                arr[1] = {700/3,0,700/3,700};
+                arr[2] = {1400/3,0,700/3,700};
+
+
                 SDL_Rect textRect = {SCREEN_WIDTH-160,800,140,50};
                 // large ground textures
                 SDL_Texture* largeGroundInnerTex = loadFromFile("largegroundInner.png");
@@ -854,6 +1166,10 @@ int main(int argc, char const *argv[])
                 //LHC325
                 SDL_Texture* LHC325Tex = loadFromFile("LH325.png");
 
+                // yulu top
+                SDL_Texture* yuluTopTex = loadFromFile("yulutop.png");
+
+
                 Player player1 = Player(60,175,"pink");
                 Player player2 = Player(SCREEN_WIDTH-20,20,"purple");
                 bool quit = false;
@@ -863,9 +1179,19 @@ int main(int argc, char const *argv[])
                 while(!quit){
 
 
+                        // player1 is bankerupt
+                        if(player1.money ==0){
+                                player1.takenYulu = false;
+                                player1.speed-=1;
+                        }
+
         SDL_SetRenderDrawColor(gRenderer,0x00,0x00,0x00,0x00);
         SDL_RenderClear(gRenderer);
-            if(player1.inMain){        
+            if(player1.inMain){    
+                            
+                            // player1.incrementMoney();
+
+
 
                                         // Nilgiri
                             SDL_Rect nilgiri = { SCREEN_WIDTH / 22, SCREEN_HEIGHT / 22, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 10 };
@@ -1246,9 +1572,7 @@ int main(int argc, char const *argv[])
                             SDL_RenderCopy(gRenderer,amulTex,NULL,&amul);
                             SDL_DestroyTexture(imageTexture);
                             
-                            
-                            
-                            
+                                            
 
                             // Nescafe
                             SDL_Rect nescafe ={ SCREEN_WIDTH / 22+260+4*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+420 + SCREEN_HEIGHT / 4, SCREEN_WIDTH / 9, SCREEN_HEIGHT / 4 };
@@ -1692,6 +2016,71 @@ int main(int argc, char const *argv[])
 
                             SDL_Rect interRoadVolley = {SCREEN_WIDTH / 22+410,SCREEN_HEIGHT / 22+229, SCREEN_WIDTH / 15, SCREEN_HEIGHT / 15};
                             SDL_RenderCopy(gRenderer,vrTex,NULL,&interRoadVolley);
+
+                            pair<int,int> pr= generateRandomPoint(10);
+                            // delay has occured
+                            if(player1.takenYulu){
+                                if(delay()){
+                                        player1.money=max(player1.money-1,0);
+                                }
+                            }
+
+
+                            SDL_Rect angryProfessor1 = {pr.first,pr.second,100,100};
+                            SDL_RenderCopy(gRenderer,angryProfessorTex,NULL,&angryProfessor1);
+
+                            pair<int,int> prd= generateRandomPoint(5);
+                            SDL_Rect dog = {prd.first,prd.second,60,60};
+                            SDL_RenderCopy(gRenderer,hungryDogTex,NULL,&dog);
+
+                            if(manhattanDistance({player1.x,player1.y},pr)<100 && notScolded){
+                                notScolded = false;
+                                player1.happiness = max(player1.happiness-10,0);
+                                
+                            }
+                            if(manhattanDistance({player1.x,player1.y},pr)>=100){
+                                notScolded = true;
+                            }
+
+                            if(manhattanDistance({player1.x,player1.y},prd)<100 && hungry){
+                                hungry = false;
+                                player1.money = max(player1.money-10,0);
+                                
+                            }
+                            if(manhattanDistance({player1.x,player1.y},prd)>=100){
+                                hungry = true;
+                            }
+
+                            //YULU
+
+                            SDL_Rect yulu1 = {150,344,80,70};
+                            SDL_RenderCopy(gRenderer,yuluTex,NULL,&yulu1);
+
+                            SDL_Rect yulu2 = {173,444,80,70};
+                            SDL_RenderCopy(gRenderer,yuluTex,NULL,&yulu2);
+
+
+                            SDL_Rect yulu3 = {173,649,80,70};
+                            SDL_RenderCopy(gRenderer,yuluTex,NULL,&yulu3);
+
+                            SDL_Rect yulu4 = {173,829,80,70};
+                            SDL_RenderCopy(gRenderer,yuluTex,NULL,&yulu4);
+
+
+                            SDL_Rect yulu5 = {594,524,80,70};
+                            SDL_RenderCopy(gRenderer,yuluTex,NULL,&yulu5);
+
+                            SDL_Rect yulu6 = {915,954,80,70};
+                            SDL_RenderCopy(gRenderer,yuluTex,NULL,&yulu6);
+
+                            SDL_Rect yulu7 = {955,144,80,70};
+                            SDL_RenderCopy(gRenderer,yuluTex,NULL,&yulu7);
+
+
+                            SDL_Rect yuluTop = {1220,104,300,300};
+                            if(player1.takenYulu){
+                                SDL_RenderCopy(gRenderer,yuluTopTex,NULL,&yuluTop);
+                            }
                 ///////////////////////////////////////////////////////////////////
 
 
@@ -1729,6 +2118,10 @@ int main(int argc, char const *argv[])
                                                                         break;
                                                                 case SDLK_e:
                                                                         player1.enter();
+                                                                        break;
+                                                                case SDLK_y:
+                                                                        player1.changeYulu();
+                                                                        break;
                                                         }
                                                 }
                                                 SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
@@ -1759,37 +2152,100 @@ int main(int argc, char const *argv[])
 
                     // load rabbit1
                     SDL_Rect rabbit1 = {  300 , 400, 100, 100 };
-                    SDL_RenderCopy(gRenderer,rabbitTex,NULL,&rabbit1);
+                    
+                    if((tempClip/50)%3==1){
+                        SDL_RenderCopy(gRenderer,rabbitTex,NULL,&rabbit1);
+                    }
+                    else if((tempClip/50)%3==0){
+                        SDL_RenderCopy(gRenderer,rabbitfTex,NULL,&rabbit1);
+                    }
+                    else if((tempClip/50)%3==2){
+                        SDL_RenderCopy(gRenderer,rabbitthTex,NULL,&rabbit1);
+                    }
 
                     // load rabbit2
                     SDL_Rect rabbit2 = {  300+800 , 400+400, 100, 100 };
-                    SDL_RenderCopy(gRenderer,rabbitTex,NULL,&rabbit2);
+                    if((tempClip/50)%3==1){
+                        SDL_RenderCopy(gRenderer,rabbitTex,NULL,&rabbit2);
+                    }
+                    else if((tempClip/50)%3==0){
+                        SDL_RenderCopy(gRenderer,rabbitfTex,NULL,&rabbit2);
+                    }
+                    else if((tempClip/50)%3==2){
+                        SDL_RenderCopy(gRenderer,rabbitthTex,NULL,&rabbit2);
+                    }
+
 
 
                     // load rabbit3
                     SDL_Rect rabbit3 = {  500 , 500, 100, 100 };
-                    SDL_RenderCopy(gRenderer,rabbitTex,NULL,&rabbit3);
+                    if((tempClip/50)%3==1){
+                        SDL_RenderCopy(gRenderer,rabbitTex,NULL,&rabbit3);
+                    }
+                    else if((tempClip/50)%3==0){
+                        SDL_RenderCopy(gRenderer,rabbitfTex,NULL,&rabbit3);
+                    }
+                    else if((tempClip/50)%3==2){
+                        SDL_RenderCopy(gRenderer,rabbitthTex,NULL,&rabbit3);
+                    }
+
 
                     // load rabbit4
                     SDL_Rect rabbit4 = {  550 , 750, 100, 100 };
-                    SDL_RenderCopy(gRenderer,rabbitTex,NULL,&rabbit4);
+                    if((tempClip/50)%3==1){
+                        SDL_RenderCopy(gRenderer,rabbitTex,NULL,&rabbit4);
+                    }
+                    else if((tempClip/50)%3==0){
+                        SDL_RenderCopy(gRenderer,rabbitfTex,NULL,&rabbit4);
+                    }
+                    else if((tempClip/50)%3==2){
+                        SDL_RenderCopy(gRenderer,rabbitthTex,NULL,&rabbit4);
+                    }
+
 
 
 
                     // load rabbit5
                     SDL_Rect rabbit5 = {  350 , 850, 100, 100 };
-                    SDL_RenderCopy(gRenderer,rabbitTex,NULL,&rabbit5);
+                    if((tempClip/50)%3==1){
+                        SDL_RenderCopy(gRenderer,rabbitTex,NULL,&rabbit5);
+                    }
+                    else if((tempClip/50)%3==0){
+                        SDL_RenderCopy(gRenderer,rabbitfTex,NULL,&rabbit5);
+                    }
+                    else if((tempClip/50)%3==2){
+                        SDL_RenderCopy(gRenderer,rabbitthTex,NULL,&rabbit5);
+                    }
+
 
 
                     // load rabbit6
                     SDL_Rect rabbit6 = {  650 , 750, 100, 100 };
-                    SDL_RenderCopy(gRenderer,rabbitTex,NULL,&rabbit6);
+                    if((tempClip/50)%3==1){
+                        SDL_RenderCopy(gRenderer,rabbitTex,NULL,&rabbit6);
+                    }
+                    else if((tempClip/50)%3==0){
+                        SDL_RenderCopy(gRenderer,rabbitfTex,NULL,&rabbit6);
+                    }
+                    else if((tempClip/50)%3==2){
+                        SDL_RenderCopy(gRenderer,rabbitthTex,NULL,&rabbit6);
+                    }
+
 
 
 
                     // load rabbit7
                     SDL_Rect rabbit7 = {  850 , 650, 100, 100 };
-                    SDL_RenderCopy(gRenderer,rabbitTex,NULL,&rabbit7);
+                    if((tempClip/50)%3==1){
+                        SDL_RenderCopy(gRenderer,rabbitTex,NULL,&rabbit7);
+                    }
+                    else if((tempClip/50)%3==0){
+                        SDL_RenderCopy(gRenderer,rabbitfTex,NULL,&rabbit7);
+                    }
+                    else if((tempClip/50)%3==2){
+                        SDL_RenderCopy(gRenderer,rabbitthTex,NULL,&rabbit7);
+                    }
+
 
                     // load room
                     SDL_Rect room = {  1200 , 200, 300, 300 };
@@ -1834,6 +2290,60 @@ int main(int argc, char const *argv[])
                     SDL_RenderCopy(gRenderer,washroomTex,NULL,&washroom);
 
                     SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
+                    SDL_Rect workers = {50,800,250/3,250};
+                    SDL_RenderCopy(gRenderer,workerSprites,&arr[(tempClip/20)%3],&workers);
+                    SDL_Rect workers2 = {50,300,250/3,250};
+                    SDL_RenderCopy(gRenderer,workerSprites,&arr[(tempClip/20)%3],&workers2);
+
+                    if(temp2Clip <270){
+                            if((temp2Clip/30)%9==0){
+                                SDL_RenderCopy(gRenderer,ttframe2Tex,NULL,&ttable);
+                            }
+                            else if((temp2Clip/30)%9==1){
+                                SDL_RenderCopy(gRenderer,ttframe3Tex,NULL,&ttable);
+                            }
+                            else if((temp2Clip/30)%9==2){
+                                SDL_RenderCopy(gRenderer,ttframe4Tex,NULL,&ttable);
+                            }
+                            else if((temp2Clip/30)%9==3){
+                                SDL_RenderCopy(gRenderer,ttframe5Tex,NULL,&ttable);
+                            }
+                            else if((temp2Clip/30)%9==4){
+                                SDL_RenderCopy(gRenderer,ttframe6Tex,NULL,&ttable);
+                            }
+                            else if((temp2Clip/30)%9==5){
+                                SDL_RenderCopy(gRenderer,ttframe7Tex,NULL,&ttable);
+                            }
+                            else if((temp2Clip/30)%9==6){
+                                SDL_RenderCopy(gRenderer,ttframe8Tex,NULL,&ttable);
+                            }
+                            else if((temp2Clip/30)%9==7){
+                                SDL_RenderCopy(gRenderer,ttframe9Tex,NULL,&ttable);
+                            }
+                            else if((temp2Clip/30)%9==8){
+                                SDL_RenderCopy(gRenderer,ttframe10Tex,NULL,&ttable);
+                            }
+                            
+                    }
+
+                    if(temp3Clip <120){
+                            if((temp3Clip/30)%4==0){
+                                SDL_RenderCopy(gRenderer,messframe1Tex,NULL,&mess);
+                            }
+                            else if((temp3Clip/30)%4==1){
+                                SDL_RenderCopy(gRenderer,messframe2Tex,NULL,&mess);
+                            }
+                            else if((temp3Clip/30)%4==2){
+                                SDL_RenderCopy(gRenderer,messframe3Tex,NULL,&mess);
+                            }
+                            else if((temp3Clip/30)%4==3){
+                                SDL_RenderCopy(gRenderer,messframe4Tex,NULL,&mess);
+                            }
+                    }
+
+                    temp3Clip+=1;
+                    temp2Clip+=1;
+                    tempClip = tempClip+1;
                     player1.renderPlayer();
                     while( SDL_PollEvent( &e ) != 0 )
                         {
@@ -1858,6 +2368,8 @@ int main(int argc, char const *argv[])
                                                                         break;
                                                                 case SDLK_e:
                                                                         player1.enter();
+
+
                                         }
                                 }
                                 
@@ -1899,6 +2411,82 @@ int main(int argc, char const *argv[])
                                 }
                                 
                         }
+
+                        if(temp6Clip <180){
+                            if((temp6Clip/30)%6==0){
+                                SDL_RenderCopy(gRenderer,footballframe1Tex,NULL,&largeGroundInner);
+                            }
+                            else if((temp6Clip/30)%6==1){
+                                SDL_RenderCopy(gRenderer,footballframe2Tex,NULL,&largeGroundInner);
+                            }
+                            else if((temp6Clip/30)%6==2){
+                                SDL_RenderCopy(gRenderer,footballframe3Tex,NULL,&largeGroundInner);
+                            }
+                            else if((temp6Clip/30)%6==3){
+                                SDL_RenderCopy(gRenderer,footballframe4Tex,NULL,&largeGroundInner);
+                            }
+                            else if((temp6Clip/30)%6==4){
+                                SDL_RenderCopy(gRenderer,footballframe5Tex,NULL,&largeGroundInner);
+                            }
+                            else if((temp6Clip/30)%6==5){
+                                SDL_RenderCopy(gRenderer,footballframe6Tex,NULL,&largeGroundInner);
+                            }
+                        }
+                        temp6Clip+=1;
+
+                        if(temp7Clip <180){
+                            if((temp7Clip/30)%6==0){
+                                SDL_RenderCopy(gRenderer,cricketframe1Tex,NULL,&largeGroundInner);
+                            }
+                            else if((temp7Clip/30)%6==1){
+                                SDL_RenderCopy(gRenderer,cricketframe2Tex,NULL,&largeGroundInner);
+                            }
+                            else if((temp7Clip/30)%6==2){
+                                SDL_RenderCopy(gRenderer,cricketframe3Tex,NULL,&largeGroundInner);
+                            }
+                            else if((temp7Clip/30)%6==3){
+                                SDL_RenderCopy(gRenderer,cricketframe4Tex,NULL,&largeGroundInner);
+                            }
+                            else if((temp7Clip/30)%6==4){
+                                SDL_RenderCopy(gRenderer,cricketframe5Tex,NULL,&largeGroundInner);
+                            }
+                            else if((temp7Clip/30)%6==5){
+                                SDL_RenderCopy(gRenderer,cricketframe6Tex,NULL,&largeGroundInner);
+                            }
+                        }
+                        temp7Clip+=1;
+
+
+                        if(temp8Clip <270){
+                            if((temp8Clip/30)%9==0){
+                                SDL_RenderCopy(gRenderer,hockeyframe1Tex,NULL,&largeGroundInner);
+                            }
+                            else if((temp8Clip/30)%9==1){
+                                SDL_RenderCopy(gRenderer,hockeyframe2Tex,NULL,&largeGroundInner);
+                            }
+                            else if((temp8Clip/30)%9==2){
+                                SDL_RenderCopy(gRenderer,hockeyframe3Tex,NULL,&largeGroundInner);
+                            }
+                            else if((temp8Clip/30)%9==3){
+                                SDL_RenderCopy(gRenderer,hockeyframe4Tex,NULL,&largeGroundInner);
+                            }
+                            else if((temp8Clip/30)%9==4){
+                                SDL_RenderCopy(gRenderer,hockeyframe5Tex,NULL,&largeGroundInner);
+                            }
+                            else if((temp8Clip/30)%9==5){
+                                SDL_RenderCopy(gRenderer,hockeyframe6Tex,NULL,&largeGroundInner);
+                            }
+                            else if((temp8Clip/30)%9==6){
+                                SDL_RenderCopy(gRenderer,hockeyframe7Tex,NULL,&largeGroundInner);
+                            }
+                            else if((temp8Clip/30)%9==7){
+                                SDL_RenderCopy(gRenderer,hockeyframe8Tex,NULL,&largeGroundInner);
+                            }
+                            else if((temp8Clip/30)%9==8){
+                                SDL_RenderCopy(gRenderer,hockeyframe9Tex,NULL,&largeGroundInner);
+                            }
+                        }
+                        temp8Clip+=1;
                         
                 }
 
@@ -1937,6 +2525,28 @@ int main(int argc, char const *argv[])
                                 }
                                 
                         }
+
+                        if(temp4Clip <180){
+                            if((temp4Clip/30)%6==0){
+                                SDL_RenderCopy(gRenderer,tennisframe1Tex,NULL,&tennisCourtInner);
+                            }
+                            else if((temp4Clip/30)%6==1){
+                                SDL_RenderCopy(gRenderer,tennisframe2Tex,NULL,&tennisCourtInner);
+                            }
+                            else if((temp4Clip/30)%6==2){
+                                SDL_RenderCopy(gRenderer,tennisframe3Tex,NULL,&tennisCourtInner);
+                            }
+                            else if((temp4Clip/30)%6==3){
+                                SDL_RenderCopy(gRenderer,tennisframe4Tex,NULL,&tennisCourtInner);
+                            }
+                            else if((temp4Clip/30)%6==4){
+                                SDL_RenderCopy(gRenderer,tennisframe5Tex,NULL,&tennisCourtInner);
+                            }
+                            else if((temp4Clip/30)%6==5){
+                                SDL_RenderCopy(gRenderer,tennisframe6Tex,NULL,&tennisCourtInner);
+                            }
+                        }
+                        temp4Clip+=1;
                 }
                 else if(player1.inVolleyCourt){
                          SDL_Rect volleyCourtInner= {0,0,SCREEN_HEIGHT,SCREEN_HEIGHT};
@@ -1973,6 +2583,27 @@ int main(int argc, char const *argv[])
                                 }
                                 
                         }
+                        if(temp5Clip<180){
+                                if((temp5Clip/30)%6==0){
+                                    SDL_RenderCopy(gRenderer,volleyballframeTex1,NULL,&volleyCourtInner);
+                                }
+                                else if((temp5Clip/30)%6==1){
+                                    SDL_RenderCopy(gRenderer,volleyballframeTex2,NULL,&volleyCourtInner);
+                                }
+                                else if((temp5Clip/30)%6==2){
+                                    SDL_RenderCopy(gRenderer,volleyballframeTex3,NULL,&volleyCourtInner);
+                                }
+                                else if((temp5Clip/30)%6==3){
+                                    SDL_RenderCopy(gRenderer,volleyballframeTex4,NULL,&volleyCourtInner);
+                                }
+                                else if((temp5Clip/30)%6==4){
+                                    SDL_RenderCopy(gRenderer,volleyballframeTex5,NULL,&volleyCourtInner);
+                                }
+                                else if((temp5Clip/30)%6==5){
+                                    SDL_RenderCopy(gRenderer,volleyballframeTex6,NULL,&volleyCourtInner);
+                                }
+                        }
+                        temp5Clip+=1;
                 }
                 else if(player1.inLHC){
                         SDL_Rect lhcInner = {0,0,SCREEN_HEIGHT,SCREEN_HEIGHT};
@@ -2011,6 +2642,16 @@ int main(int argc, char const *argv[])
                         }
                 }
                 else if(player1.inLHC108){
+                        if(player1.inLHC108 || player1.inLHC114 || player1.inLHC325){
+                                if(delay()){
+                                        player1.knowledge=min(player1.knowledge+1,100);
+                                        player1.energy = max(player1.energy-1,0);
+                                        player1.health = max(player1.health-1,0);
+                                        if(player1.energy==0 || player1.health ==0){
+                                                player1.hospitalize();
+                                        }
+                                }
+                        }
                         SDL_Rect lhc108 = {0,0,SCREEN_HEIGHT,SCREEN_HEIGHT};
                         SDL_RenderCopy(gRenderer,LH108Tex,NULL,&lhc108);
                         SDL_Rect exit1= {1300,400,300,300};
@@ -2047,6 +2688,16 @@ int main(int argc, char const *argv[])
                         }
                 }
                 else if(player1.inLHC114){
+                        if(player1.inLHC108 || player1.inLHC114 || player1.inLHC325){
+                                if(delay()){
+                                        player1.knowledge=min(player1.knowledge+1,100);
+                                        player1.energy = max(player1.energy-1,0);
+                                        player1.health = max(player1.health-1,0);
+                                        if(player1.energy==0 || player1.health ==0){
+                                                player1.hospitalize();
+                                        }
+                                }
+                        }
                         SDL_Rect lhc114 = {0,0,SCREEN_HEIGHT,SCREEN_HEIGHT};
                         SDL_RenderCopy(gRenderer,LHC114Tex,NULL,&lhc114);
                         SDL_Rect exit1= {1300,400,300,300};
@@ -2083,6 +2734,16 @@ int main(int argc, char const *argv[])
                         }
                 }
                 else if(player1.inLHC325){
+                        if(player1.inLHC108 || player1.inLHC114 || player1.inLHC325){
+                                if(delay()){
+                                        player1.knowledge=min(player1.knowledge+1,100);
+                                        player1.energy = max(player1.energy-1,0);
+                                        player1.health = max(player1.health-1,0);
+                                        if(player1.energy==0 || player1.health ==0){
+                                                player1.hospitalize();
+                                        }
+                                }
+                        }
                         SDL_Rect lhc325 = {0,0,SCREEN_HEIGHT,SCREEN_HEIGHT};
                         SDL_RenderCopy(gRenderer,LHC325Tex,NULL,&lhc325);
                         SDL_Rect exit1= {1300,400,300,300};
@@ -2118,6 +2779,117 @@ int main(int argc, char const *argv[])
                                 
                         }
                 }
+                else if(player1.enterRestaurant){
+
+                        // loading background
+                    SDL_Rect tile = {  0 , 0, SCREEN_WIDTH, SCREEN_HEIGHT };
+                    SDL_RenderCopy(gRenderer,restaurantTex,NULL,&tile);
+                    
+
+                    SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
+                    player1.renderPlayer();
+                    while( SDL_PollEvent( &e ) != 0 )
+                        {
+                                //User requests quit
+                                if( e.type == SDL_QUIT )
+                                {
+                                        quit = true;
+                                }
+                                else if(e.type == SDL_KEYDOWN){
+                                        switch (e.key.keysym.sym){
+                                                                case SDLK_UP:
+                                                                        player1.move(KEY_PRESS_UP);
+                                                                        break;
+                                                                case SDLK_DOWN:
+                                                                        player1.move(KEY_PRESS_DOWN);
+                                                                        break;
+                                                                case SDLK_LEFT:
+                                                                        player1.move(KEY_PRESS_LEFT);
+                                                                        break;
+                                                                case SDLK_RIGHT:
+                                                                        player1.move(KEY_PRESS_RIGHT);
+                                                                        break;
+                                                                case SDLK_e:
+                                                                        player1.enter();
+                                        }
+                                }
+                                
+                        }
+                }
+                else if(player1.enterSAC){
+
+                        // loading background
+                    SDL_Rect tile = {  0 , 0, SCREEN_WIDTH, SCREEN_HEIGHT };
+                    SDL_RenderCopy(gRenderer,SACinsideTex,NULL,&tile);
+
+                    SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
+                    player1.renderPlayer();
+                    while( SDL_PollEvent( &e ) != 0 )
+                        {
+                                //User requests quit
+                                if( e.type == SDL_QUIT )
+                                {
+                                        quit = true;
+                                }
+                                else if(e.type == SDL_KEYDOWN){
+                                        switch (e.key.keysym.sym){
+                                                                case SDLK_UP:
+                                                                        player1.move(KEY_PRESS_UP);
+                                                                        break;
+                                                                case SDLK_DOWN:
+                                                                        player1.move(KEY_PRESS_DOWN);
+                                                                        break;
+                                                                case SDLK_LEFT:
+                                                                        player1.move(KEY_PRESS_LEFT);
+                                                                        break;
+                                                                case SDLK_RIGHT:
+                                                                        player1.move(KEY_PRESS_RIGHT);
+                                                                        break;
+                                                                case SDLK_e:
+                                                                        player1.enter();
+                                        }
+                                }
+                                
+                        }
+                }
+                else if(player1.isSleeping){
+                    SDL_Rect sleep = {0,0,SCREEN_HEIGHT,SCREEN_HEIGHT};
+                    SDL_RenderCopy(gRenderer,sleepTex,NULL,&sleep);
+                    if(delay()){
+                                        player1.energy = min(player1.energy+1,100);
+                                        player1.health = min(player1.health+1,100);
+                    }
+                    SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
+                    while( SDL_PollEvent( &e ) != 0 )
+                        {
+                                //User requests quit
+                                if( e.type == SDL_QUIT )
+                                {
+                                        quit = true;
+                                }
+                                else if(e.type == SDL_KEYDOWN){
+                                        switch (e.key.keysym.sym){
+                                                                case SDLK_UP:
+                                                                        player1.move(KEY_PRESS_UP);
+                                                                        break;
+                                                                case SDLK_DOWN:
+                                                                        player1.move(KEY_PRESS_DOWN);
+                                                                        break;
+                                                                case SDLK_LEFT:
+                                                                        player1.move(KEY_PRESS_LEFT);
+                                                                        break;
+                                                                case SDLK_RIGHT:
+                                                                        player1.move(KEY_PRESS_RIGHT);
+                                                                        break;
+                                                                case SDLK_w:
+                                                                        player1.enter();
+                                        }
+                                }
+                                
+                        }
+
+                }
+                    
         string s= "Player happiness:-"+to_string(player1.happiness);
         int n = s.length();
         char char_array1[n + 1];
@@ -2180,4 +2952,5 @@ int main(int argc, char const *argv[])
 
 
         return 0;
+                
 }
