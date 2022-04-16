@@ -2,7 +2,18 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
-
+#include <netdb.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <arpa/inet.h>
+#define MAX 37
+#define PORT 8080
+#define SA struct sockaddr
 
 #include <stdio.h>
 #include <string>
@@ -11,7 +22,6 @@
 #include <sstream>
 #include <time.h>
 using namespace std;
-int lastStepDirection = 0;
 const int HOSPITAL_BILL = 30;
 const int SCREEN_WIDTH = 1520;
 const int SCREEN_HEIGHT = 1020;
@@ -44,6 +54,7 @@ SDL_Renderer* gRenderer = NULL;
 //Current displayed texture
 
 
+   
 
 
 int manhattanDistance(pair<int,int>pr1,pair<int,int>pr2){
@@ -195,7 +206,7 @@ class Player{
                 SDL_Texture* colorTexBack = NULL;
                 SDL_Texture* colorTexLeft = NULL;
                 SDL_Texture* colorTexRight = NULL;
-                
+                SDL_Texture* colorTexLeft2 = NULL;
                 int x;
                 int y;
                 int speed = 7;
@@ -230,6 +241,8 @@ class Player{
                 bool isSleeping = false;
                 bool bankrupt = false;
                 bool isStudying = false;
+                int lastStepDirection = 0;
+
         Player(int xP,int yP,string colorP){
                 health = 50;
                 energy = 100;
@@ -239,10 +252,11 @@ class Player{
                 hasCycle = false;
                 x = xP;
                 y = yP;
+                colorTexRight = loadFromFile(colorP+"-char-right.png");
                 colorTexFront = loadFromFile(colorP+"-char-front.png");
                 colorTexBack = loadFromFile(colorP+"-char-back.png");
                 colorTexLeft = loadFromFile(colorP+"-char-left.png");
-                colorTexRight = loadFromFile(colorP+"-char-right.png");
+                colorTexLeft2 = loadFromFile(colorP+"-char-left.png");
         }
 
 
@@ -1864,7 +1878,7 @@ bool init(){
                 }
 
                 //Create window
-                gWindow = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
+                gWindow = SDL_CreateWindow( "CLIENT", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
                 if( gWindow == NULL )
                 {
                         printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
@@ -1926,6 +1940,34 @@ int main(int argc, char const *argv[])
                 printf ("failed to initialize\n");
         }
         else{
+                int sockfd, connfd;
+            struct sockaddr_in servaddr, cli;
+           
+            // socket create and verification
+            sockfd = socket(AF_INET, SOCK_STREAM, 0);
+            if (sockfd == -1) {
+                printf("socket creation failed...\n");
+                exit(0);
+            }
+            else
+                printf("Socket successfully created..\n");
+            bzero(&servaddr, sizeof(servaddr));
+           
+            // assign IP, PORT
+            servaddr.sin_family = AF_INET;
+            servaddr.sin_addr.s_addr = inet_addr("10.184.15.148");
+            servaddr.sin_port = htons(PORT);
+           
+            // connect the client socket to server socket
+            if (connect(sockfd, (SA*)&servaddr, sizeof(servaddr)) != 0) {
+                printf("connection with the server failed...\n");
+                exit(0);
+            }
+            else
+                printf("connected to the server..\n");
+            char buff[MAX];
+            int n;
+            string s1,s2,s3;
                 start = SDL_GetTicks();
                 // hostel textures
                 SDL_Texture* tileTex = loadFromFile("tile.png");
@@ -2108,17 +2150,17 @@ int main(int argc, char const *argv[])
 
                 SDL_Texture* gymframeTex1 = loadFromFile("gymframe1.png");
                 SDL_Texture* gymframeTex2 = loadFromFile("gymframe2.png");
-                SDL_Texture* gymframeTex3 = loadFromFile("gymframe3.png");
 
-                Player player1 = Player(60,175,"pink");
-                Player player2 = Player(SCREEN_WIDTH-20,20,"purple");
+                Player player1 = Player(SCREEN_WIDTH-600,175,"purple");
+                Player player2 = Player(60,175,"pink");
                 bool quit = false;
 
                 SDL_Event e;
 
+
                 while(!quit){
                         
-
+                        // cout<<player1.lastStepDirection<<"\n";
 
                         // player1 is bankerupt
                         if(player1.money ==0 && !player1.bankrupt){
@@ -2133,6 +2175,338 @@ int main(int argc, char const *argv[])
         SDL_SetRenderDrawColor(gRenderer,0x00,0x00,0x00,0x00);
         SDL_RenderClear(gRenderer);
             
+
+            bzero(buff, sizeof(buff));
+                                n = 0;
+                                s1 = to_string(player1.x);
+                                buff[0] = s1[0];
+                                buff[1] = s1[1];
+                                buff[2] = s1[2];
+                                buff[3] = s1[3];
+                                s2 = to_string(player1.y);
+                                buff[4] = s2[0];
+                                buff[5] = s2[1];
+                                buff[6] = s2[2];
+                                buff[7] = s2[3];
+                                s3 = to_string(player1.lastStepDirection);
+                                buff[8] = s3[0];
+                                buff[9] = s3[1];
+                                buff[10] = s3[2];
+                                buff[11] = s3[3];
+                                if(player1.inMain){
+                                        buff[12] = '1';
+                                }
+                                else{
+                                        buff[12]='0';
+                                }
+
+                                if(player1.enterHostel){
+                                        buff[13] = '1';
+                                }
+                                else{
+                                        buff[13]='0';
+                                }
+                                if(player1.inLargeGround){
+                                        buff[14] = '1';
+                                }
+                                else{
+                                        buff[14]='0';
+                                }
+
+                                if(player1.inTennisCourt){
+                                        buff[15] = '1';
+                                }
+                                else{
+                                        buff[15]='0';
+                                }
+                                if(player1.inVolleyCourt){
+                                        buff[16] = '1';
+                                }
+                                else{
+                                        buff[16]='0';
+                                }
+                                if(player1.inLHC){
+                                        buff[17] = '1';
+                                }
+                                else{
+                                        buff[17]='0';
+                                }
+                                if(player1.inLHC108){
+                                        buff[18] = '1';
+                                }
+                                else{
+                                        buff[18]='0';
+                                }
+                                if(player1.inLHC114){
+                                        buff[19] = '1';
+                                }
+                                else{
+                                        buff[19]='0';
+                                }
+                                if(player1.inLHC325){
+                                        buff[20] = '1';
+                                }
+                                else{
+                                        buff[20]='0';
+                                }
+                                if(player1.enterSAC){
+                                        buff[21] = '1';
+                                }
+                                else{
+                                        buff[21]='0';
+                                }
+                                if(player1.enterRestaurant){
+                                        buff[22] = '1';
+                                }
+                                else{
+                                        buff[22]='0';
+                                }
+                                if(player1.enterMasalaMix){
+                                        buff[23] = '1';
+                                }
+                                else{
+                                        buff[23]='0';
+                                }
+                                if(player1.enterRajdhani){
+                                        buff[24] = '1';
+                                }
+                                else{
+                                        buff[24]='0';
+                                }
+                                if(player1.enterChaayos){
+                                        buff[25] = '1';
+                                }
+                                else{
+                                        buff[25]='0';
+                                }
+                                if(player1.enterShiru){
+                                        buff[26] = '1';
+                                }
+                                else{
+                                        buff[26]='0';
+                                }
+                                if(player1.enterAmul){
+                                        buff[27] = '1';
+                                }
+                                else{
+                                        buff[27]='0';
+                                }
+                                if(player1.enterNescafe){
+                                        buff[28] = '1';
+                                }
+                                else{
+                                        buff[28]='0';
+                                }
+                                if(player1.enterCCD){
+                                        buff[29] = '1';
+                                }
+                                else{
+                                        buff[29]='0';
+                                }
+                                if(player1.enterStaffCanteen){
+                                        buff[30] = '1';
+                                }
+                                else{
+                                        buff[30]='0';
+                                }
+                                if(player1.enterDilli16){
+                                        buff[31] = '1';
+                                }
+                                else{
+                                        buff[31]='0';
+                                }
+
+                                if(player1.enterLibrary){
+                                        buff[32] = '1';
+                                }
+                                else{
+                                        buff[32]='0';
+                                }
+                                if(player1.isSleeping){
+                                        buff[33] = '1';
+                                }
+                                else{
+                                        buff[33]='0';
+                                }
+                                if(player1.isStudying){
+                                        buff[34] = '1';
+                                }
+                                else{
+                                        buff[34]='0';
+                                }
+                                // cout<<"IN CLIENT SIDE\n";
+                                // cout<<s1<<" "<<s2<<"\n";
+                                // cout<<buff[1]<<"\n";
+                                write(sockfd, buff, sizeof(buff));
+                                bzero(buff, sizeof(buff));
+                                
+                                        read(sockfd, buff, sizeof(buff));
+                                
+                                // cout<<"works till here\n";
+                                s1="";
+                                s1+=buff[0];
+                                s1+=buff[1];
+                                s1+=buff[2];
+                                s1+=buff[3];
+                                s2 ="";
+                                s2+=buff[4];
+                                s2+=buff[5];
+                                s2+=buff[6];
+                                s2+=buff[7];
+                                s3 = "";
+                                s3+=buff[8];
+                                s3+=buff[9];
+                                s3+=buff[10];
+                                s3+=buff[11];
+                                // cout<<"IN Server\n";
+                                // cout<<s1<<" "<<s2<<"\n";
+                                player2.x = stoi(s1);
+                                player2.y = stoi(s2);
+                                player2.lastStepDirection = stoi(s3);
+                                if(buff[12]=='1'){
+                                        player2.inMain = true;
+                                }
+                                else{
+                                        player2.inMain = false;
+                                }
+                                if(buff[13]=='1'){
+                                        player2.enterHostel = true;
+                                }
+                                else{
+                                        player2.enterHostel = false;
+                                }
+                                if(buff[14]=='1'){
+                                        player2.inLargeGround = true;
+                                }
+                                else{
+                                        player2.inLargeGround = false;
+                                }
+                                if(buff[15]=='1'){
+                                        player2.inTennisCourt = true;
+                                }
+                                else{
+                                        player2.inTennisCourt = false;
+                                }
+                                if(buff[16]=='1'){
+                                        player2.inVolleyCourt = true;
+                                }
+                                else{
+                                        player2.inVolleyCourt = false;
+                                }
+                                if(buff[16]=='1'){
+                                        player2.inVolleyCourt = true;
+                                }
+                                else{
+                                        player2.inVolleyCourt = false;
+                                }
+                                if(buff[17]=='1'){
+                                        player2.inLHC = true;
+                                }
+                                else{
+                                        player2.inLHC = false;
+                                }
+                                if(buff[18]=='1'){
+                                        player2.inLHC108 = true;
+                                }
+                                else{
+                                        player2.inLHC108 = false;
+                                }
+                                if(buff[19]=='1'){
+                                        player2.inLHC114 = true;
+                                }
+                                else{
+                                        player2.inLHC114 = false;
+                                }
+                                if(buff[20]=='1'){
+                                        player2.inLHC325 = true;
+                                }
+                                else{
+                                        player2.inLHC325 = false;
+                                }
+                                if(buff[21]=='1'){
+                                        player2.enterSAC = true;
+                                }
+                                else{
+                                        player2.enterSAC = false;
+                                }
+                                if(buff[22]=='1'){
+                                        player2.enterRestaurant = true;
+                                }
+                                else{
+                                        player2.enterRestaurant = false;
+                                }
+                                if(buff[23]=='1'){
+                                        player2.enterMasalaMix = true;
+                                }
+                                else{
+                                        player2.enterMasalaMix = false;
+                                }
+                                if(buff[24]=='1'){
+                                        player2.enterRajdhani = true;
+                                }
+                                else{
+                                        player2.enterRajdhani = false;
+                                }
+                                if(buff[25]=='1'){
+                                        player2.enterChaayos = true;
+                                }
+                                else{
+                                        player2.enterChaayos = false;
+                                }
+                                if(buff[26]=='1'){
+                                        player2.enterShiru = true;
+                                }
+                                else{
+                                        player2.enterShiru = false;
+                                }
+                                if(buff[27]=='1'){
+                                        player2.enterAmul = true;
+                                }
+                                else{
+                                        player2.enterAmul = false;
+                                }
+                                if(buff[28]=='1'){
+                                        player2.enterNescafe = true;
+                                }
+                                else{
+                                        player2.enterNescafe = false;
+                                }
+                                if(buff[29]=='1'){
+                                        player2.enterCCD = true;
+                                }
+                                else{
+                                        player2.enterCCD = false;
+                                }
+                                if(buff[30]=='1'){
+                                        player2.enterStaffCanteen = true;
+                                }
+                                else{
+                                        player2.enterStaffCanteen = false;
+                                }
+                                if(buff[31]=='1'){
+                                        player2.enterDilli16 = true;
+                                }
+                                else{
+                                        player2.enterDilli16 = false;
+                                }
+                                if(buff[32]=='1'){
+                                        player2.enterLibrary = true;
+                                }
+                                else{
+                                        player2.enterLibrary = false;
+                                }
+                                if(buff[33]=='1'){
+                                        player2.isSleeping = true;
+                                }
+                                else{
+                                        player2.isSleeping = false;
+                                }
+                                if(buff[34]=='1'){
+                                        player2.isStudying = true;
+                                }
+                                else{
+                                        player2.isStudying = false;
+                                }
             if(player1.inMain){    
 
                             if(insufficientMoney){
@@ -2141,8 +2515,7 @@ int main(int argc, char const *argv[])
                              }
                             player1.incrementMoney();
 
-
-
+                            
                                         // Nilgiri
                             SDL_Rect nilgiri = { SCREEN_WIDTH / 22, SCREEN_HEIGHT / 22, SCREEN_WIDTH / 10, SCREEN_HEIGHT / 10 };
                             
@@ -2539,16 +2912,7 @@ int main(int argc, char const *argv[])
                             SDL_DestroyTexture(imageTexture);
                             
                             
-                            
-                            
-                            // disptext(gRenderer,   SCREEN_WIDTH / 22+300+5*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+440 + SCREEN_HEIGHT / 4, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 16 , "Cafe Coffee Day",255,255,255 ) ;
-
-                            
-                            char* str = "Dogra hall";
-                            // std::vector<char> cstr(str.c_str(), str.c_str() + str.size() + 1);
-                            // 
-                            // disptext(gRenderer,   SCREEN_WIDTH / 22+310+5*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+450 + SCREEN_HEIGHT / 4+ SCREEN_HEIGHT / 16+40, SCREEN_WIDTH / 16, SCREEN_HEIGHT / 20, "Dogra Hall",255,255,255 ) ;
-                            
+                        
                             
                             // central library
 
@@ -3033,12 +3397,15 @@ int main(int argc, char const *argv[])
                             // SDL_Surface* textSurface = TTF_RenderText_Shaded(font, totalKilled,    foregroundColor, backgroundColor);
 
 
-                            SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
+                            // SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
                             player1.renderPlayer();
+                            if(player2.inMain){
+                                player2.renderPlayer();
+                            }
+                            
 
-
-                            SDL_SetRenderDrawColor( gRenderer,92, 52, 235, 0xFF );
-                            player2.renderPlayer();
+                            
+                            
 
 
                                     while( SDL_PollEvent( &e ) != 0 )
@@ -3052,18 +3419,18 @@ int main(int argc, char const *argv[])
                                                         switch (e.key.keysym.sym){
                                                                 case SDLK_UP:
                                                                         player1.move(KEY_PRESS_UP);
-                                                                        lastStepDirection = 1;
+                                                                        player1.lastStepDirection = 1;
                                                                         break;
                                                                 case SDLK_DOWN:
                                                                         player1.move(KEY_PRESS_DOWN);
-                                                                        lastStepDirection = 0;
+                                                                        player1.lastStepDirection = 0;
                                                                         break;
                                                                 case SDLK_LEFT:
-                                                                        lastStepDirection = 2;
+                                                                        player1.lastStepDirection = 2;
                                                                         player1.move(KEY_PRESS_LEFT);
                                                                         break;
                                                                 case SDLK_RIGHT:
-                                                                        lastStepDirection = 3;
+                                                                        player1.lastStepDirection = 3;
                                                                         player1.move(KEY_PRESS_RIGHT);
                                                                         break;
                                                                 case SDLK_e:
@@ -3295,6 +3662,9 @@ int main(int argc, char const *argv[])
                     temp2Clip+=1;
                     tempClip = tempClip+1;
                     player1.renderPlayer();
+                    if(player2.enterHostel){
+                        player2.renderPlayer();
+                    }
                     while( SDL_PollEvent( &e ) != 0 )
                         {
                                 //User requests quit
@@ -3306,19 +3676,19 @@ int main(int argc, char const *argv[])
                                         switch (e.key.keysym.sym){
                                                                 case SDLK_UP:
                                                                         player1.move(KEY_PRESS_UP);
-                                                                        lastStepDirection = 1;
+                                                                        player1.lastStepDirection = 1;
                                                                         break;
                                                                 case SDLK_DOWN:
                                                                         player1.move(KEY_PRESS_DOWN);
-                                                                        lastStepDirection = 0;
+                                                                        player1.lastStepDirection = 0;
                                                                         break;
                                                                 case SDLK_LEFT:
                                                                         player1.move(KEY_PRESS_LEFT);
-                                                                        lastStepDirection = 2;
+                                                                        player1.lastStepDirection = 2;
                                                                         break;
                                                                 case SDLK_RIGHT:
                                                                         player1.move(KEY_PRESS_RIGHT);
-                                                                        lastStepDirection = 3;
+                                                                        player1.lastStepDirection = 3;
                                                                         break;
                                                                 case SDLK_e:
                                                                         player1.enter();
@@ -3338,6 +3708,9 @@ int main(int argc, char const *argv[])
 
                         SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
                         player1.renderPlayer();
+                        if(player2.inLargeGround){
+                                player2.renderPlayer();
+                        }
                         while( SDL_PollEvent( &e ) != 0 )
                         {
                                 //User requests quit
@@ -3347,17 +3720,21 @@ int main(int argc, char const *argv[])
                                 }
                                 else if(e.type == SDL_KEYDOWN){
                                         switch (e.key.keysym.sym){
-                                                                case SDLK_UP:
+                                                                 case SDLK_UP:
                                                                         player1.move(KEY_PRESS_UP);
+                                                                        player1.lastStepDirection = 1;
                                                                         break;
                                                                 case SDLK_DOWN:
                                                                         player1.move(KEY_PRESS_DOWN);
+                                                                        player1.lastStepDirection = 0;
                                                                         break;
                                                                 case SDLK_LEFT:
                                                                         player1.move(KEY_PRESS_LEFT);
+                                                                        player1.lastStepDirection = 2;
                                                                         break;
                                                                 case SDLK_RIGHT:
                                                                         player1.move(KEY_PRESS_RIGHT);
+                                                                        player1.lastStepDirection = 3;
                                                                         break;
                                                                 case SDLK_e:
                                                                         player1.enter();
@@ -3452,6 +3829,9 @@ int main(int argc, char const *argv[])
 
                         SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
                         player1.renderPlayer();
+                        if(player2.inTennisCourt){
+                                player2.renderPlayer();
+                        }
                         while( SDL_PollEvent( &e ) != 0 )
                         {
                                 //User requests quit
@@ -3463,18 +3843,18 @@ int main(int argc, char const *argv[])
                                         switch (e.key.keysym.sym){
                                                                 case SDLK_UP:
                                                                         player1.move(KEY_PRESS_UP);
-                                                                        lastStepDirection = 1;
+                                                                        player1.lastStepDirection = 1;
                                                                         break;
                                                                 case SDLK_DOWN:
-                                                                lastStepDirection = 0;
+                                                                player1.lastStepDirection = 0;
                                                                         player1.move(KEY_PRESS_DOWN);
                                                                         break;
                                                                 case SDLK_LEFT:
-                                                                lastStepDirection = 2;
+                                                                player1.lastStepDirection = 2;
                                                                         player1.move(KEY_PRESS_LEFT);
                                                                         break;
                                                                 case SDLK_RIGHT:
-                                                                lastStepDirection = 3;
+                                                                player1.lastStepDirection = 3;
                                                                         player1.move(KEY_PRESS_RIGHT);
                                                                         break;
                                                                 case SDLK_e:
@@ -3514,6 +3894,9 @@ int main(int argc, char const *argv[])
 
                         SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
                         player1.renderPlayer();
+                        if(player2.inVolleyCourt){
+                                player2.renderPlayer();
+                        }
                         while( SDL_PollEvent( &e ) != 0 )
                         {
                                 //User requests quit
@@ -3525,18 +3908,18 @@ int main(int argc, char const *argv[])
                                         switch (e.key.keysym.sym){
                                                                 case SDLK_UP:
                                                                         player1.move(KEY_PRESS_UP);
-                                                                        lastStepDirection = 1;
+                                                                        player1.lastStepDirection = 1;
                                                                         break;
                                                                 case SDLK_DOWN:
-                                                                lastStepDirection = 0;
+                                                                player1.lastStepDirection = 0;
                                                                         player1.move(KEY_PRESS_DOWN);
                                                                         break;
                                                                 case SDLK_LEFT:
-                                                                        lastStepDirection = 2;
+                                                                        player1.lastStepDirection = 2;
                                                                         player1.move(KEY_PRESS_LEFT);
                                                                         break;
                                                                 case SDLK_RIGHT:
-                                                                        lastStepDirection = 3;
+                                                                        player1.lastStepDirection = 3;
                                                                         player1.move(KEY_PRESS_RIGHT);
                                                                         break;
                                                                 case SDLK_e:
@@ -3575,6 +3958,9 @@ int main(int argc, char const *argv[])
 
                         SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
                         player1.renderPlayer();
+                        if(player2.inLHC){
+                                player2.renderPlayer();
+                        }
                         while( SDL_PollEvent( &e ) != 0 )
                         {
                                 //User requests quit
@@ -3585,19 +3971,19 @@ int main(int argc, char const *argv[])
                                 else if(e.type == SDL_KEYDOWN){
                                         switch (e.key.keysym.sym){
                                                                 case SDLK_UP:
-                                                                        lastStepDirection = 1;
+                                                                        player1.lastStepDirection = 1;
                                                                         player1.move(KEY_PRESS_UP);
                                                                         break;
                                                                 case SDLK_DOWN:
-                                                                        lastStepDirection = 0;
+                                                                        player1.lastStepDirection = 0;
                                                                         player1.move(KEY_PRESS_DOWN);
                                                                         break;
                                                                 case SDLK_LEFT:
-                                                                        lastStepDirection = 2;
+                                                                        player1.lastStepDirection = 2;
                                                                         player1.move(KEY_PRESS_LEFT);
                                                                         break;
                                                                 case SDLK_RIGHT:
-                                                                        lastStepDirection = 3;
+                                                                        player1.lastStepDirection = 3;
                                                                         player1.move(KEY_PRESS_RIGHT);
                                                                         break;
                                                                 case SDLK_e:
@@ -3626,6 +4012,9 @@ int main(int argc, char const *argv[])
 
                         SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
                         player1.renderPlayer();
+                        if(player2.inLHC108){
+                                player2.renderPlayer();
+                        }
                         while( SDL_PollEvent( &e ) != 0 )
                         {
                                 //User requests quit
@@ -3637,18 +4026,18 @@ int main(int argc, char const *argv[])
                                         switch (e.key.keysym.sym){
                                                                 case SDLK_UP:
                                                                         player1.move(KEY_PRESS_UP);
-                                                                        lastStepDirection = 1;
+                                                                        player1.lastStepDirection = 1;
                                                                         break;
                                                                 case SDLK_DOWN:
-                                                                        lastStepDirection = 0;
+                                                                        player1.lastStepDirection = 0;
                                                                         player1.move(KEY_PRESS_DOWN);
                                                                         break;
                                                                 case SDLK_LEFT:
-                                                                        lastStepDirection = 2;
+                                                                        player1.lastStepDirection = 2;
                                                                         player1.move(KEY_PRESS_LEFT);
                                                                         break;
                                                                 case SDLK_RIGHT:
-                                                                        lastStepDirection = 3;
+                                                                        player1.lastStepDirection = 3;
                                                                         player1.move(KEY_PRESS_RIGHT);
                                                                         break;
                                                                 case SDLK_e:
@@ -3676,6 +4065,9 @@ int main(int argc, char const *argv[])
 
                         SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
                         player1.renderPlayer();
+                        if(player2.inLHC114){
+                                player2.renderPlayer();
+                        }
                         while( SDL_PollEvent( &e ) != 0 )
                         {
                                 //User requests quit
@@ -3686,19 +4078,19 @@ int main(int argc, char const *argv[])
                                 else if(e.type == SDL_KEYDOWN){
                                         switch (e.key.keysym.sym){
                                                                 case SDLK_UP:
-                                                                        lastStepDirection = 1;
+                                                                        player1.lastStepDirection = 1;
                                                                         player1.move(KEY_PRESS_UP);
                                                                         break;
                                                                 case SDLK_DOWN:
-                                                                        lastStepDirection = 0;
+                                                                        player1.lastStepDirection = 0;
                                                                         player1.move(KEY_PRESS_DOWN);
                                                                         break;
                                                                 case SDLK_LEFT:
-                                                                        lastStepDirection = 2;
+                                                                        player1.lastStepDirection = 2;
                                                                         player1.move(KEY_PRESS_LEFT);
                                                                         break;
                                                                 case SDLK_RIGHT:
-                                                                        lastStepDirection = 3;
+                                                                        player1.lastStepDirection = 3;
                                                                         player1.move(KEY_PRESS_RIGHT);
                                                                         break;
                                                                 case SDLK_e:
@@ -3726,6 +4118,9 @@ int main(int argc, char const *argv[])
 
                         SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
                         player1.renderPlayer();
+                        if(player2.inLHC325){
+                                player2.renderPlayer();
+                        }
                         while( SDL_PollEvent( &e ) != 0 )
                         {
                                 //User requests quit
@@ -3736,19 +4131,19 @@ int main(int argc, char const *argv[])
                                 else if(e.type == SDL_KEYDOWN){
                                         switch (e.key.keysym.sym){
                                                                 case SDLK_UP:
-                                                                        lastStepDirection = 1;
+                                                                        player1.lastStepDirection = 1;
                                                                         player1.move(KEY_PRESS_UP);
                                                                         break;
                                                                 case SDLK_DOWN:
-                                                                        lastStepDirection = 0;
+                                                                        player1.lastStepDirection = 0;
                                                                         player1.move(KEY_PRESS_DOWN);
                                                                         break;
                                                                 case SDLK_LEFT:
-                                                                        lastStepDirection = 2;
+                                                                        player1.lastStepDirection = 2;
                                                                         player1.move(KEY_PRESS_LEFT);
                                                                         break;
                                                                 case SDLK_RIGHT:
-                                                                        lastStepDirection = 3;
+                                                                        player1.lastStepDirection = 3;
                                                                         player1.move(KEY_PRESS_RIGHT);
                                                                         break;
                                                                 case SDLK_e:
@@ -3762,7 +4157,7 @@ int main(int argc, char const *argv[])
 
                         // loading background
                     
-                        cout<<insufficientMoney<<"\n";
+                        // cout<<insufficientMoney<<"\n";
                     if(delay() && insufficientMoney){
                         insufficientMoney = false;
                     }
@@ -3772,6 +4167,9 @@ int main(int argc, char const *argv[])
 
                     SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
                     player1.renderPlayer();
+                    if(player2.enterRestaurant){
+                        player2.renderPlayer();
+                    }
                     while( SDL_PollEvent( &e ) != 0 )
                         {
                                 //User requests quit
@@ -3782,19 +4180,19 @@ int main(int argc, char const *argv[])
                                 else if(e.type == SDL_KEYDOWN){
                                         switch (e.key.keysym.sym){
                                                                 case SDLK_UP:
-                                                                        lastStepDirection = 1;
+                                                                        player1.lastStepDirection = 1;
                                                                         player1.move(KEY_PRESS_UP);
                                                                         break;
                                                                 case SDLK_DOWN:
-                                                                        lastStepDirection = 0;
+                                                                        player1.lastStepDirection = 0;
                                                                         player1.move(KEY_PRESS_DOWN);
                                                                         break;
                                                                 case SDLK_LEFT:
-                                                                        lastStepDirection = 2;
+                                                                        player1.lastStepDirection = 2;
                                                                         player1.move(KEY_PRESS_LEFT);
                                                                         break;
                                                                 case SDLK_RIGHT:
-                                                                        lastStepDirection = 3;
+                                                                        player1.lastStepDirection = 3;
                                                                         player1.move(KEY_PRESS_RIGHT);
                                                                         break;
                                                                 case SDLK_e:
@@ -3817,6 +4215,9 @@ int main(int argc, char const *argv[])
 
                     SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
                     player1.renderPlayer();
+                    if(player2.enterSAC){
+                        player2.renderPlayer();
+                    }
                         while( SDL_PollEvent( &e ) != 0 )
                         {
                                 //User requests quit
@@ -3827,19 +4228,19 @@ int main(int argc, char const *argv[])
                                 else if(e.type == SDL_KEYDOWN){
                                         switch (e.key.keysym.sym){
                                                                 case SDLK_UP:
-                                                                        lastStepDirection = 1;
+                                                                        player1.lastStepDirection = 1;
                                                                         player1.move(KEY_PRESS_UP);
                                                                         break;
                                                                 case SDLK_DOWN:
-                                                                        lastStepDirection = 0;
+                                                                        player1.lastStepDirection = 0;
                                                                         player1.move(KEY_PRESS_DOWN);
                                                                         break;
                                                                 case SDLK_LEFT:
-                                                                        lastStepDirection = 2;
+                                                                        player1.lastStepDirection = 2;
                                                                         player1.move(KEY_PRESS_LEFT);
                                                                         break;
                                                                 case SDLK_RIGHT:
-                                                                        lastStepDirection = 3;
+                                                                        player1.lastStepDirection = 3;
                                                                         player1.move(KEY_PRESS_RIGHT);
                                                                         break;
                                                                 case SDLK_e:
@@ -3851,19 +4252,19 @@ int main(int argc, char const *argv[])
 
                         if(temp9Clip<100){
                                 if((temp9Clip/20)%5==0){
-                                    SDL_RenderCopy(gRenderer,gymframeTex1,NULL,&tile);
+                                    SDL_RenderCopy(gRenderer,badmintonframeTex1,NULL,&tile);
                                 }
                                 else if((temp9Clip/20)%5==1){
-                                    SDL_RenderCopy(gRenderer,gymframeTex2,NULL,&tile);
+                                    SDL_RenderCopy(gRenderer,gymframeTex1,NULL,&tile);
                                 }
                                 else if((temp9Clip/20)%5==2){
-                                    SDL_RenderCopy(gRenderer,gymframeTex3,NULL,&tile);
-                                }
-                                else if((temp9Clip/20)%5==3){
                                     SDL_RenderCopy(gRenderer,gymframeTex2,NULL,&tile);
                                 }
-                                else if((temp9Clip/20)%5==4){
+                                else if((temp9Clip/20)%5==3){
                                     SDL_RenderCopy(gRenderer,gymframeTex1,NULL,&tile);
+                                }
+                                else if((temp9Clip/20)%5==4){
+                                    SDL_RenderCopy(gRenderer,badmintonframeTex1,NULL,&tile);
                                 }
                                 
                         }
@@ -3899,6 +4300,9 @@ int main(int argc, char const *argv[])
                     SDL_RenderCopy(gRenderer,exitTex,NULL,&exit1);
                     SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
                     player1.renderPlayer();
+                    if(player2.enterLibrary){
+                        player2.renderPlayer();
+                    }
                         while( SDL_PollEvent( &e ) != 0 )
                         {
                                 //User requests quit
@@ -3909,19 +4313,19 @@ int main(int argc, char const *argv[])
                                 else if(e.type == SDL_KEYDOWN){
                                         switch (e.key.keysym.sym){
                                                                 case SDLK_UP:
-                                                                        lastStepDirection = 1;
+                                                                        player1.lastStepDirection = 1;
                                                                         player1.move(KEY_PRESS_UP);
                                                                         break;
                                                                 case SDLK_DOWN:
-                                                                        lastStepDirection = 0;
+                                                                        player1.lastStepDirection = 0;
                                                                         player1.move(KEY_PRESS_DOWN);
                                                                         break;
                                                                 case SDLK_LEFT:
-                                                                        lastStepDirection = 2;
+                                                                        player1.lastStepDirection = 2;
                                                                         player1.move(KEY_PRESS_LEFT);
                                                                         break;
                                                                 case SDLK_RIGHT:
-                                                                        lastStepDirection = 3;
+                                                                        player1.lastStepDirection = 3;
                                                                         player1.move(KEY_PRESS_RIGHT);
                                                                         break;
                                                                 case SDLK_e:
@@ -3949,19 +4353,19 @@ int main(int argc, char const *argv[])
                                 else if(e.type == SDL_KEYDOWN){
                                         switch (e.key.keysym.sym){
                                                                 case SDLK_UP:
-                                                                        lastStepDirection = 1;
+                                                                        player1.lastStepDirection = 1;
                                                                         player1.move(KEY_PRESS_UP);
                                                                         break;
                                                                 case SDLK_DOWN:
-                                                                        lastStepDirection = 0;
+                                                                        player1.lastStepDirection = 0;
                                                                         player1.move(KEY_PRESS_DOWN);
                                                                         break;
                                                                 case SDLK_LEFT:
-                                                                        lastStepDirection = 2;
+                                                                        player1.lastStepDirection = 2;
                                                                         player1.move(KEY_PRESS_LEFT);
                                                                         break;
                                                                 case SDLK_RIGHT:
-                                                                        lastStepDirection = 3;
+                                                                        player1.lastStepDirection = 3;
                                                                         player1.move(KEY_PRESS_RIGHT);
                                                                         break;
                                                                 case SDLK_w:
@@ -3996,19 +4400,19 @@ int main(int argc, char const *argv[])
                                 else if(e.type == SDL_KEYDOWN){
                                         switch (e.key.keysym.sym){
                                                                 case SDLK_UP:
-                                                                        lastStepDirection = 1;
+                                                                        player1.lastStepDirection = 1;
                                                                         player1.move(KEY_PRESS_UP);
                                                                         break;
                                                                 case SDLK_DOWN:
-                                                                        lastStepDirection = 0;
+                                                                        player1.lastStepDirection = 0;
                                                                         player1.move(KEY_PRESS_DOWN);
                                                                         break;
                                                                 case SDLK_LEFT:
-                                                                        lastStepDirection = 2;
+                                                                        player1.lastStepDirection = 2;
                                                                         player1.move(KEY_PRESS_LEFT);
                                                                         break;
                                                                 case SDLK_RIGHT:
-                                                                        lastStepDirection = 3;
+                                                                        player1.lastStepDirection = 3;
                                                                         player1.move(KEY_PRESS_RIGHT);
                                                                         break;
                                                                 case SDLK_w:
