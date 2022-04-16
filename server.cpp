@@ -11,10 +11,10 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <arpa/inet.h>
-#define MAX 37
+#define MAX 38
 #define PORT 8080
 #define SA struct sockaddr
-
+bool beginGame = false;
 #include <stdio.h>
 #include <string>
 #include <vector>
@@ -22,13 +22,15 @@
 #include <sstream>
 #include <time.h>
 using namespace std;
-const int HOSPITAL_BILL = 30;
+const int HOSPITAL_BILL = 50;
 const int SCREEN_WIDTH = 1520;
 const int SCREEN_HEIGHT = 1020;
 const int PLAYER_RADIUS = 10;
 int temp = 0;
 int lastx=0;
 int lasty=0;
+int mousex =0 ;
+int mousey = 0;
 int k=0;
 int oldC = 0;
 int tempClip = 0;
@@ -48,6 +50,17 @@ int temp7Clip = 500;
 int temp8Clip = 500;
 int temp9Clip = 500;
 int temp10Clip = 500;
+
+
+
+
+Mix_Music *musenter, *musclick, *musmusic ;
+
+
+
+
+
+
 
 SDL_Renderer* gRenderer = NULL;
 
@@ -177,18 +190,18 @@ void disptext(SDL_Renderer* gRenderer, int x, int y, int w, int h, char* s,int r
 }
 
 
-void playaudio(char* s){
+void playaudio(Mix_Music *m){
     // Inilialize SDL_mixer , exit if fail
-    if( SDL_Init(SDL_INIT_AUDIO) < 0 ) exit(1);
+    //if( SDL_Init(SDL_INIT_AUDIO) < 0 ) exit(1);
     // Setup audio mode
-    Mix_OpenAudio(22050,AUDIO_S16SYS,2,640);
-    Mix_Music *mus , *mus2 ;  // Background Music
-    Mix_Chunk *wav , *wav2 ;  // For Sounds
-    mus = Mix_LoadMUS(s);
+    //Mix_OpenAudio(22050,AUDIO_S16SYS,2,640);
+    //Mix_Music *mus , *mus2 ;  // Background Music
+    //Mix_Chunk *wav , *wav2 ;  // For Sounds
+    //mus = Mix_LoadMUS(s);
     //mus2 = Mix_LoadMUS("./mixer/aria.mp3");
     //wav = Mix_LoadWAV("./mixer/po_p2k.wav");
     //wav2 = Mix_LoadWAV("./mixer/start.wav");
-    Mix_PlayMusic(mus,0); //Music loop=1
+    Mix_PlayMusic(m,0); //Music loop=1
     //Mix_PlayChannel(-1,wav,0);
     //Mix_PlayChannel(-1,mus,0);
 }
@@ -208,14 +221,16 @@ class Player{
                 SDL_Texture* colorTexLeft2 = NULL;
                 int x;
                 int y;
-                int speed = 7;
+                int speed = 5;
                 int health;
                 int energy;
                 int happiness;
                 int money;
                 int knowledge;
-                bool hasCycle;
-                bool inMain = true;
+                bool isReady = false;
+                bool lost = false;
+                bool won = false;
+                bool inMain = false;
                 bool enterHostel = false;
                 bool inLargeGround = false;
                 bool inTennisCourt = false;
@@ -248,7 +263,6 @@ class Player{
                 happiness = 50;
                 money = 50;
                 knowledge = 10;
-                hasCycle = false;
                 x = xP;
                 y = yP;
                 colorTexRight = loadFromFile(colorP+"-char-right.png");
@@ -259,24 +273,19 @@ class Player{
         }
 
 
-        void buyCycleIfPossible(){
-                if(money>80 && !hasCycle){
-                        money-=80;
-                        speed +=1;
-                        hasCycle = true;
-
-                }
-                
-        }
+        
 
         void hospitalize(){
                 if(money<HOSPITAL_BILL){
-                        // player loses
+                        
+                        lost = true;
+
+                        return;
                 }
                 money-=HOSPITAL_BILL;
                 energy = 100;
-                health = 100;
-                happiness = 50;
+                health = 50;
+                happiness = max(happiness-10,0);
                 x = 260;
                 y = 550;
                 inMain = true;
@@ -286,218 +295,188 @@ class Player{
 
         }
 
-        void changeEnergy(int amount){
-                energy+=amount;
-                if(energy<0){
-                        hospitalize();
-                }
-        }
-
-        void changeHealth(int amount){
-                health+=amount;
-                if(health<0){
-                        hospitalize();
-                }
-        }
-
-        void changeHappiness(int amount){
-                happiness+=amount;
-
-                if(happiness<0){                // permanent decrease in energy due to lack of happiness
-                        energy/=2;
-                        happiness = 0;
-                }
-
-        }
-
-        void changeKnowledge(int amount){
-                knowledge+=amount;
-        }
-        void updateSpeed(){
-                speed +=energy/10;
-        }
-
+        
         void move(int keyPress){
 
-                
+
 
                         if(inMain){
                                 if(keyPress == KEY_PRESS_UP){
                                         if(x>=870 && x<=890 && y-speed>=140 && y<=215){
-                                                y-=speed+energy/40;
+                                                y-=speed;
                                         }
                                         if(x>=520 && x<=540 && y-speed>=140 && y<=215){
-                                                y-=speed+energy/40;
+                                                y-=speed;
                                         }
                                         if(x>=330 && x<=350 && y-speed>=140 && y<=215){
-                                                y-=speed+energy/40;
+                                                y-=speed;
                                         }
                                         if(x>=120 && x<=145 && y-speed>=140 && y<=215){
-                                                y-=speed+energy/40;
+                                                y-=speed;
                                         }
                                         if(y+speed<=190 && y-speed>=160 && x<=1000 && x>=0){
-                                                y-=speed+energy/40;                                        
+                                                y-=speed;                                        
                                         }
                                         if(x<=255 && x>=230 && y-speed>=165){
-                                                y-=speed+energy/40;
+                                                y-=speed;
                                         }
                                         if(x<=995 && x>=970 && y-speed>=750){
-                                                y-=speed+energy/40;
+                                                y-=speed;
                                         }
-                                        if(x<=672 && x>=660 && y-speed>=312){
-                                                y-=speed+energy/40;
+                                        if(x<=672 && x>=660 && y-speed>=295){
+                                                y-=speed;
                                         }
                                         if(x<=600 && x>=575 && y-speed>=547 && y<720){
-                                                y-=speed+energy/40;
+                                                y-=speed;
                                         }
 
                                         if(x<=800 && x>=760 && y-speed>=172 && y<600){
-                                                y-=speed+energy/40;
+                                                y-=speed;
                                         }
-                                        if(x>=355 && x<=380 && y-speed>=302){
-                                                y-=speed+energy/40;
+                                        if(x>=355 && x<=380 && y-speed>=295 && y<=600){
+                                                y-=speed;
                                         }
 
-                                        if(x>=455 && x<=480 && y-speed>=302){
-                                                y-=speed+energy/40;
+                                        if(x>=455 && x<=480 && y-speed>=295 && y<=600){
+                                                y-=speed;
                                         }
                                         // to enter shiru cafe
                                         if(x>=565 && x<=585 && y-speed>=750){
-                                                y-=speed+energy/40;
+                                                y-=speed;
                                         }
                                         // to enter amul
                                         if(x>=700 && x<=715 && y-speed>=750){
-                                                y-=speed+energy/40;
+                                                y-=speed;
                                         }
                                         // to enter nesacfe
                                         if(x>=850 && x<=865 && y-speed>=750){
-                                                y-=speed+energy/40;
+                                                y-=speed;
                                         }
 
                                 }
                                 if(keyPress == KEY_PRESS_DOWN){
                                         if(x>=870 && x<=890 && y+speed<=200){
-                                                y+=speed+energy/40;
+                                                y+=speed;
                                         }
                                         if(x>=520 && x<=540 && y+speed<=200){
-                                                y+=speed+energy/40;
+                                                y+=speed;
                                         }
                                         if(x>=330 && x<=350 && y+speed<=170){
-                                                y+=speed+energy/40;
+                                                y+=speed;
                                         }
                                         if(x>=120 && x<=145 && y+speed<=170){
-                                                y+=speed+energy/40;
+                                                y+=speed;
                                         }
                                         if(y+speed<=190 && x<=1000 && x>=0){
-                                                y+=speed+energy/40;
+                                                y+=speed;
                                         }
                                         if(x<=255 && x>=230 && y+speed<=990){
-                                                y+=speed+energy/40;
+                                                y+=speed;
                                         }
                                         if(x<=995 && x>=970 && y+speed<=990){
-                                                y+=speed+energy/40;
+                                                y+=speed;
                                         }
 
                                         if(x<=672 && x>=660 && y+speed<=557){
-                                                y+=speed+energy/40;
+                                                y+=speed;
                                         } 
 
                                         if(x<=600 && x>=575 && y+speed<=690 && y>=500){
-                                                y+=speed+energy/40;
+                                                y+=speed;
                                         }
                                         if(x<=800 && x>=760 && y+speed<=470 ){
-                                                y+=speed+energy/40;
+                                                y+=speed;
                                         }
                                         if(x>=355 && x<=380 && y+speed<=350 && y>=250){
-                                                y+=speed+energy/40;
+                                                y+=speed;
                                         }
 
                                         if(x>=455 && x<=480 && y+speed<=350 && y>=250){
-                                                y+=speed+energy/40;
+                                                y+=speed;
                                         }
                                         if(x>=565 && x<=585 && y+speed<=780 && y>700){
-                                                y+=speed+energy/40;
+                                                y+=speed;
                                         }
 
                                         if(x>=700 && x<=715 && y+speed<=780){
-                                                y+=speed+energy/40;
+                                                y+=speed;
                                         }
-                                        if(x>=850 && x<=865 && y+speed<=780){
-                                                y+=speed+energy/40;
+                                        if(x>=850 && x<=865 && y+speed<=780 && y>=700){
+                                                y+=speed;
                                         }
                                 }
                                 if(keyPress == KEY_PRESS_LEFT){
                                         if(y>=335 && y<=350 &&  x-speed>=760){
-                                                x-=speed+energy/40;
+                                                x-=speed;
                                         }
                                         if(y>=160 && y<=190 &&  x-speed>=0){
-                                                x-=speed+energy/40;
+                                                x-=speed;
                                         }
                                         if(970<=y && y<=990 && x-speed>=230){
-                                                x-=speed+energy/40;
+                                                x-=speed;
                                         }
                                         if(y>=740 && y<=760 && x-speed>=230){
-                                                x-=speed+energy/40;
+                                                x-=speed;
                                         }
-                                        if(y>=307 && y<=320 && x-speed>=130){
-                                                x-=speed+energy/40;
+                                        if(y>=295 && y<=325 && x-speed>=120){
+                                                x-=speed;
                                         }
                                         if(y>=480 && y<=497 && x-speed>=225){
-                                                x-=speed+energy/40;
+                                                x-=speed;
                                         }
 
                                         if(y>=543 && y<=560 && x-speed>=575){
-                                                x-=speed+energy/40;
+                                                x-=speed;
                                         }
 
                                         if(y>=543 && y<=560 && x-speed>=130 && x<400){
-                                                x-=speed+energy/40;
+                                                x-=speed;
                                         }
                                         if(y>=785 && y<=800 && x-speed>=160 && x<400){
-                                                x-=speed+energy/40;
+                                                x-=speed;
                                         }
                                         if(y>=875 && y<=895 && x-speed>=160 && x<400){
-                                                x-=speed+energy/40;
+                                                x-=speed;
                                         }
                                         if(y>=835 && y<=850 && x-speed>=980 && x>700){
-                                                x-=speed+energy/40;
+                                                x-=speed;
                                         }
 
                                 }
                                 if(keyPress == KEY_PRESS_RIGHT){
-                                        if(335<=y && y<=350 && x+speed<=820){
-                                                x+=speed+energy/40;
+                                        if(335<=y && y<=350 && x+speed<=820 && x>=500){
+                                                x+=speed;
                                         }
                                         if(160<=y && y<=190 && x+speed<=1000){
-                                                x+=speed+energy/40;
+                                                x+=speed;
                                         }
                                         if(970<=y && y<=990 && x+speed<=1000){
-                                                x+=speed+energy/40;
+                                                x+=speed;
                                         }
                                         if(y>=740 && y<=760 && x+speed<=995){
-                                                x+=speed+energy/40;
+                                                x+=speed;
                                         }
-                                        if(y>=307 && y<=320 && x+speed<=787){
-                                                x+=speed+energy/40;
+                                        if(y>=295 && y<=325 && x+speed<=787){
+                                                x+=speed;
                                         }
                                         if(y>=480 && y<=497 && x+speed<=672){
-                                                x+=speed+energy/40;
+                                                x+=speed;
                                         }
                                         if(y>=543 && y<=560 && x+speed<=672 && x>400){
-                                                x+=speed+energy/40;
+                                                x+=speed;
                                         }
                                         if(y>=543 && y<=560 && x+speed<=265){
-                                                x+=speed+energy/40;
+                                                x+=speed;
                                         }
                                         if(y>=785 && y<=800 && x+speed<=250 && x<400){
-                                                x+=speed+energy/40;
+                                                x+=speed;
                                         }
                                         if(y>=875 && y<=895 && x+speed<=250 && x<400){
-                                                x+=speed+energy/40;
+                                                x+=speed;
                                         }
 
                                         if(y>=835 && y<=850 && x+speed<=1040 && x>700){
-                                                x+=speed+energy/40;
+                                                x+=speed;
                                         }
 
                                 }
@@ -505,22 +484,22 @@ class Player{
                         else if(!inMain){
                                   if (keyPress ==KEY_PRESS_UP){
                                         if(y-speed>=0){
-                                                y-=speed+energy/40;
+                                                y-=speed;
                                         }
                                   }
                                   if(keyPress == KEY_PRESS_DOWN){
                                         if(y+speed<=SCREEN_HEIGHT){
-                                                y+=speed+energy/40;
+                                                y+=speed;
                                         }
                                   }
                                   if(keyPress == KEY_PRESS_RIGHT){
                                         if(x+speed<=SCREEN_WIDTH){
-                                                x+=speed+energy/40;
+                                                x+=speed;
                                         }
                                   }
                                   if(keyPress == KEY_PRESS_LEFT){
                                         if(x-speed>=0){
-                                                x-=speed+energy/40;;
+                                                x-=speed;;
                                         }
                                   }   
                         }
@@ -528,29 +507,10 @@ class Player{
 
         }
 
-        void incrementMoney(){
-                if(delay()){
-                        temp++;
-                        if(temp==15){
-                           money=min(money+10,100);
-                           temp = 0;
-                        }
-                        if(takenYulu){
-                                
-                                        money=max(money-1,0);
-                                
-                            }
-                        if(insufficientMoney){
-                                insufficientMoney = false;
-                        }
-                }
-
-        }
-
         void enter(){
                 // enter into shivalik building
-                                // shivalik                                     zanskar                             vidyanchal                            satpura                                   girnar and udaigiri                      nilgiri                                  karakoram                                         aravali                                jwalamukhi                            kumaon   
-                if (inMain && ((x>=455 && x<=480 && y<=350 && y>=330) || (x>=365 && x<=390 && y<=350 && y>=330) || (y>=340 && y<=365 && x>=800 && x<=820) || (x>=755 && x<=800 && 463<=y && y<=480) || (x<=610 && x>=585 && y>=580 && y<=680) || (x>=115 && x<=145 && y>=125 && y<=145) || (x>=324 && x<=355 && y>=125 && y<=145) ||(x>=515 && x<=545 && y<=145 && y>=125) || (x>=865 && x<=895 && y<=145 && y>=125) || (x>=865 && x<=895 && y>=165 && y<=215) )){
+                                
+                if (inMain && ((x>=455 && x<=480 && y<=350 && y>=330))){
                         enterHostel = true;
                         lastx = x;
                         lasty = y;
@@ -618,12 +578,12 @@ class Player{
                         if(energy<=0){
                                 hospitalize();
                         }
-                        health = min(100,health+10);
                         happiness = min(100,happiness+10);
                 }
                 // eating mess food
                 else if(enterHostel && x>=400 && x<=530 && y>=140 && y<=290){
-                        energy=min(energy+20,100);
+                        energy=min(energy+10,100);
+                        happiness = max(happiness-5,0);
                         temp3Clip = 0;
                 }
 
@@ -879,7 +839,6 @@ class Player{
                         enterHostel = false;
                         inTennisCourt = false;
                         inVolleyCourt = false;
-                        inMain = false;
                         enterHostel = false;
                         inLargeGround = false;
                         enterRestaurant = false;
@@ -1224,7 +1183,7 @@ class Player{
                         x = SCREEN_WIDTH - 290;
                         y = 150;
                         inMain = false;
-                        playaudio("/Users/eshan/Downloads/enter-sound.wav") ;
+                        playaudio(musenter) ;
                 }
 
                 else if (
@@ -1257,7 +1216,7 @@ class Player{
                         x = SCREEN_WIDTH - 290;
                         y = 150;
                         inMain = false;
-                        playaudio("/Users/eshan/Downloads/enter-sound.wav") ;
+                        playaudio(musclick) ;
                 }
 
                 else if (!enterRestaurant &&
@@ -1290,7 +1249,7 @@ class Player{
                         inVolleyCourt = false;
                         inTennisCourt = false;
                         inLargeGround = false;
-                        playaudio("/Users/eshan/Downloads/enter-sound.wav") ;
+                        playaudio(musenter) ;
                 }
                 
                else if (!enterRestaurant&& 
@@ -1324,7 +1283,7 @@ class Player{
                         x = SCREEN_WIDTH - 290;
                         y = 150;
                         inMain = false;
-                        playaudio("/Users/eshan/Downloads/enter-sound.wav") ;
+                        playaudio(musenter) ;
                 }
 
 
@@ -1359,7 +1318,7 @@ class Player{
                         x = SCREEN_WIDTH - 290;
                         y = 150;
                         inMain = false;
-                        playaudio("/Users/eshan/Downloads/enter-sound.wav") ;
+                        playaudio(musenter) ;
                 }
 
 
@@ -1394,7 +1353,7 @@ class Player{
                         x = SCREEN_WIDTH - 290;
                         y = 150;
                         inMain = false;
-                        playaudio("/Users/eshan/Downloads/enter-sound.wav") ;
+                        playaudio(musenter) ;
                 }
 
 
@@ -1429,7 +1388,7 @@ class Player{
                         x = SCREEN_WIDTH - 290;
                         y = 150;
                         inMain = false;
-                        playaudio("/Users/eshan/Downloads/enter-sound.wav") ;
+                        playaudio(musenter) ;
                 }
 
 
@@ -1465,7 +1424,7 @@ class Player{
                         x = SCREEN_WIDTH - 290;
                         y = 150;
                         inMain = false;
-                        playaudio("/Users/eshan/Downloads/enter-sound.wav") ;
+                        playaudio(musenter) ;
                 }
 
 
@@ -1501,7 +1460,7 @@ class Player{
                         x = SCREEN_WIDTH - 290;
                         y = 150;
                         inMain = false;
-                        playaudio("/Users/eshan/Downloads/enter-sound.wav") ;
+                        playaudio(musenter) ;
                 }
 
 
@@ -1532,7 +1491,7 @@ class Player{
                         inMain = true;
                         x = SCREEN_WIDTH / 22+95+130 + 35;
                         y = SCREEN_HEIGHT / 22+425+ 10 ;
-                        playaudio("/Users/eshan/Downloads/enter-sound.wav") ;
+                        playaudio(musenter) ;
                 }
 
                 else if (x>=SCREEN_WIDTH*0.75 && x<=0.9*SCREEN_WIDTH && y>=0.09*SCREEN_HEIGHT && y<=0.21*SCREEN_HEIGHT
@@ -1542,7 +1501,7 @@ class Player{
                         inMain = true;
                         x = (SCREEN_WIDTH / 22+95+130+100 + 35);
                         y = SCREEN_HEIGHT / 22+425 + 10 ;
-                        playaudio("/Users/eshan/Downloads/enter-sound.wav") ;
+                        playaudio(musenter) ;
                 }
 
                 else if (x>=SCREEN_WIDTH*0.75 && x<=0.9*SCREEN_WIDTH && y>=0.09*SCREEN_HEIGHT && y<=0.21*SCREEN_HEIGHT
@@ -1552,7 +1511,7 @@ class Player{
                         inMain = true;
                         x = SCREEN_WIDTH / 22+95+130+200 + 35;
                         y = SCREEN_HEIGHT / 22+425 + 10 ;
-                        playaudio("/Users/eshan/Downloads/enter-sound.wav") ;
+                        playaudio(musenter) ;
                 }
 
                 else if (x>=SCREEN_WIDTH*0.75 && x<=0.9*SCREEN_WIDTH && y>=0.09*SCREEN_HEIGHT && y<=0.21*SCREEN_HEIGHT
@@ -1562,7 +1521,7 @@ class Player{
                         inMain = true;
                         x = SCREEN_WIDTH / 22+480 + 20;
                         y = SCREEN_HEIGHT / 22+695 + 5 ;
-                        playaudio("/Users/eshan/Downloads/enter-sound.wav") ;
+                        playaudio(musenter) ;
                 }
 
                 else if (x>=SCREEN_WIDTH*0.75 && x<=0.9*SCREEN_WIDTH && y>=0.09*SCREEN_HEIGHT && y<=0.21*SCREEN_HEIGHT
@@ -1572,7 +1531,7 @@ class Player{
                         inMain = true;
                         x = SCREEN_WIDTH / 22+610 + 20;
                         y = SCREEN_HEIGHT / 22+695 + 5 ;
-                        playaudio("/Users/eshan/Downloads/enter-sound.wav") ;
+                        playaudio(musenter) ;
                 }
 
                 else if (x>=SCREEN_WIDTH*0.75 && x<=0.9*SCREEN_WIDTH && y>=0.09*SCREEN_HEIGHT && y<=0.21*SCREEN_HEIGHT
@@ -1582,7 +1541,7 @@ class Player{
                         inMain = true;
                         x = SCREEN_WIDTH / 22+760 + 20;
                         y = SCREEN_HEIGHT / 22+695+ 5 ;
-                        playaudio("/Users/eshan/Downloads/enter-sound.wav") ;
+                        playaudio(musenter) ;
                 }
 
 
@@ -1593,7 +1552,7 @@ class Player{
                         inMain = true;
                         x = SCREEN_WIDTH / 22+860 + 60;
                         y = SCREEN_HEIGHT / 22+760+ 47 ;
-                        playaudio("/Users/eshan/Downloads/enter-sound.wav") ;
+                        playaudio(musenter) ;
                 }
 
 
@@ -1604,7 +1563,7 @@ class Player{
                         inMain = true;
                         x = SCREEN_WIDTH / 22+60 + 30;
                         y = SCREEN_HEIGHT / 22+735 + 14;
-                        playaudio("/Users/eshan/Downloads/enter-sound.wav") ;
+                        playaudio(musenter) ;
                 }
 
 
@@ -1615,7 +1574,7 @@ class Player{
                         inMain = true;
                         x = SCREEN_WIDTH / 22+95+130+40+160 + 40;
                         y = SCREEN_HEIGHT / 22+134 + 13;
-                        playaudio("/Users/eshan/Downloads/enter-sound.wav") ;
+                        playaudio(musenter) ;
                 }
 
 
@@ -1626,15 +1585,15 @@ class Player{
                                 insufficientMoney = true;
                         }
                         else{
-                        happiness = min(happiness+10, 100);
-                        health-=10;
-                        if(health<=0){
-                                hospitalize();
+                                happiness = min(happiness+10, 100);
+                                health-=10;
+                                if(health<=0){
+                                        hospitalize();
+                                }
+                                energy=min(energy+10, 100);
+                                money-=20;
                         }
-                        energy=min(energy+10, 100);
-                        money-=20;
-                        }
-                        playaudio("/Users/eshan/Downloads/click-sound.wav") ;
+                        playaudio(musclick) ;
                 }
 
         
@@ -1651,7 +1610,7 @@ class Player{
                         x = SCREEN_WIDTH*0.09;
                         y = 0.75*SCREEN_HEIGHT;
                         inMain = false;
-                        playaudio("/Users/eshan/Downloads/enter-sound.wav") ;
+                        playaudio(musenter) ;
                 }
                 // exit from SAC
 
@@ -1660,7 +1619,7 @@ class Player{
                         inMain = true;
                         x = SCREEN_WIDTH / 20+60;
                         y = SCREEN_HEIGHT / 22+265 ;
-                        playaudio("/Users/eshan/Downloads/enter-sound.wav") ;
+                        playaudio(musenter) ;
                 }
 
                 //Music 
@@ -1668,11 +1627,11 @@ class Player{
                 else if(enterSAC && x>=SCREEN_WIDTH*0.14 && x<=0.34*SCREEN_WIDTH && y>=0.34*SCREEN_HEIGHT && y<=0.52*SCREEN_HEIGHT){
                         
                         happiness = min(100,happiness+10);
-                        energy-=10;
+                        energy-=5;
                         if(energy<=0){
                                 hospitalize();
                         }
-                        playaudio("/Users/eshan/Downloads/click-sound.wav") ;
+                        playaudio(musmusic) ;
 
                         
                 }
@@ -1687,7 +1646,7 @@ class Player{
                         if(energy<=0){
                                 hospitalize();
                         }
-                        playaudio("/Users/eshan/Downloads/click-sound.wav") ;
+                        playaudio(musclick) ;
 
                         
                 }
@@ -1695,7 +1654,7 @@ class Player{
 
                 //Badminton Court
 
-                else if(enterSAC && x>=SCREEN_WIDTH*0.33 && x<=0.56*SCREEN_WIDTH && y>=0*SCREEN_HEIGHT && y<=0.12*SCREEN_HEIGHT){
+                else if(enterSAC && x>=SCREEN_WIDTH*0.16 && x<=0.53*SCREEN_WIDTH && y>=0*SCREEN_HEIGHT && y<=0.18*SCREEN_HEIGHT){
                         temp10Clip = 0;
                         happiness = min(100,happiness+10);
                         health=min(health+10, 100);
@@ -1703,7 +1662,7 @@ class Player{
                         if(energy<=0){
                                 hospitalize();
                         }
-                        playaudio("/Users/eshan/Downloads/click-sound.wav") ;
+                        playaudio(musclick) ;
 
                         
                 }
@@ -1723,7 +1682,7 @@ class Player{
                         x = SCREEN_WIDTH*0.04;
                         y = 0.58*SCREEN_HEIGHT;
                         inMain = false;
-                        playaudio("/Users/eshan/Downloads/enter-sound.wav") ;
+                        playaudio(musenter) ;
 
                 }
                 // exit from Library
@@ -1737,7 +1696,7 @@ class Player{
 
                 //Chair 
                 // change view to study
-                else if(enterLibrary && x>=550 && x<=800 && y>=450 && y<=700){
+                else if(enterLibrary && x>=SCREEN_WIDTH*0.60 && x<=SCREEN_WIDTH*0.80 && y>=SCREEN_HEIGHT*0.18 && y<=SCREEN_HEIGHT*0.43){
                         
                         enterLibrary = false;
                         isStudying = true;
@@ -1850,6 +1809,25 @@ class Player{
                     SDL_RenderCopy(gRenderer,colorTexLeft,NULL,&player1);
                 else if(lastStepDirection==3)
                     SDL_RenderCopy(gRenderer,colorTexRight,NULL,&player1);
+        }
+
+        void incrementMoney(){
+                if(delay()){
+                        temp++;
+                        if(temp==15){
+                           money=min(money+10,100);
+                           temp = 0;
+                        }
+                        if(takenYulu){
+                                
+                                        money=max(money-1,0);
+                                
+                            }
+                        if(insufficientMoney){
+                                insufficientMoney = false;
+                        }
+                }
+
         }
 
 };
@@ -1988,6 +1966,18 @@ int main(int argc, char const *argv[])
             int n;
             string s1,s2,s3;
                 start = SDL_GetTicks();
+                // Inilialize SDL_mixer , exit if fail
+            if( SDL_Init(SDL_INIT_AUDIO) < 0 ) exit(1);
+            // Setup audio mode
+            Mix_OpenAudio(22050,AUDIO_S16SYS,2,640);
+            //Mix_Music *musenter , *musclick, *musmusic ;  // Background Music
+            Mix_Chunk *wav , *wav2 ;  // For Sounds
+            musenter = Mix_LoadMUS("sounds_enter-sound.wav");
+            musclick = Mix_LoadMUS("sounds_click-sound.wav");
+            musmusic = Mix_LoadMUS("music-zapsplat-game-music-action-fun-funky-electro-disco-023_yKJBjSw4.wav");
+            //mus2 = Mix_LoadMUS("./mixer/aria.mp3");
+            //wav = Mix_LoadWAV("./mixer/po_p2k.wav");
+            //wav2 = Mix_LoadWAV("./mixer/start.wav");
                 // hostel textures
                 SDL_Texture* tileTex = loadFromFile("tile.png");
                 SDL_Texture* ttableTex = loadFromFile("tabletennis.png");
@@ -2028,17 +2018,6 @@ int main(int argc, char const *argv[])
                 SDL_Texture* bhartiTex = loadFromFile("bharti.png");
                 SDL_Texture* largeGroundTex = loadFromFile("grass.png");
                 SDL_Texture* gtree1Tex = loadFromFile("tree-top.png");
-                SDL_Texture* gtree2Tex = loadFromFile("tree-top.png");
-                SDL_Texture* gtree3Tex = loadFromFile("tree-top.png");
-                SDL_Texture* gtree4Tex = loadFromFile("tree-top.png");
-                SDL_Texture* gtree5Tex = loadFromFile("tree-top.png");
-                SDL_Texture* gtree6Tex = loadFromFile("tree-top.png");
-                SDL_Texture* gtree7Tex = loadFromFile("tree-top.png");
-                SDL_Texture* gtree8Tex = loadFromFile("tree-top.png");
-                SDL_Texture* gtree9Tex = loadFromFile("tree-top.png");
-                SDL_Texture* gtree10Tex = loadFromFile("tree-top.png");
-                SDL_Texture* gtree11Tex = loadFromFile("tree-top.png");
-                SDL_Texture* gtree12Tex = loadFromFile("tree-top.png");
                 SDL_Texture* staffCanteenTex = loadFromFile("staffcanteen.png");
                 SDL_Texture* LHCTex = loadFromFile("lecturehall.png");
                 SDL_Texture* dograHallTex = loadFromFile("dograhall.png");
@@ -2170,6 +2149,11 @@ int main(int argc, char const *argv[])
                 SDL_Texture* gymframeTex1 = loadFromFile("gymframe1.png");
                 SDL_Texture* gymframeTex2 = loadFromFile("gymframe2.png");
 
+                SDL_Texture* startTex = loadFromFile("start-page.png");
+                SDL_Texture* waitTex = loadFromFile("waiting.png");
+                SDL_Texture* youwonTex = loadFromFile("youwin.png");
+                SDL_Texture* youlostTex = loadFromFile("youlose.png");
+
                 Player player1 = Player(60,175,"pink");
                 Player player2 = Player(SCREEN_WIDTH-600,175,"purple");
                 bool quit = false;
@@ -2177,6 +2161,12 @@ int main(int argc, char const *argv[])
                 SDL_Event e;
                 // cout<<player1.inMain<<"\n\n\n";
                 while(!quit){
+
+                        if(player1.happiness>=70 && player1.knowledge>=70 && player1.health>=60){
+                                player1.won = true;
+                                player2.lost = true;
+                        }
+
                         
                         // cout<<player1.lastStepDirection<<"\n";
 
@@ -2241,12 +2231,6 @@ int main(int argc, char const *argv[])
                                 }
                                 else{
                                         player2.inTennisCourt = false;
-                                }
-                                if(buff[16]=='1'){
-                                        player2.inVolleyCourt = true;
-                                }
-                                else{
-                                        player2.inVolleyCourt = false;
                                 }
                                 if(buff[16]=='1'){
                                         player2.inVolleyCourt = true;
@@ -2361,6 +2345,27 @@ int main(int argc, char const *argv[])
                                 }
                                 else{
                                         player2.isStudying = false;
+                                }
+                                if(buff[35]=='1'){
+                                        player2.isReady = true;
+                                }
+                                else{
+                                        player2.isReady = false;
+                                }
+                                if(buff[36]=='1'){
+                                        player2.won = true;
+                                        player1.lost = true;
+                                }
+                                else{
+                                        player2.won = false;
+
+                                }
+                                if(buff[37]=='1'){
+                                        player2.lost = true;
+                                        player1.won = true;
+                                }
+                                else{
+                                        player2.lost = false;
                                 }
                                 bzero(buff, MAX);
                                 n = 0;
@@ -2521,11 +2526,134 @@ int main(int argc, char const *argv[])
                                 else{
                                         buff[34]='0';
                                 }
+                                if(player1.isReady){
+                                        buff[35]='1';
+                                }
+                                else{
+                                        buff[35]='0';
+                                }
+                                if(player1.won){
+                                        buff[36]='1';
+                                        player2.lost = true;
+                                }
+                                else{
+                                        buff[36]='0';
+                                }
+                                if(player1.lost){
+                                        buff[37]='1';
+                                        player2.won = true;
 
-
-                                // and send that buffer to client
+                                }
+                                else{
+                                        buff[37]='0';
+                                }
                                 write(connfd, buff, sizeof(buff));
-            if(player1.inMain){    
+
+            if(player1.isReady && player2.isReady && !player1.won && !player1.lost && !player1.inMain && !player1.enterHostel && !player1.inLargeGround && !player1.inTennisCourt && !player1.inVolleyCourt && !player1.inLHC && !player1.inLHC108 && !player1.inLHC114 && !player1.inLHC325 && !player1.enterSAC && !player1.enterRestaurant && !player1.enterMasalaMix && !player1.enterRajdhani && !player1.enterRestaurant && !player1.enterChaayos && !player1.enterShiru && !player1.enterAmul && !player1.enterNescafe && !player1.enterCCD && !player1.enterStaffCanteen && !player1.enterDilli16 && !player1.enterLibrary && !player1.isSleeping && !player1.isStudying){
+                player1.inMain = true;
+            }
+                   
+            if(!player1.isReady && !player1.won && !player1.lost){
+                                while( SDL_PollEvent( &e ) != 0 )
+                                        {
+                                                //User requests quit
+                                                if( e.type == SDL_QUIT )
+                                                {
+                                                        quit = true;
+                                                }
+                                                else if(e.type == SDL_MOUSEBUTTONDOWN){
+                                                        SDL_GetMouseState(&mousex,&mousey);
+                                                        if(mousex>=(int)(0.36*SCREEN_WIDTH) && mousex<=(int)(0.63*SCREEN_WIDTH) && mousey>=(int)(0.87*SCREEN_HEIGHT) && mousey<=(int)(0.94*SCREEN_HEIGHT)){
+                                                                player1.isReady = true;
+                                                        }
+                                                }
+                                                else if(e.type == SDL_KEYDOWN){
+                                                        switch(e.key.keysym.sym){
+                                                                case SDLK_e:
+                                                                player1.isReady = true;
+                                                        }
+                                                }
+
+
+                                        }
+                                        SDL_Rect startRect = {0,0,SCREEN_WIDTH,SCREEN_HEIGHT};
+                                        SDL_RenderCopy(gRenderer,startTex,NULL,&startRect);
+            }
+            else if(!player2.isReady && !player1.won && !player1.lost){
+                                SDL_Rect waitRect = {0,0,SCREEN_WIDTH,SCREEN_HEIGHT};
+                                SDL_RenderCopy(gRenderer,waitTex,NULL,&waitRect);
+            }
+            else if(player1.won){
+                        SDL_Rect p1won = {0,0,SCREEN_WIDTH,SCREEN_HEIGHT};
+                        SDL_RenderCopy(gRenderer,youwonTex,NULL,&p1won);
+                        player1.inMain = false;
+                        player2.inMain = false;
+                        player2.lost = true;
+
+                        while( SDL_PollEvent( &e ) != 0 )
+                                        {
+                                                //User requests quit
+                                                if( e.type == SDL_QUIT )
+                                                {
+                                                        quit = true;
+                                                }
+                                                else if(e.type == SDL_MOUSEBUTTONDOWN){
+                                                        SDL_GetMouseState(&mousex,&mousey);
+                                                        if(mousex>=(int)(0.36*SCREEN_WIDTH) && mousex<=(int)(0.63*SCREEN_WIDTH) && mousey>=(int)(0.87*SCREEN_HEIGHT) && mousey<=(int)(0.94*SCREEN_HEIGHT)){
+                                                                player1.isReady = true;
+                                                                player1.won = false;
+                                                                player2.lost = false;
+                                                        }
+                                                }
+                                                else if(e.type == SDL_KEYDOWN){
+                                                        switch(e.key.keysym.sym){
+                                                                case SDLK_e:
+                                                                player1.isReady = true;
+                                                                player1.won = false;
+                                                                player2.lost = false;
+                                                        }
+                                                }
+
+
+                                        }
+
+
+                }
+                else if(player1.lost){
+                        SDL_Rect p1lost = {0,0,SCREEN_WIDTH,SCREEN_HEIGHT};
+                        SDL_RenderCopy(gRenderer,youlostTex,NULL,&p1lost);
+                        player1.inMain = false;
+                        player2.inMain = false;
+                        player2.won = true;
+
+                        while( SDL_PollEvent( &e ) != 0 )
+                                        {
+                                                //User requests quit
+                                                if( e.type == SDL_QUIT )
+                                                {
+                                                        quit = true;
+                                                }
+                                                else if(e.type == SDL_MOUSEBUTTONDOWN){
+                                                        SDL_GetMouseState(&mousex,&mousey);
+                                                        if(mousex>=(int)(0.36*SCREEN_WIDTH) && mousex<=(int)(0.63*SCREEN_WIDTH) && mousey>=(int)(0.87*SCREEN_HEIGHT) && mousey<=(int)(0.94*SCREEN_HEIGHT)){
+                                                                player1.isReady = true;
+                                                                player1.lost = false;
+                                                                player2.won = false;
+                                                        }
+                                                }
+                                                else if(e.type == SDL_KEYDOWN){
+                                                        switch(e.key.keysym.sym){
+                                                                case SDLK_e:
+                                                                player1.isReady = true;
+                                                                player1.lost = false;
+                                                                player2.won = false;
+                                                        }
+                                                }
+
+
+                                        }
+                }
+            else if(player1.inMain){    
 
                             if(insufficientMoney){
                                 SDL_Rect insufficient = {1200,0,400,400};
@@ -2768,59 +2896,59 @@ int main(int argc, char const *argv[])
 
                             SDL_Rect gtree2 = {8 , SCREEN_HEIGHT / 22+400+30, 100,100};
                             
-                            SDL_RenderCopy(gRenderer,gtree2Tex,NULL,&gtree2); 
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree2); 
                             SDL_DestroyTexture(imageTexture);
 
 
                             SDL_Rect gtree3 = {8 , SCREEN_HEIGHT / 22+400+60, 100,100};
                             
-                            SDL_RenderCopy(gRenderer,gtree3Tex,NULL,&gtree3); 
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree3); 
                             SDL_DestroyTexture(imageTexture);
 
                             SDL_Rect gtree4 = {8 , SCREEN_HEIGHT / 22+400+90, 100,100};
-                            SDL_RenderCopy(gRenderer,gtree4Tex,NULL,&gtree4); 
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree4); 
                             SDL_DestroyTexture(imageTexture);
 
                             SDL_Rect gtree5 = {8 , SCREEN_HEIGHT / 22+400+120, 100,100};
-                            SDL_RenderCopy(gRenderer,gtree5Tex,NULL,&gtree5);   
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree5);   
                             SDL_DestroyTexture(imageTexture);
 
 
                             SDL_Rect gtree6 = {8 , SCREEN_HEIGHT / 22+400+150, 100,100};
-                            SDL_RenderCopy(gRenderer,gtree6Tex,NULL,&gtree6); 
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree6); 
                             SDL_DestroyTexture(imageTexture);
 
 
                             SDL_Rect gtree7 = {8+SCREEN_WIDTH /12+22 , SCREEN_HEIGHT / 22+400, 100,100};
-                            SDL_RenderCopy(gRenderer,gtree7Tex,NULL,&gtree7);  
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree7);  
                             SDL_DestroyTexture(imageTexture); 
 
 
                             SDL_Rect gtree8 = {8+SCREEN_WIDTH /12+22 , SCREEN_HEIGHT / 22+400+30, 100,100};
                             // loadFromFile("tree-top.png");
-                            SDL_RenderCopy(gRenderer,gtree8Tex,NULL,&gtree8); 
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree8); 
                             SDL_DestroyTexture(imageTexture);
 
 
                             SDL_Rect gtree9 = {8+SCREEN_WIDTH /12+22 , SCREEN_HEIGHT / 22+400+60, 100,100};
                             // loadFromFile("tree-top.png");
-                            SDL_RenderCopy(gRenderer,gtree9Tex,NULL,&gtree9); 
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree9); 
                             SDL_DestroyTexture(imageTexture);
 
                             SDL_Rect gtree10 = {8+SCREEN_WIDTH /12+22 , SCREEN_HEIGHT / 22+400+90, 100,100};
                             // loadFromFile("tree-top.png");
-                            SDL_RenderCopy(gRenderer,gtree10Tex,NULL,&gtree10); 
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree10); 
                             SDL_DestroyTexture(imageTexture);
 
                             SDL_Rect gtree11 = {8+SCREEN_WIDTH /12+22 , SCREEN_HEIGHT / 22+400+120, 100,100};
                             // loadFromFile("tree-top.png");
-                            SDL_RenderCopy(gRenderer,gtree11Tex,NULL,&gtree11); 
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree11); 
                             SDL_DestroyTexture(imageTexture);  
 
 
                             SDL_Rect gtree12 = {8+SCREEN_WIDTH /12+22 , SCREEN_HEIGHT / 22+400+150, 100,100};
                             // loadFromFile("tree-top.png");
-                            SDL_RenderCopy(gRenderer,gtree12Tex,NULL,&gtree12);
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree12);
                             SDL_DestroyTexture(imageTexture); 
 
 
@@ -2935,7 +3063,6 @@ int main(int argc, char const *argv[])
                             // disptext(gRenderer,   SCREEN_WIDTH / 22+300+5*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+440 + SCREEN_HEIGHT / 4, SCREEN_WIDTH / 12, SCREEN_HEIGHT / 16 , "Cafe Coffee Day",255,255,255 ) ;
 
                             
-                            char* str = "Dogra hall";
                             // std::vector<char> cstr(str.c_str(), str.c_str() + str.size() + 1);
                             // 
                             // disptext(gRenderer,   SCREEN_WIDTH / 22+310+5*SCREEN_WIDTH / 12, SCREEN_HEIGHT / 22+450 + SCREEN_HEIGHT / 4+ SCREEN_HEIGHT / 16+40, SCREEN_WIDTH / 16, SCREEN_HEIGHT / 20, "Dogra Hall",255,255,255 ) ;
@@ -3632,9 +3759,9 @@ int main(int argc, char const *argv[])
 
                     // washroom
 
-                    SDL_Rect washroom = { 1180 , 600, 200, 200 };
+                    // SDL_Rect washroom = { 1180 , 600, 200, 200 };
 
-                    SDL_RenderCopy(gRenderer,washroomTex,NULL,&washroom);
+                    // SDL_RenderCopy(gRenderer,washroomTex,NULL,&washroom);
 
                     SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
                     SDL_Rect workers = {50,800,250/3,250};
@@ -3692,9 +3819,6 @@ int main(int argc, char const *argv[])
                     temp2Clip+=1;
                     tempClip = tempClip+1;
                     player1.renderPlayer();
-                    if(player2.enterHostel){
-                        player2.renderPlayer();
-                    }
                     while( SDL_PollEvent( &e ) != 0 )
                         {
                                 //User requests quit
@@ -4032,6 +4156,7 @@ int main(int argc, char const *argv[])
                                         if(player1.energy==0 || player1.health ==0){
                                                 player1.hospitalize();
                                         }
+                                        player1.happiness = max(player1.happiness-1,0);
 
                                 }
                         }
@@ -4083,9 +4208,11 @@ int main(int argc, char const *argv[])
                                         player1.knowledge=min(player1.knowledge+1,100);
                                         player1.energy = max(player1.energy-1,0);
                                         player1.health = max(player1.health-1,0);
+
                                         if(player1.energy==0 || player1.health ==0){
                                                 player1.hospitalize();
                                         }
+                                         player1.happiness = max(player1.happiness-1,0);
                                 }
                         }
                         SDL_Rect lhc114 = {0,0,SCREEN_HEIGHT,SCREEN_HEIGHT};
@@ -4139,6 +4266,7 @@ int main(int argc, char const *argv[])
                                         if(player1.energy==0 || player1.health ==0){
                                                 player1.hospitalize();
                                         }
+                                         player1.happiness = max(player1.happiness-1,0);
                                 }
                         }
                         SDL_Rect lhc325 = {0,0,SCREEN_HEIGHT,SCREEN_HEIGHT};
@@ -4197,7 +4325,7 @@ int main(int argc, char const *argv[])
 
                     SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
                     player1.renderPlayer();
-                    if(player2.enterRestaurant){
+                    if(player2.enterRestaurant && ((player1.enterMasalaMix && player2.enterMasalaMix) || (player1.enterCCD && player2.enterCCD) || (player1.enterAmul && player2.enterAmul) || (player1.enterShiru && player2.enterShiru) || (player1.enterNescafe && player2.enterNescafe) || (player1.enterChaayos && player2.enterChaayos) || (player1.enterRajdhani && player2.enterRajdhani) || (player1.enterStaffCanteen && player2.enterStaffCanteen) || (player1.enterDilli16 && player2.enterDilli16))){
                         player2.renderPlayer();
                     }
                     while( SDL_PollEvent( &e ) != 0 )
@@ -4418,6 +4546,7 @@ int main(int argc, char const *argv[])
                                         if(player1.health<=0 || player1.energy<=0){
                                                 player1.hospitalize();
                                         }
+                                        player1.happiness = max(player1.happiness-1,0);
                     }
                     SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
                     while( SDL_PollEvent( &e ) != 0 )
@@ -4454,37 +4583,48 @@ int main(int argc, char const *argv[])
 
                 }
                 
+                
                     
-
-        string s= "Player happiness:-"+to_string(player1.happiness);
+        string s= "Happiness "+to_string(player1.happiness);
         int n = s.length();
         char char_array1[n + 1];
         strcpy(char_array1, s.c_str());
-        disptext(gRenderer,  SCREEN_WIDTH-160,750,140,50, char_array1,235, 52, 155) ;
+        if(player1.isReady && player2.isReady && !player1.won && !player1.lost){
+                disptext(gRenderer,  SCREEN_WIDTH-180,750,170,50, char_array1,213, 255, 0xFF) ;
+        }
+        
 
-        s= "Player money:-"+to_string(player1.money);
+        s= "Money "+to_string(player1.money);
         n = s.length();
         char char_array2[n + 1];
         strcpy(char_array2, s.c_str());
-        disptext(gRenderer,  SCREEN_WIDTH-160,700,140,50, char_array2,235, 52, 155) ;
+        if(player1.isReady && player2.isReady && !player1.won && !player1.lost){
+                disptext(gRenderer,  SCREEN_WIDTH-180,700,170,50, char_array2,213, 255, 0xFF) ;
+        }
 
-        s= "Player knowledge:-"+to_string(player1.knowledge);
+        s= "Knowledge "+to_string(player1.knowledge);
         n = s.length();
         char char_array3[n + 1];
         strcpy(char_array3, s.c_str());
-        disptext(gRenderer,  SCREEN_WIDTH-160,650,140,50, char_array3,235, 52, 155) ;
+        if(player1.isReady && player2.isReady&& !player1.won && !player1.lost){
+                disptext(gRenderer,  SCREEN_WIDTH-180,650,170,50, char_array3,213, 255, 0xFF) ;
+        }
 
-        s= "Player energy:-"+to_string(player1.energy);
+        s= "Energy "+to_string(player1.energy);
         n = s.length();
         char char_array4[n + 1];
         strcpy(char_array4, s.c_str());
-        disptext(gRenderer,  SCREEN_WIDTH-160,600,140,50, char_array4,235, 52, 155) ;
+        if(player1.isReady && player2.isReady&& !player1.won && !player1.lost){
+                disptext(gRenderer,  SCREEN_WIDTH-180,600,170,50, char_array4,213, 255, 0xFF) ;
+        }
 
-        s= "Player health:-"+to_string(player1.health);
+        s= "Health "+to_string(player1.health);
         n = s.length();
         char char_array5[n + 1];
         strcpy(char_array5, s.c_str());
-        disptext(gRenderer,  SCREEN_WIDTH-160,800,140,50, char_array5,235, 52, 155) ;
+       if(player1.isReady && player2.isReady&& !player1.won && !player1.lost){
+                disptext(gRenderer,  SCREEN_WIDTH-180,800,170,50, char_array5,213, 255, 0xFF) ;
+        }
 
 
 
