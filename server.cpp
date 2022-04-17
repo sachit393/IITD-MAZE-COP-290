@@ -2550,7 +2550,8 @@ int main(int argc, char const *argv[])
                                 write(connfd, buff, sizeof(buff));
 
             if(player1.isReady && player2.isReady && !player1.won && !player1.lost && !player1.inMain && !player1.enterHostel && !player1.inLargeGround && !player1.inTennisCourt && !player1.inVolleyCourt && !player1.inLHC && !player1.inLHC108 && !player1.inLHC114 && !player1.inLHC325 && !player1.enterSAC && !player1.enterRestaurant && !player1.enterMasalaMix && !player1.enterRajdhani && !player1.enterRestaurant && !player1.enterChaayos && !player1.enterShiru && !player1.enterAmul && !player1.enterNescafe && !player1.enterCCD && !player1.enterStaffCanteen && !player1.enterDilli16 && !player1.enterLibrary && !player1.isSleeping && !player1.isStudying){
-                player1.inMain = true;
+               player1.inMain = true;
+               player2.inMain = true;
             }
                    
             if(!player1.isReady && !player1.won && !player1.lost){
@@ -2579,17 +2580,31 @@ int main(int argc, char const *argv[])
                                         SDL_Rect startRect = {0,0,SCREEN_WIDTH,SCREEN_HEIGHT};
                                         SDL_RenderCopy(gRenderer,startTex,NULL,&startRect);
             }
-            else if(!player2.isReady && !player1.won && !player1.lost){
+            else if(!player2.isReady && player1.isReady ){
                                 SDL_Rect waitRect = {0,0,SCREEN_WIDTH,SCREEN_HEIGHT};
                                 SDL_RenderCopy(gRenderer,waitTex,NULL,&waitRect);
+                                player1.won = false;
+                                player1.lost = false;
+                                player2.lost = false;
+                                player2.won = false;
             }
             else if(player1.won){
                         SDL_Rect p1won = {0,0,SCREEN_WIDTH,SCREEN_HEIGHT};
                         SDL_RenderCopy(gRenderer,youwonTex,NULL,&p1won);
-                        player1.inMain = false;
-                        player2.inMain = false;
+                        player1.inMain = player1.enterHostel = player1.inLargeGround = player1.inTennisCourt = player1.inVolleyCourt = player1.inLHC = player1.takenYulu = player1.inLHC108 = player1.inLHC114 = player1.inLHC325 = player1.enterSAC = player1.enterRestaurant = player1.enterShiru = player1.enterAmul = player1.enterNescafe = player1.enterCCD = player1.enterStaffCanteen = player1.enterDilli16 = player1.enterLibrary = player1.isSleeping = player1.bankrupt = player1.isStudying = false;
+                        player1.lastStepDirection = 0;
+                        player1.health = 50;
+                        player1.energy = 100;
+                        player1.happiness = 50;
+                        player1.money = 50;
+                        player1.knowledge = 10;
+                        player1.x = 60;
+                        player1.y = 175;
+                        player1.speed = 5;
+                        player2.inMain = player2.enterHostel = player2.inLargeGround = player2.inTennisCourt = player2.inVolleyCourt = player2.inLHC = player2.takenYulu = player2.inLHC108 = player2.inLHC114 = player2.inLHC325 = player2.enterSAC = player2.enterRestaurant = player2.enterShiru = player2.enterAmul = player2.enterNescafe = player2.enterCCD = player2.enterStaffCanteen = player2.enterDilli16 = player2.enterLibrary = player2.isSleeping = player2.bankrupt = player2.isStudying = false;
                         player2.lost = true;
-
+                        player1.isReady = false;
+                        player2.isReady = false;
                         while( SDL_PollEvent( &e ) != 0 )
                                         {
                                                 //User requests quit
@@ -2599,10 +2614,10 @@ int main(int argc, char const *argv[])
                                                 }
                                                 else if(e.type == SDL_MOUSEBUTTONDOWN){
                                                         SDL_GetMouseState(&mousex,&mousey);
-                                                        if(mousex>=(int)(0.36*SCREEN_WIDTH) && mousex<=(int)(0.63*SCREEN_WIDTH) && mousey>=(int)(0.87*SCREEN_HEIGHT) && mousey<=(int)(0.94*SCREEN_HEIGHT)){
+                                                        if(mousex>=(int)(0.26*SCREEN_WIDTH) && mousex<=(int)(0.67*SCREEN_WIDTH) && mousey>=(int)(0.60*SCREEN_HEIGHT) && mousey<=(int)(0.73*SCREEN_HEIGHT)){
                                                                 player1.isReady = true;
                                                                 player1.won = false;
-                                                                player2.lost = false;
+                                                                
                                                         }
                                                 }
                                                 else if(e.type == SDL_KEYDOWN){
@@ -2610,7 +2625,6 @@ int main(int argc, char const *argv[])
                                                                 case SDLK_e:
                                                                 player1.isReady = true;
                                                                 player1.won = false;
-                                                                player2.lost = false;
                                                         }
                                                 }
 
@@ -2622,10 +2636,20 @@ int main(int argc, char const *argv[])
                 else if(player1.lost){
                         SDL_Rect p1lost = {0,0,SCREEN_WIDTH,SCREEN_HEIGHT};
                         SDL_RenderCopy(gRenderer,youlostTex,NULL,&p1lost);
-                        player1.inMain = false;
-                        player2.inMain = false;
+                        player1.inMain = player1.enterHostel = player1.inLargeGround =player1.takenYulu =  player1.inTennisCourt = player1.inVolleyCourt = player1.inLHC = player1.inLHC108 = player1.inLHC114 = player1.inLHC325 = player1.enterSAC = player1.enterRestaurant = player1.enterShiru = player1.enterAmul = player1.enterNescafe = player1.enterCCD = player1.enterStaffCanteen = player1.enterDilli16 = player1.enterLibrary = player1.isSleeping = player1.bankrupt = player1.isStudying = false;
+                        player1.lastStepDirection = 0;
+                        player1.health = 50;
+                        player1.energy = 100;
+                        player1.happiness = 50;
+                        player1.money = 50;
+                        player1.knowledge = 10;
+                        player1.x = 60;
+                        player1.y = 175;
+                        player1.speed = 5;
+                        player2.inMain = player2.enterHostel = player2.inLargeGround =player2.takenYulu = player2.inTennisCourt = player2.inVolleyCourt = player2.inLHC = player2.inLHC108 = player2.inLHC114 = player2.inLHC325 = player2.enterSAC = player2.enterRestaurant = player2.enterShiru = player2.enterAmul = player2.enterNescafe = player2.enterCCD = player2.enterStaffCanteen = player2.enterDilli16 = player2.enterLibrary = player2.isSleeping = player2.bankrupt = player2.isStudying = false;
                         player2.won = true;
-
+                        player1.isReady = false;
+                        player2.isReady = false;
                         while( SDL_PollEvent( &e ) != 0 )
                                         {
                                                 //User requests quit
@@ -2635,10 +2659,9 @@ int main(int argc, char const *argv[])
                                                 }
                                                 else if(e.type == SDL_MOUSEBUTTONDOWN){
                                                         SDL_GetMouseState(&mousex,&mousey);
-                                                        if(mousex>=(int)(0.36*SCREEN_WIDTH) && mousex<=(int)(0.63*SCREEN_WIDTH) && mousey>=(int)(0.87*SCREEN_HEIGHT) && mousey<=(int)(0.94*SCREEN_HEIGHT)){
+                                                        if(mousex>=(int)(mousex>=(int)(0.26*SCREEN_WIDTH) && mousex<=(int)(0.67*SCREEN_WIDTH) && mousey>=(int)(0.60*SCREEN_HEIGHT) && mousey<=(int)(0.73*SCREEN_HEIGHT))){
                                                                 player1.isReady = true;
                                                                 player1.lost = false;
-                                                                player2.won = false;
                                                         }
                                                 }
                                                 else if(e.type == SDL_KEYDOWN){
@@ -2646,14 +2669,13 @@ int main(int argc, char const *argv[])
                                                                 case SDLK_e:
                                                                 player1.isReady = true;
                                                                 player1.lost = false;
-                                                                player2.won = false;
                                                         }
                                                 }
 
 
                                         }
                 }
-            else if(player1.inMain){    
+            else if(player1.inMain && player1.isReady && player2.isReady){    
 
                             if(insufficientMoney){
                                 SDL_Rect insufficient = {1200,0,400,400};
