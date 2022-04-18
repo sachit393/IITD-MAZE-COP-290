@@ -8,11 +8,12 @@ bool beginGame = false;
 
 int beforeJetx = 0;
 int beforeJety = 0;
+pair<int,int> startlocation;
 int temp4=0;
 using namespace std;
 const int HOSPITAL_BILL = 50;
 
-std::vector<pair<int,int>> v = {{60,175},{920,175},{245,305},{985,775},{665,480}};
+std::vector<pair<int,int>> startLocations = {{60,175},{920,175},{245,305},{985,775},{665,480}};
 
 const int PLAYER_RADIUS = 10;
 int temp = 0;
@@ -42,9 +43,14 @@ int temp10Clip = 500;
 int temp11Clip = 500;
 
 
+int fwon=0;
+int flose=0;
 
 
-Mix_Music *musenter, *musclick, *musmusic ;
+
+
+
+Mix_Music *musenter, *musclick, *musmusic, *muspeacock, *musdisco, *muswon, *muslose, *mussnoring, *musyulu;
 
 
 SDL_Renderer* gRenderer = NULL;
@@ -120,6 +126,7 @@ class Player{
                 bool bankrupt = false;
                 bool isStudying = false;
                 bool inOAT = false;
+                bool inCSC = false;
                 int lastStepDirection = 0;
 
         Player(int xP,int yP,string colorP){
@@ -130,19 +137,19 @@ class Player{
                 knowledge = 10;
                 x = xP;
                 y = yP;
-                colorTexRight = loadFromFile(colorP+"-char-right.png");
-                colorTexFront = loadFromFile(colorP+"-char-front.png");
-                colorTexBack = loadFromFile(colorP+"-char-back.png");
-                colorTexLeft = loadFromFile(colorP+"-char-left.png");
-                cycleTexFront = loadFromFile(colorP+"-cyclefront.png");
-                cycleTexBack = loadFromFile(colorP+"-cycleback.png");
-                cycleTexLeft = loadFromFile(colorP+"-cycleleft.png");
-                cycleTexRight = loadFromFile(colorP+"-cycleright.png");
-                jetPackTexRight = loadFromFile(colorP+"-jetpackright.png");
-                jetPackTexLeft = loadFromFile(colorP+"-jetpackleft.png");
-                jetPackTexFront = loadFromFile(colorP+"-jetpackfront.png");
-                jetPackTexBack = loadFromFile(colorP+"-jetpackback.png");
-                colorTexLeft2 = loadFromFile(colorP+"-char-left.png");
+                colorTexRight = loadFromFile("images/"+colorP+"-char-right.png");
+                colorTexFront = loadFromFile("images/"+colorP+"-char-front.png");
+                colorTexBack = loadFromFile("images/"+colorP+"-char-back.png");
+                colorTexLeft = loadFromFile("images/"+colorP+"-char-left.png");
+                cycleTexFront = loadFromFile("images/"+colorP+"-cyclefront.png");
+                cycleTexBack = loadFromFile("images/"+colorP+"-cycleback.png");
+                cycleTexLeft = loadFromFile("images/"+colorP+"-cycleleft.png");
+                cycleTexRight = loadFromFile("images/"+colorP+"-cycleright.png");
+                jetPackTexRight = loadFromFile("images/"+colorP+"-jetpackright.png");
+                jetPackTexLeft = loadFromFile("images/"+colorP+"-jetpackleft.png");
+                jetPackTexFront = loadFromFile("images/"+colorP+"-jetpackfront.png");
+                jetPackTexBack = loadFromFile("images/"+colorP+"-jetpackback.png");
+                colorTexLeft2 = loadFromFile("images/"+colorP+"-char-left.png");
 
 
         }
@@ -199,7 +206,7 @@ class Player{
                                         if(x<=995 && x>=970 && y-speed>=730){
                                                 y-=speed;
                                         }
-                                        if(x<=672 && x>=660 && y-speed>=295){
+                                        if(x<=680 && x>=650 && y-speed>=295){
                                                 y-=speed;
                                         }
                                         if(x<=600 && x>=575 && y-speed>=547 && y<720){
@@ -256,7 +263,7 @@ class Player{
                                                 y+=speed;
                                         }
 
-                                        if(x<=672 && x>=660 && y+speed<=557){
+                                        if(x<=680 && x>=650 && y+speed<=557){
                                                 y+=speed;
                                         } 
 
@@ -399,6 +406,7 @@ class Player{
                 // enter into shivalik building
                                 
                 if (!takenYulu&& inMain && ((x>=455 && x<=480 && y<=350 && y>=330))){
+                        playaudio(musenter) ;
                         enterHostel = true;
                         lastx = x;
                         lasty = y;
@@ -432,6 +440,7 @@ class Player{
                 // exit from shivalik building
 
                 else if( enterHostel && x>=65 && x<=210 && y>=65 && y<=210){
+                        playaudio(musenter) ;
                         inMain = true;
                         x = lastx;
                         y = lasty;
@@ -479,6 +488,7 @@ class Player{
 
                 // sleeping
                 else if(enterHostel && x>=1280 && x<=1450){
+                        playaudio(mussnoring) ;
                         isSleeping = true;
                         inMain = false;
                         enterHostel = false;
@@ -506,6 +516,7 @@ class Player{
                         
                 }
                 else if(isSleeping){
+                        Mix_HaltMusic() ;
                         isSleeping = false;
                         enterHostel = true;
                         x = 1300;
@@ -538,6 +549,7 @@ class Player{
                         inOAT = false;
                         enterSAC = true;
                         inMain = false;
+                        Mix_HaltMusic() ;
 
                         x = (int)(0.66*SCREEN_WIDTH);
                         y = (int)(0.66*SCREEN_HEIGHT);
@@ -566,6 +578,7 @@ class Player{
 
                 // entering largeGround
                 else if(!takenYulu && inMain && x>=120 && x<=220 && y>=540 && y<=570){
+                        playaudio(musenter) ;
                         inLargeGround = true;
                         inMain = false;
                         enterHostel = false;
@@ -575,6 +588,7 @@ class Player{
                 }
                 // exit large ground
                 else if (inLargeGround && x>=1350 && x<=1490 && y<=520 && y>=450){
+                       playaudio(musenter) ;
                         inLargeGround = false;
                         inMain = true;
                         enterHostel = false;
@@ -638,6 +652,7 @@ class Player{
 
                 // entering tennis court
                 else if(!takenYulu && inMain && y>=290 && y<=315 && x>=350 && x<=370){
+                        playaudio(musenter) ;
                         inTennisCourt = true;
                         inMain = false;
                         inLargeGround = false;
@@ -680,6 +695,7 @@ class Player{
                 }
                 // exit tennis court
                 else if (inTennisCourt && x>=1350 && x<=1490 && y<=520 && y>=450){
+                        playaudio(musenter) ;
                         inLargeGround = false;
                         inMain = true;
                         enterHostel = false;
@@ -712,6 +728,8 @@ class Player{
 
                 // enter volleyBall Court
                 else if(!takenYulu && inMain && y>=0.3*SCREEN_HEIGHT-20 && y<=0.33*SCREEN_HEIGHT+10 && x>=498 && x<=510){
+                        playaudio(musenter) ;
+
                         inTennisCourt = false;
                         inVolleyCourt = true;
                         inLargeGround = false;
@@ -757,6 +775,7 @@ class Player{
 
                 // exit volley court
                 else if (inVolleyCourt && x>=1350 && x<=1490 && y<=520 && y>=450){
+                        playaudio(musenter) ;
                         inMain = true;
                         enterHostel = false;
                         inTennisCourt = false;
@@ -789,6 +808,7 @@ class Player{
 
                 // enter lhc
                 else if(!takenYulu && inMain && y>=870 && y<=890 && x>=140 && x<=220){
+                        playaudio(musenter) ;
                         inLHC = true;
                         purchasedJetPack = false;
                         inLargeGround = false;
@@ -1042,6 +1062,7 @@ class Player{
                 // exit lhc
 
                 else if (inLHC && x>=1350 && x<=1490 && y<=520 && y>=450){
+                        playaudio(musenter) ;
                         inLargeGround = false;
                         inMain = true;
                         enterHostel = false;
@@ -1611,7 +1632,7 @@ class Player{
                 else if(enterSAC && x>=0.49*SCREEN_WIDTH && x<=0.85*SCREEN_WIDTH && y>=0.43*SCREEN_HEIGHT && y<=0.89*SCREEN_HEIGHT){
                         inOAT = true;
                         purchasedJetPack = false;
-                        cout<<"PLAYER1ENTEREDOAT\n";
+                        playaudio(musdisco) ;
                         inMain = false;
                         enterHostel = false;
                         inLargeGround = false;
@@ -1681,6 +1702,19 @@ class Player{
                         isStudying = false;
                 }
 
+                // entering csc
+                else if(inMain && x>=980 && x<=1010 && y<=1000 && y>=970){
+                        inCSC = true;
+                        inMain = false;
+                }
+                // in csc
+                else if(inCSC){
+                        inCSC = false;
+                        inMain = true;
+                        x = 990;
+                        y = 990;
+                }
+
 
         }
 
@@ -1695,6 +1729,7 @@ class Player{
                                    if(!takenYulu){
                                         takenYulu = true;
                                         speed+=1;
+                                        playaudio(musyulu) ;
                                    }
                                    else{   // already had yulu now leaving it
                                         takenYulu = false;
@@ -1706,6 +1741,7 @@ class Player{
                                    if(!takenYulu){
                                         takenYulu = true;
                                         speed+=1;
+                                        playaudio(musyulu) ;
                                    }
                                    else{   // already had yulu now leaving it
                                         takenYulu = false;
@@ -1717,6 +1753,7 @@ class Player{
                                    if(!takenYulu){
                                         takenYulu = true;
                                         speed+=1;
+                                        playaudio(musyulu) ;
                                    }
                                    else{   // already had yulu now leaving it
                                         takenYulu = false;
@@ -1728,6 +1765,7 @@ class Player{
                                    if(!takenYulu){
                                         takenYulu = true;
                                         speed+=1;
+                                        playaudio(musyulu) ;
                                    }
                                    else{   // already had yulu now leaving it
                                         takenYulu = false;
@@ -1735,10 +1773,11 @@ class Player{
                                    }     
                                 }
 
-                                if(x>=947 && x<=994 && y<=180 && y>=165){
+                                if(x>=947 && x<=994 && y<=195 && y>=160){
                                    if(!takenYulu){
                                         takenYulu = true;
                                         speed+=1;
+                                        playaudio(musyulu) ;
                                    }
                                    else{   // already had yulu now leaving it
                                         takenYulu = false;
@@ -1749,6 +1788,7 @@ class Player{
                                    if(!takenYulu){
                                         takenYulu = true;
                                         speed+=1;
+                                        playaudio(musyulu) ;
                                    }
                                    else{   // already had yulu now leaving it
                                         takenYulu = false;
@@ -1760,6 +1800,7 @@ class Player{
                                    if(!takenYulu){
                                         takenYulu = true;
                                         speed+=1;
+                                        playaudio(musyulu) ;
                                    }
                                    else{   // already had yulu now leaving it
                                         takenYulu = false;
@@ -2005,145 +2046,152 @@ int main(int argc, char const *argv[])
             // Setup audio mode
             Mix_OpenAudio(22050,AUDIO_S16SYS,2,640);
             Mix_Chunk *wav , *wav2 ;  // For Sounds
-            musenter = Mix_LoadMUS("sounds_enter-sound.wav");
-            musclick = Mix_LoadMUS("sounds_click-sound.wav");
+            musenter = Mix_LoadMUS("sounds/sounds_enter-sound.wav");
+            musclick = Mix_LoadMUS("sounds/sounds_click-sound.wav");
+            muspeacock = Mix_LoadMUS("sounds/sounds_peacocksound.wav");
+            musdisco = Mix_LoadMUS("sounds/discosound.wav");
+            muswon = Mix_LoadMUS("sounds/sounds_wonsound.wav");
+            muslose = Mix_LoadMUS("sounds/sounds_losesound.wav");
+            musyulu = Mix_LoadMUS("sounds/sounds_yulusound.wav");
+            mussnoring = Mix_LoadMUS("sounds/snoringsound.wav");
+
             musmusic = Mix_LoadMUS("music-zapsplat-game-music-action-fun-funky-electro-disco-023_yKJBjSw4.wav");
             //mus2 = Mix_LoadMUS("./mixer/aria.mp3");
             //wav = Mix_LoadWAV("./mixer/po_p2k.wav");
             //wav2 = Mix_LoadWAV("./mixer/start.wav");
-                SDL_Texture* jetTopTex = loadFromFile("jetpacktop.png");
+                SDL_Texture* jetTopTex = loadFromFile("images/jetpacktop.png");
                 // hostel textures
 
-                SDL_Texture* tileTex = loadFromFile("tile.png");
-                SDL_Texture* ttableTex = loadFromFile("tabletennis.png");
-                SDL_Texture* messTex = loadFromFile("mess.png");
-                SDL_Texture* grassTex = loadFromFile("grass.png");
-                SDL_Texture* rabbitTex = loadFromFile("rabbit.png");
-                SDL_Texture* rabbitfTex = loadFromFile("rabbitf.png");
-                SDL_Texture* rabbitthTex = loadFromFile("rabbitth.png");
-                SDL_Texture* roomTex = loadFromFile("room.png");
-                SDL_Texture* restaurantTex = loadFromFile("pizzaframe5.png");
-                SDL_Texture* tree_topTex = loadFromFile("tree-top.png");
-                SDL_Texture* tree_leftTex = loadFromFile("tree-left.png");
-                SDL_Texture* tree_rightTex = loadFromFile("tree-right.png");
-                SDL_Texture* hostelgateTex = loadFromFile("hostelgate.png");
-                SDL_Texture* caretakerTex = loadFromFile("CARETAKEROFFICE.png");
-                SDL_Texture* washroomTex = loadFromFile("washroom.png");
-                SDL_Texture* entry_exitTex = loadFromFile("hostelgate.png");
+                SDL_Texture* tileTex = loadFromFile("images/tile.png");
+                SDL_Texture* ttableTex = loadFromFile("images/tabletennis.png");
+                SDL_Texture* messTex = loadFromFile("images/mess.png");
+                SDL_Texture* grassTex = loadFromFile("images/grass.png");
+                SDL_Texture* rabbitTex = loadFromFile("images/rabbit.png");
+                SDL_Texture* rabbitfTex = loadFromFile("images/rabbitf.png");
+                SDL_Texture* rabbitthTex = loadFromFile("images/rabbitth.png");
+                SDL_Texture* roomTex = loadFromFile("images/room.png");
+                SDL_Texture* restaurantTex = loadFromFile("images/pizzaframe5.png");
+                SDL_Texture* tree_topTex = loadFromFile("images/tree-top.png");
+                SDL_Texture* tree_leftTex = loadFromFile("images/tree-left.png");
+                SDL_Texture* tree_rightTex = loadFromFile("images/tree-right.png");
+                SDL_Texture* hostelgateTex = loadFromFile("images/hostelgate.png");
+                SDL_Texture* caretakerTex = loadFromFile("images/CARETAKEROFFICE.png");
+                SDL_Texture* entry_exitTex = loadFromFile("images/hostelgate.png");
 
                         // sleep
-                SDL_Texture* sleepTex = loadFromFile("sleeping.png");
+                SDL_Texture* sleepTex = loadFromFile("images/sleeping.png");
                 ////////////////
                 // main textures
-                SDL_Texture* nilgiriTex=loadFromFile("nilgiri.png"); 
-                SDL_Texture* karakoramTex = loadFromFile("karakoram.png");
-                SDL_Texture* aravaliTex = loadFromFile("aravali.png");
-                SDL_Texture* jwalaTex = loadFromFile("jwalamukhi.png");
-                SDL_Texture* kumaonTex = loadFromFile("kumaon.png");
-                SDL_Texture* vidyanchalTex = loadFromFile("vidyanchal.png");
-                SDL_Texture* deli16Tex  = loadFromFile("deli16.png");
-                SDL_Texture* tennisCourtTex = loadFromFile("tennis_court.png");
-                SDL_Texture* volleyBallCourtTex = loadFromFile("volleyball.png");
-                SDL_Texture* shivalikTex = loadFromFile("shivalik.png");
-                SDL_Texture* zanskarTex = loadFromFile("zanskar.png");
-                SDL_Texture* masalaMixTex = loadFromFile("masalamix.png");
-                SDL_Texture* rajdhaniTex = loadFromFile("rajdhani.png");
-                SDL_Texture* chaayosTex = loadFromFile("chaayos.png");
-                SDL_Texture* hospitalTex = loadFromFile("iitd-hospital.png");
-                SDL_Texture* bhartiTex = loadFromFile("bharti.png");
-                SDL_Texture* largeGroundTex = loadFromFile("largegroundOuter.png");
-                SDL_Texture* gtree1Tex = loadFromFile("tree-top.png");
-                SDL_Texture* staffCanteenTex = loadFromFile("staffcanteen.png");
-                SDL_Texture* LHCTex = loadFromFile("lecturehall.png");
-                SDL_Texture* dograHallTex = loadFromFile("dograhall.png");
-                SDL_Texture* cscTex = loadFromFile("csc.png");
-                SDL_Texture* satpuraTex = loadFromFile("satpura.png");
-                SDL_Texture* girnarTex = loadFromFile("girnar.png");
-                SDL_Texture* udaigiriTex = loadFromFile("udaigiri.png");
-                SDL_Texture* shiruTex = loadFromFile("shirucafe.png");
-                SDL_Texture* amulTex = loadFromFile("amul.png");
-                SDL_Texture* nescafeTex = loadFromFile("nescafe.png");
-                SDL_Texture* ccdTex = loadFromFile("ccd.png");
-                SDL_Texture* clibraryTex = loadFromFile("centrallibrary.png");
-                SDL_Texture* libraryinsideTex = loadFromFile("library-inside-view.png");
-                SDL_Texture* mainBuildingTex = loadFromFile("mainbuilding.png");
-                SDL_Texture* interConnectingRoadsTex = loadFromFile("interconnecting.png");
-                SDL_Texture* sacCircleTex = loadFromFile("saccircle.png");
-                SDL_Texture* vrTex = loadFromFile("verticalroad.png");
-                SDL_Texture* hr1Tex = loadFromFile("horizontalroad.png");
-                SDL_Texture* hr2Tex = loadFromFile("horizontalroad2.png");
-                SDL_Texture* tpTex = loadFromFile("tpoint.png");
-                SDL_Texture* sacTex = loadFromFile("SAC.png");
-                SDL_Texture* SACinsideTex = loadFromFile("badminton1.png");
-                SDL_Texture* interConnectingRoads2Tex = loadFromFile("interconnecting2.png");
-                SDL_Texture* exitTex = loadFromFile("exit.png");
-                SDL_Texture* angryProfessorTex = loadFromFile("angryProf.png");
-                SDL_Texture* hungryDogTex = loadFromFile("dog.png");
-                SDL_Texture* yuluTex = loadFromFile("yulu.png");
+                SDL_Texture* nilgiriTex=loadFromFile("images/nilgiri.png"); 
+                SDL_Texture* karakoramTex = loadFromFile("images/karakoram.png");
+                SDL_Texture* aravaliTex = loadFromFile("images/aravali.png");
+                SDL_Texture* jwalaTex = loadFromFile("images/jwalamukhi.png");
+                SDL_Texture* kumaonTex = loadFromFile("images/kumaon.png");
+                SDL_Texture* vidyanchalTex = loadFromFile("images/vidyanchal.png");
+                SDL_Texture* deli16Tex  = loadFromFile("images/deli16.png");
+                SDL_Texture* tennisCourtTex = loadFromFile("images/tennis_court.png");
+                SDL_Texture* volleyBallCourtTex = loadFromFile("images/volleyball.png");
+                SDL_Texture* shivalikTex = loadFromFile("images/shivalik.png");
+                SDL_Texture* zanskarTex = loadFromFile("images/zanskar.png");
+                SDL_Texture* masalaMixTex = loadFromFile("images/masalamix.png");
+                SDL_Texture* rajdhaniTex = loadFromFile("images/rajdhani.png");
+                SDL_Texture* chaayosTex = loadFromFile("images/chaayos.png");
+                SDL_Texture* hospitalTex = loadFromFile("images/iitd-hospital.png");
+                SDL_Texture* bhartiTex = loadFromFile("images/bharti.png");
+                SDL_Texture* largeGroundTex = loadFromFile("images/largegroundOuter.png");
+                SDL_Texture* gtree1Tex = loadFromFile("images/tree-top.png");
+                SDL_Texture* staffCanteenTex = loadFromFile("images/staffcanteen.png");
+                SDL_Texture* LHCTex = loadFromFile("images/lecturehall.png");
+                SDL_Texture* dograHallTex = loadFromFile("images/dograhall.png");
+                SDL_Texture* cscTex = loadFromFile("images/csc.png");
+                SDL_Texture* satpuraTex = loadFromFile("images/satpura.png");
+                SDL_Texture* girnarTex = loadFromFile("images/girnar.png");
+                SDL_Texture* udaigiriTex = loadFromFile("images/udaigiri.png");
+                SDL_Texture* shiruTex = loadFromFile("images/shirucafe.png");
+                SDL_Texture* amulTex = loadFromFile("images/amul.png");
+                SDL_Texture* nescafeTex = loadFromFile("images/nescafe.png");
+                SDL_Texture* ccdTex = loadFromFile("images/ccd.png");
+                SDL_Texture* clibraryTex = loadFromFile("images/centrallibrary.png");
+                SDL_Texture* libraryinsideTex = loadFromFile("images/library-inside-view.png");
+                SDL_Texture* mainBuildingTex = loadFromFile("images/mainbuilding.png");
+                SDL_Texture* interConnectingRoadsTex = loadFromFile("images/interconnecting.png");
+                SDL_Texture* sacCircleTex = loadFromFile("images/saccircle.png");
+                SDL_Texture* vrTex = loadFromFile("images/verticalroad.png");
+                SDL_Texture* hr1Tex = loadFromFile("images/horizontalroad.png");
+                SDL_Texture* hr2Tex = loadFromFile("images/horizontalroad2.png");
+                SDL_Texture* tpTex = loadFromFile("images/tpoint.png");
+                SDL_Texture* sacTex = loadFromFile("images/SAC.png");
+                SDL_Texture* SACinsideTex = loadFromFile("images/badminton1.png");
+                SDL_Texture* interConnectingRoads2Tex = loadFromFile("images/interconnecting2.png");
+                SDL_Texture* exitTex = loadFromFile("images/exit.png");
+                SDL_Texture* angryProfessorTex = loadFromFile("images/angryProf.png");
+                SDL_Texture* hungryDogTex = loadFromFile("images/dog.png");
+                SDL_Texture* yuluTex = loadFromFile("images/yulu.png");
+                SDL_Texture* cscInsideTex = loadFromFile("images/cscinside.png");
 
-                SDL_Texture* workerSprites = loadFromFile("workersprites.png");
+                SDL_Texture* workerSprites = loadFromFile("images/workersprites.png");
 
-                SDL_Texture* ttframe2Tex = loadFromFile("ttframe2.png");
-                SDL_Texture* ttframe3Tex = loadFromFile("ttframe3.png");
-                SDL_Texture* ttframe4Tex = loadFromFile("ttframe4.png");
-                SDL_Texture* ttframe5Tex = loadFromFile("ttframe5.png");
-                SDL_Texture* ttframe6Tex = loadFromFile("ttframe6.png");
-                SDL_Texture* ttframe7Tex = loadFromFile("ttframe7.png");
-                SDL_Texture* ttframe8Tex = loadFromFile("ttframe8.png");
-                SDL_Texture* ttframe9Tex = loadFromFile("ttframe9.png");
-                SDL_Texture* ttframe10Tex = loadFromFile("ttframe10.png");
+                SDL_Texture* ttframe2Tex = loadFromFile("images/ttframe2.png");
+                SDL_Texture* ttframe3Tex = loadFromFile("images/ttframe3.png");
+                SDL_Texture* ttframe4Tex = loadFromFile("images/ttframe4.png");
+                SDL_Texture* ttframe5Tex = loadFromFile("images/ttframe5.png");
+                SDL_Texture* ttframe6Tex = loadFromFile("images/ttframe6.png");
+                SDL_Texture* ttframe7Tex = loadFromFile("images/ttframe7.png");
+                SDL_Texture* ttframe8Tex = loadFromFile("images/ttframe8.png");
+                SDL_Texture* ttframe9Tex = loadFromFile("images/ttframe9.png");
+                SDL_Texture* ttframe10Tex = loadFromFile("images/ttframe10.png");
 
-                SDL_Texture* messframe1Tex = loadFromFile("messframe1.png");
-                SDL_Texture* messframe2Tex = loadFromFile("messframe2.png");
-                SDL_Texture* messframe3Tex = loadFromFile("messframe3.png");
-                SDL_Texture* messframe4Tex = loadFromFile("messframe4.png");
+                SDL_Texture* messframe1Tex = loadFromFile("images/messframe1.png");
+                SDL_Texture* messframe2Tex = loadFromFile("images/messframe2.png");
+                SDL_Texture* messframe3Tex = loadFromFile("images/messframe3.png");
+                SDL_Texture* messframe4Tex = loadFromFile("images/messframe4.png");
 
-                SDL_Texture* tennisframe1Tex = loadFromFile("tennisframe1.png");
-                SDL_Texture* tennisframe2Tex = loadFromFile("tennisframe2.png");
-                SDL_Texture* tennisframe3Tex = loadFromFile("tennisframe3.png");
-                SDL_Texture* tennisframe4Tex = loadFromFile("tennisframe4.png");
-                SDL_Texture* tennisframe5Tex = loadFromFile("tennisframe5.png");
-                SDL_Texture* tennisframe6Tex = loadFromFile("tennisframe6.png");
+                SDL_Texture* tennisframe1Tex = loadFromFile("images/tennisframe1.png");
+                SDL_Texture* tennisframe2Tex = loadFromFile("images/tennisframe2.png");
+                SDL_Texture* tennisframe3Tex = loadFromFile("images/tennisframe3.png");
+                SDL_Texture* tennisframe4Tex = loadFromFile("images/tennisframe4.png");
+                SDL_Texture* tennisframe5Tex = loadFromFile("images/tennisframe5.png");
+                SDL_Texture* tennisframe6Tex = loadFromFile("images/tennisframe6.png");
 
-                SDL_Texture* volleyballframeTex1 = loadFromFile("volleyballInner.png");
-                SDL_Texture* volleyballframeTex2 = loadFromFile("volleyballframe2.png");
-                SDL_Texture* volleyballframeTex3 = loadFromFile("volleyballframe3.png");
-                SDL_Texture* volleyballframeTex4 = loadFromFile("volleyballframe4.png");
-                SDL_Texture* volleyballframeTex5 = loadFromFile("volleyballframe5.png");
-                SDL_Texture* volleyballframeTex6 = loadFromFile("volleyballframe6.png");
+                SDL_Texture* volleyballframeTex1 = loadFromFile("images/volleyballInner.png");
+                SDL_Texture* volleyballframeTex2 = loadFromFile("images/volleyballframe2.png");
+                SDL_Texture* volleyballframeTex3 = loadFromFile("images/volleyballframe3.png");
+                SDL_Texture* volleyballframeTex4 = loadFromFile("images/volleyballframe4.png");
+                SDL_Texture* volleyballframeTex5 = loadFromFile("images/volleyballframe5.png");
+                SDL_Texture* volleyballframeTex6 = loadFromFile("images/volleyballframe6.png");
 
-                SDL_Texture* footballframe1Tex = loadFromFile("footballframe1.png");
-                SDL_Texture* footballframe2Tex = loadFromFile("footballframe2.png");
-                SDL_Texture* footballframe3Tex = loadFromFile("footballframe3.png");
-                SDL_Texture* footballframe4Tex = loadFromFile("footballframe4.png");
-                SDL_Texture* footballframe5Tex = loadFromFile("footballframe5.png");
-                SDL_Texture* footballframe6Tex = loadFromFile("footballframe6.png");
+                SDL_Texture* footballframe1Tex = loadFromFile("images/footballframe1.png");
+                SDL_Texture* footballframe2Tex = loadFromFile("images/footballframe2.png");
+                SDL_Texture* footballframe3Tex = loadFromFile("images/footballframe3.png");
+                SDL_Texture* footballframe4Tex = loadFromFile("images/footballframe4.png");
+                SDL_Texture* footballframe5Tex = loadFromFile("images/footballframe5.png");
+                SDL_Texture* footballframe6Tex = loadFromFile("images/footballframe6.png");
 
-                SDL_Texture* cricketframe1Tex = loadFromFile("cricketframe1.png");
-                SDL_Texture* cricketframe2Tex = loadFromFile("cricketframe2.png");
-                SDL_Texture* cricketframe3Tex = loadFromFile("cricketframe3.png");
-                SDL_Texture* cricketframe4Tex = loadFromFile("cricketframe4.png");
-                SDL_Texture* cricketframe5Tex = loadFromFile("cricketframe5.png");
-                SDL_Texture* cricketframe6Tex = loadFromFile("cricketframe6.png");
+                SDL_Texture* cricketframe1Tex = loadFromFile("images/cricketframe1.png");
+                SDL_Texture* cricketframe2Tex = loadFromFile("images/cricketframe2.png");
+                SDL_Texture* cricketframe3Tex = loadFromFile("images/cricketframe3.png");
+                SDL_Texture* cricketframe4Tex = loadFromFile("images/cricketframe4.png");
+                SDL_Texture* cricketframe5Tex = loadFromFile("images/cricketframe5.png");
+                SDL_Texture* cricketframe6Tex = loadFromFile("images/cricketframe6.png");
 
-                SDL_Texture* hockeyframe1Tex = loadFromFile("hockeyframe1.png");
-                SDL_Texture* hockeyframe2Tex = loadFromFile("hockeyframe2.png");
-                SDL_Texture* hockeyframe3Tex = loadFromFile("hockeyframe3.png");
-                SDL_Texture* hockeyframe4Tex = loadFromFile("hockeyframe4.png");
-                SDL_Texture* hockeyframe5Tex = loadFromFile("hockeyframe5.png");
-                SDL_Texture* hockeyframe6Tex = loadFromFile("hockeyframe6.png");
-                SDL_Texture* hockeyframe7Tex = loadFromFile("hockeyframe7.png");
-                SDL_Texture* hockeyframe8Tex = loadFromFile("hockeyframe8.png");
-                SDL_Texture* hockeyframe9Tex = loadFromFile("hockeyframe9.png");
+                SDL_Texture* hockeyframe1Tex = loadFromFile("images/hockeyframe1.png");
+                SDL_Texture* hockeyframe2Tex = loadFromFile("images/hockeyframe2.png");
+                SDL_Texture* hockeyframe3Tex = loadFromFile("images/hockeyframe3.png");
+                SDL_Texture* hockeyframe4Tex = loadFromFile("images/hockeyframe4.png");
+                SDL_Texture* hockeyframe5Tex = loadFromFile("images/hockeyframe5.png");
+                SDL_Texture* hockeyframe6Tex = loadFromFile("images/hockeyframe6.png");
+                SDL_Texture* hockeyframe7Tex = loadFromFile("images/hockeyframe7.png");
+                SDL_Texture* hockeyframe8Tex = loadFromFile("images/hockeyframe8.png");
+                SDL_Texture* hockeyframe9Tex = loadFromFile("images/hockeyframe9.png");
 
-                SDL_Texture* badmintonframeTex1 = loadFromFile("badminton1.png");
-                SDL_Texture* badmintonframeTex2 = loadFromFile("badminton2.png");
-                SDL_Texture* badmintonframeTex3 = loadFromFile("badminton3.png");
-                SDL_Texture* badmintonframeTex4 = loadFromFile("badminton4.png");
-                SDL_Texture* badmintonframeTex5 = loadFromFile("badminton5.png");
-                SDL_Texture* hospitalizeTex = loadFromFile("hospitalized.png");
+                SDL_Texture* badmintonframeTex1 = loadFromFile("images/badminton1.png");
+                SDL_Texture* badmintonframeTex2 = loadFromFile("images/badminton2.png");
+                SDL_Texture* badmintonframeTex3 = loadFromFile("images/badminton3.png");
+                SDL_Texture* badmintonframeTex4 = loadFromFile("images/badminton4.png");
+                SDL_Texture* badmintonframeTex5 = loadFromFile("images/badminton5.png");
+                SDL_Texture* hospitalizeTex = loadFromFile("images/hospitalized.png");
 
-                SDL_Texture* insufficientMoneyTex = loadFromFile("lessmoney.png");
+                SDL_Texture* insufficientMoneyTex = loadFromFile("images/lessmoney.png");
 
 
                 SDL_Rect arr[3];
@@ -2154,97 +2202,97 @@ int main(int argc, char const *argv[])
 
                 SDL_Rect textRect = {SCREEN_WIDTH-160,800,140,50};
                 // large ground textures
-                SDL_Texture* largeGroundInnerTex = loadFromFile("largegroundInner.png");
+                SDL_Texture* largeGroundInnerTex = loadFromFile("images/largegroundInner.png");
 
                 // tennisCourt
-                SDL_Texture* tennisCourtInnerTex = loadFromFile("tennisInner.png");
+                SDL_Texture* tennisCourtInnerTex = loadFromFile("images/tennisInner.png");
 
                 // volley ball court
-                SDL_Texture* volleyCourtInnerTex = loadFromFile("volleyballInner.png");
+                SDL_Texture* volleyCourtInnerTex = loadFromFile("images/volleyballInner.png");
 
                 // LHC
-                SDL_Texture* LHCInnerTex = loadFromFile("lhcInner.png");
+                SDL_Texture* LHCInnerTex = loadFromFile("images/lhcInner.png");
 
                 //LHC108
-                SDL_Texture* LH108Tex = loadFromFile("LH108.png");
+                SDL_Texture* LH108Tex = loadFromFile("images/LH108.png");
 
                 //LHC114
-                SDL_Texture* LHC114Tex = loadFromFile("LH114.png");
+                SDL_Texture* LHC114Tex = loadFromFile("images/LH114.png");
 
                 //LHC325
-                SDL_Texture* LHC325Tex = loadFromFile("LH325.png");
+                SDL_Texture* LHC325Tex = loadFromFile("images/LH325.png");
 
                 // yulu top
-                SDL_Texture* yuluTopTex = loadFromFile("yulutop.png");
+                SDL_Texture* yuluTopTex = loadFromFile("images/yulutop.png");
 
 
                 // studying in lib
-                SDL_Texture* studyTex = loadFromFile("study.png");
+                SDL_Texture* studyTex = loadFromFile("images/study.png");
 
                 // gym texture
 
-                SDL_Texture* gymframeTex1 = loadFromFile("gymframe1.png");
-                SDL_Texture* gymframeTex2 = loadFromFile("gymframe2.png");
+                SDL_Texture* gymframeTex1 = loadFromFile("images/gymframe1.png");
+                SDL_Texture* gymframeTex2 = loadFromFile("images/gymframe2.png");
 
-                SDL_Texture* startTex = loadFromFile("start-page.png");
-                SDL_Texture* waitTex = loadFromFile("waiting.png");
-                SDL_Texture* youwonTex = loadFromFile("youwin.png");
-                SDL_Texture* youlostTex = loadFromFile("youlose.png");
+                SDL_Texture* startTex = loadFromFile("images/start-page.png");
+                SDL_Texture* waitTex = loadFromFile("images/waiting.png");
+                SDL_Texture* youwonTex = loadFromFile("images/youwin.png");
+                SDL_Texture* youlostTex = loadFromFile("images/youlose.png");
 
                 // loading icons
 
-                SDL_Texture* bookiconTex = loadFromFile("bookicon.png");
+                SDL_Texture* bookiconTex = loadFromFile("images/bookicon.png");
                 SDL_Texture* hearticonTex ;
-                SDL_Texture* hearticon1Tex = loadFromFile("hearticon1.png");
-                SDL_Texture* hearticon2Tex = loadFromFile("hearticon2.png");
-                SDL_Texture* hearticon3Tex = loadFromFile("hearticon3.png");
-                SDL_Texture* hearticon4Tex = loadFromFile("hearticon4.png");
-                SDL_Texture* hearticon5Tex = loadFromFile("hearticon5.png");
+                SDL_Texture* hearticon1Tex = loadFromFile("images/hearticon1.png");
+                SDL_Texture* hearticon2Tex = loadFromFile("images/hearticon2.png");
+                SDL_Texture* hearticon3Tex = loadFromFile("images/hearticon3.png");
+                SDL_Texture* hearticon4Tex = loadFromFile("images/hearticon4.png");
+                SDL_Texture* hearticon5Tex = loadFromFile("images/hearticon5.png");
             
             
             
-                SDL_Texture* moneyiconTex = loadFromFile("moneyicon.png");
+                SDL_Texture* moneyiconTex = loadFromFile("images/moneyicon.png");
                 SDL_Texture* happinessiconTex;
-                SDL_Texture* happinessicon1Tex = loadFromFile("happyfaceicon1.png");
-                SDL_Texture* happinessicon2Tex = loadFromFile("happyfaceicon2.png");
-                SDL_Texture* happinessicon3Tex = loadFromFile("happyfaceicon3.png");
-                SDL_Texture* happinessicon4Tex = loadFromFile("happyfaceicon4.png");
-                SDL_Texture* happinessicon5Tex = loadFromFile("happyfaceicon5.png");
+                SDL_Texture* happinessicon1Tex = loadFromFile("images/happyfaceicon1.png");
+                SDL_Texture* happinessicon2Tex = loadFromFile("images/happyfaceicon2.png");
+                SDL_Texture* happinessicon3Tex = loadFromFile("images/happyfaceicon3.png");
+                SDL_Texture* happinessicon4Tex = loadFromFile("images/happyfaceicon4.png");
+                SDL_Texture* happinessicon5Tex = loadFromFile("images/happyfaceicon5.png");
                 
                 SDL_Texture* energyiconTex;
-                SDL_Texture* energyicon1Tex = loadFromFile("energyicon1.png");
-                SDL_Texture* energyicon2Tex = loadFromFile("energyicon2.png");
-                SDL_Texture* energyicon3Tex = loadFromFile("energyicon3.png");
-                SDL_Texture* energyicon4Tex = loadFromFile("energyicon4.png");
-                SDL_Texture* energyicon5Tex = loadFromFile("energyicon5.png");
+                SDL_Texture* energyicon1Tex = loadFromFile("images/energyicon1.png");
+                SDL_Texture* energyicon2Tex = loadFromFile("images/energyicon2.png");
+                SDL_Texture* energyicon3Tex = loadFromFile("images/energyicon3.png");
+                SDL_Texture* energyicon4Tex = loadFromFile("images/energyicon4.png");
+                SDL_Texture* energyicon5Tex = loadFromFile("images/energyicon5.png");
 
 
                 // pizza frames
-                SDL_Texture* pizzaframeTex1 = loadFromFile("pizzaframe1.png");
-                SDL_Texture* pizzaframeTex2 = loadFromFile("pizzaframe2.png");
-                SDL_Texture* pizzaframeTex3 = loadFromFile("pizzaframe3.png");
-                SDL_Texture* pizzaframeTex4 = loadFromFile("pizzaframe4.png");
+                SDL_Texture* pizzaframeTex1 = loadFromFile("images/pizzaframe1.png");
+                SDL_Texture* pizzaframeTex2 = loadFromFile("images/pizzaframe2.png");
+                SDL_Texture* pizzaframeTex3 = loadFromFile("images/pizzaframe3.png");
+                SDL_Texture* pizzaframeTex4 = loadFromFile("images/pizzaframe4.png");
 
                 // peacock
-                SDL_Texture* peacockframeTex1 = loadFromFile("peacockframe1.png");
-                SDL_Texture* peacockframeTex2 = loadFromFile("peacockframe2.png");
-                SDL_Texture* peacockframeTex3 = loadFromFile("peacockframe3.png");
-                SDL_Texture* peacockframeTex4 = loadFromFile("peacockframe4.png");
-                SDL_Texture* peacockframeTex5 = loadFromFile("peacockframe5.png");
+                SDL_Texture* peacockframeTex1 = loadFromFile("images/peacockframe1.png");
+                SDL_Texture* peacockframeTex2 = loadFromFile("images/peacockframe2.png");
+                SDL_Texture* peacockframeTex3 = loadFromFile("images/peacockframe3.png");
+                SDL_Texture* peacockframeTex4 = loadFromFile("images/peacockframe4.png");
+                SDL_Texture* peacockframeTex5 = loadFromFile("images/peacockframe5.png");
 
-                SDL_Texture* oatinsideTex1 = loadFromFile("oatinside1.png");
-                SDL_Texture* oatinsideTex2 = loadFromFile("oatinside2.png");
-                SDL_Texture* oatinsideTex3 = loadFromFile("oatinside3.png");
+                SDL_Texture* oatinsideTex1 = loadFromFile("images/oatinside1.png");
+                SDL_Texture* oatinsideTex2 = loadFromFile("images/oatinside2.png");
+                SDL_Texture* oatinsideTex3 = loadFromFile("images/oatinside3.png");
 
-                SDL_Texture* parkingTex = loadFromFile("carparking.png");
-                Player player1 = Player(60,175,"pink");
+                SDL_Texture* parkingTex = loadFromFile("images/carparking.png");
+                startlocation = startLocations[generateRandomPoint(4).first%5];
+                Player player1 = Player(startlocation.first,startlocation.second,"pink");
                 Player player2 = Player(SCREEN_WIDTH-600,175,"purple");
                 bool quit = false;
 
                 SDL_Event e;
                 // cout<<player1.inMain<<"\n\n\n";
                 while(!quit){
-                        cout<<player1.x<<" "<<player1.y<<"\n";
                         if(player1.happiness>=70 && player1.knowledge>=70 && player1.health>=60){
                                 player1.won = true;
                                 player2.lost = true;
@@ -2658,7 +2706,7 @@ int main(int argc, char const *argv[])
                                         buff[39]='0';
                                 }
                                 write(connfd, buff, sizeof(buff));
-            if(player1.isReady && player2.isReady && !player1.won && !player1.lost && !player1.inMain && !player1.enterHostel && !player1.inLargeGround && !player1.inTennisCourt && !player1.inVolleyCourt && !player1.inLHC && !player1.inLHC108 && !player1.inLHC114 && !player1.inLHC325 && !player1.enterSAC && !player1.enterRestaurant && !player1.enterMasalaMix && !player1.enterRajdhani && !player1.enterRestaurant && !player1.enterChaayos && !player1.enterShiru && !player1.enterAmul && !player1.enterNescafe && !player1.enterCCD && !player1.enterStaffCanteen && !player1.enterDilli16 && !player1.enterLibrary && !player1.isSleeping && !player1.isStudying && !player1.inOAT){
+            if(player1.isReady && player2.isReady && !player1.won && !player1.lost && !player1.inMain && !player1.enterHostel && !player1.inLargeGround && !player1.inTennisCourt && !player1.inVolleyCourt && !player1.inLHC && !player1.inLHC108 && !player1.inLHC114 && !player1.inLHC325 && !player1.enterSAC && !player1.enterRestaurant && !player1.enterMasalaMix && !player1.enterRajdhani && !player1.enterRestaurant && !player1.enterChaayos && !player1.enterShiru && !player1.enterAmul && !player1.enterNescafe && !player1.enterCCD && !player1.enterStaffCanteen && !player1.enterDilli16 && !player1.enterLibrary && !player1.isSleeping && !player1.isStudying && !player1.inOAT && !player1.inCSC){
                player1.inMain = true;
                player2.inMain = true;
             }
@@ -2698,6 +2746,9 @@ int main(int argc, char const *argv[])
                                 player2.won = false;
             }
             else if(player1.won){
+            
+                        if(fwon==0){playaudio(muswon);}
+                                fwon=1;
                         SDL_Rect p1won = {0,0,SCREEN_WIDTH,SCREEN_HEIGHT};
                         SDL_RenderCopy(gRenderer,youwonTex,NULL,&p1won);
                         player1.inMain = player1.enterHostel = player1.inLargeGround = player1.inTennisCourt = player1.inVolleyCourt = player1.inLHC = player1.inOAT =  player1.takenYulu = player1.inLHC108 = player1.inLHC114 = player1.inLHC325 = player1.enterSAC = player1.enterRestaurant = player1.enterShiru = player1.enterAmul = player1.enterNescafe = player1.enterCCD = player1.enterStaffCanteen = player1.enterDilli16 = player1.enterLibrary = player1.isSleeping = player1.bankrupt = player1.isStudying = false;
@@ -2707,8 +2758,9 @@ int main(int argc, char const *argv[])
                         player1.happiness = 50;
                         player1.money = 50;
                         player1.knowledge = 10;
-                        player1.x = 60;
-                        player1.y = 175;
+                        pair<int,int> newLocation = startLocations[generateRandomPoint(9).first%5];
+                        player1.x = newLocation.first;
+                        player1.y = newLocation.second;
                         player1.speed = 5;
                         player2.inMain = player2.inOAT = player2.enterHostel = player2.inLargeGround = player2.inTennisCourt = player2.inVolleyCourt = player2.inLHC = player2.takenYulu = player2.inLHC108 = player2.inLHC114 = player2.inLHC325 = player2.enterSAC = player2.enterRestaurant = player2.enterShiru = player2.enterAmul = player2.enterNescafe = player2.enterCCD = player2.enterStaffCanteen = player2.enterDilli16 = player2.enterLibrary = player2.isSleeping = player2.bankrupt = player2.isStudying = false;
                         player2.lost = true;
@@ -2724,7 +2776,7 @@ int main(int argc, char const *argv[])
                         running = false;
                         insufficientMoney = false;
                         player1.purchasedJetPack = false;
-                        
+
                         hospitalized = false;
                         temp2Clip = 450;
                         temp3Clip = 500;
@@ -2765,6 +2817,9 @@ int main(int argc, char const *argv[])
 
                 }
                 else if(player1.lost){
+                        if(flose==0){playaudio(muslose);}
+                        flose=1 ;
+
                         SDL_Rect p1lost = {0,0,SCREEN_WIDTH,SCREEN_HEIGHT};
                         SDL_RenderCopy(gRenderer,youlostTex,NULL,&p1lost);
                         player1.inMain = player1.enterHostel = player1.inOAT = player1.inLargeGround =player1.takenYulu =  player1.inTennisCourt = player1.inVolleyCourt = player1.inLHC = player1.inLHC108 = player1.inLHC114 = player1.inLHC325 = player1.enterSAC = player1.enterRestaurant = player1.enterShiru = player1.enterAmul = player1.enterNescafe = player1.enterCCD = player1.enterStaffCanteen = player1.enterDilli16 = player1.enterLibrary = player1.isSleeping = player1.bankrupt = player1.isStudying = false;
@@ -2774,8 +2829,9 @@ int main(int argc, char const *argv[])
                         player1.happiness = 50;
                         player1.money = 50;
                         player1.knowledge = 10;
-                        player1.x = 60;
-                        player1.y = 175;
+                        pair<int,int> newLocation = startLocations[generateRandomPoint(9).first%5];
+                        player1.x = newLocation.first;
+                        player1.y = newLocation.second;
                         player1.speed = 5;
                         player2.inMain = player2.enterHostel = player2.inOAT = player2.inLargeGround =player2.takenYulu = player2.inTennisCourt = player2.inVolleyCourt = player2.inLHC = player2.inLHC108 = player2.inLHC114 = player2.inLHC325 = player2.enterSAC = player2.enterRestaurant = player2.enterShiru = player2.enterAmul = player2.enterNescafe = player2.enterCCD = player2.enterStaffCanteen = player2.enterDilli16 = player2.enterLibrary = player2.isSleeping = player2.bankrupt = player2.isStudying = false;
                         player2.won = true;
@@ -2828,6 +2884,12 @@ int main(int argc, char const *argv[])
 
                 }
             else if(player1.inMain && player1.isReady && player2.isReady){    
+                            fwon=0;
+                            flose=0;
+                            pair<int,int> p = generateRandomPoint(7) ;
+                            if(p.first>=900){
+                                playaudio(muspeacock) ;
+                            }
                             if(hospitalized){
                                 SDL_Rect hpt = {1000,0,400,400};
                                 SDL_RenderCopy(gRenderer,hospitalizeTex,NULL,&hpt);
@@ -3243,6 +3305,145 @@ int main(int argc, char const *argv[])
                             SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree71);
                             SDL_Rect gtree72 = {(int)(SCREEN_WIDTH*0.4)-540,(int)(SCREEN_HEIGHT*0.3)-90, 100,100};
                             SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree72);
+
+
+                            SDL_Rect gtree73 = {(int)(SCREEN_WIDTH*0.4)-450-80,(int)(SCREEN_HEIGHT*0.3), 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree73);
+                            SDL_Rect gtree74 = {(int)(SCREEN_WIDTH*0.4)-480-80,(int)(SCREEN_HEIGHT*0.3), 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree74);
+                            SDL_Rect gtree75 = {(int)(SCREEN_WIDTH*0.4)-510-80,(int)(SCREEN_HEIGHT*0.3), 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree75);
+                            SDL_Rect gtree76 = {(int)(SCREEN_WIDTH*0.4)-540-80,(int)(SCREEN_HEIGHT*0.3), 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree76);
+
+
+                            SDL_Rect gtree77 = {(int)(SCREEN_WIDTH*0.4)-450-80,(int)(SCREEN_HEIGHT*0.3)+30, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree77);
+                            SDL_Rect gtree78 = {(int)(SCREEN_WIDTH*0.4)-480-80,(int)(SCREEN_HEIGHT*0.3)+30, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree78);
+                            SDL_Rect gtree79 = {(int)(SCREEN_WIDTH*0.4)-510-80,(int)(SCREEN_HEIGHT*0.3)+30, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree79);
+                            SDL_Rect gtree80 = {(int)(SCREEN_WIDTH*0.4)-540-80,(int)(SCREEN_HEIGHT*0.3)+30, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree80);
+
+                            SDL_Rect gtree81 = {(int)(SCREEN_WIDTH*0.4)-450-80,(int)(SCREEN_HEIGHT*0.3)+60, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree81);
+                            SDL_Rect gtree82 = {(int)(SCREEN_WIDTH*0.4)-480-80,(int)(SCREEN_HEIGHT*0.3)+60, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree82);
+                            SDL_Rect gtree83 = {(int)(SCREEN_WIDTH*0.4)-510-80,(int)(SCREEN_HEIGHT*0.3)+60, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree83);
+                            SDL_Rect gtree84 = {(int)(SCREEN_WIDTH*0.4)-540-80,(int)(SCREEN_HEIGHT*0.3)+60, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree84);
+
+                            SDL_Rect gtree85 = {(int)(SCREEN_WIDTH*0.4)-450-80,(int)(SCREEN_HEIGHT*0.3)+90, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree85);
+                            SDL_Rect gtree86 = {(int)(SCREEN_WIDTH*0.4)-480-80,(int)(SCREEN_HEIGHT*0.3)+90, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree86);
+                            SDL_Rect gtree87 = {(int)(SCREEN_WIDTH*0.4)-510-80,(int)(SCREEN_HEIGHT*0.3)+90, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree87);
+                            SDL_Rect gtree88 = {(int)(SCREEN_WIDTH*0.4)-540-80,(int)(SCREEN_HEIGHT*0.3)+90, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree88);
+
+
+                            SDL_Rect gtree89 = {(int)(SCREEN_WIDTH*0.4)-450-80,(int)(SCREEN_HEIGHT*0.3)+330-15, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree89);
+                            SDL_Rect gtree90 = {(int)(SCREEN_WIDTH*0.4)-480-80,(int)(SCREEN_HEIGHT*0.3)+330-15, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree90);
+                            SDL_Rect gtree91 = {(int)(SCREEN_WIDTH*0.4)-510-80,(int)(SCREEN_HEIGHT*0.3)+330-15, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree91);
+                            SDL_Rect gtree92 = {(int)(SCREEN_WIDTH*0.4)-540-80,(int)(SCREEN_HEIGHT*0.3)+330-15, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree92);
+
+
+                            SDL_Rect gtree93 = {(int)(SCREEN_WIDTH*0.4)-450-80,(int)(SCREEN_HEIGHT*0.3)+30+330-15, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree93);
+                            SDL_Rect gtree94 = {(int)(SCREEN_WIDTH*0.4)-480-80,(int)(SCREEN_HEIGHT*0.3)+30+330-15, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree94);
+                            SDL_Rect gtree95 = {(int)(SCREEN_WIDTH*0.4)-510-80,(int)(SCREEN_HEIGHT*0.3)+30+330-15, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree95);
+                            SDL_Rect gtree96 = {(int)(SCREEN_WIDTH*0.4)-540-80,(int)(SCREEN_HEIGHT*0.3)+30+330-15, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree96);
+
+                            SDL_Rect gtree97 = {(int)(SCREEN_WIDTH*0.4)-450-80,(int)(SCREEN_HEIGHT*0.3)+60+330-15, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree97);
+                            SDL_Rect gtree98 = {(int)(SCREEN_WIDTH*0.4)-480-80,(int)(SCREEN_HEIGHT*0.3)+60+330-15, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree98);
+                            SDL_Rect gtree99 = {(int)(SCREEN_WIDTH*0.4)-510-80,(int)(SCREEN_HEIGHT*0.3)+60+330-15, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree99);
+                            SDL_Rect gtree100 = {(int)(SCREEN_WIDTH*0.4)-540-80,(int)(SCREEN_HEIGHT*0.3)+60+330-15, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree100);
+
+                            SDL_Rect gtree101 = {(int)(SCREEN_WIDTH*0.4)-450-80,(int)(SCREEN_HEIGHT*0.3)+90+330-15, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree101);
+                            SDL_Rect gtree102 = {(int)(SCREEN_WIDTH*0.4)-480-80,(int)(SCREEN_HEIGHT*0.3)+90+330-15, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree102);
+                            SDL_Rect gtree103 = {(int)(SCREEN_WIDTH*0.4)-510-80,(int)(SCREEN_HEIGHT*0.3)+90+330-15, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree103);
+                            SDL_Rect gtree104 = {(int)(SCREEN_WIDTH*0.4)-540-80,(int)(SCREEN_HEIGHT*0.3)+90+330-15, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree104);
+
+
+                            SDL_Rect gtree105 = {(int)(SCREEN_WIDTH*0.4)-450-80+100+160,(int)(SCREEN_HEIGHT*0.3)+330-15+110, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree105);
+                            SDL_Rect gtree106 = {(int)(SCREEN_WIDTH*0.4)-480-80+100+160,(int)(SCREEN_HEIGHT*0.3)+330-15+110, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree106);
+                            SDL_Rect gtree107 = {(int)(SCREEN_WIDTH*0.4)-510-80+100+160,(int)(SCREEN_HEIGHT*0.3)+330-15+110, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree107);
+                            SDL_Rect gtree108 = {(int)(SCREEN_WIDTH*0.4)-540-80+100+160,(int)(SCREEN_HEIGHT*0.3)+330-15+110, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree108);
+
+
+                            SDL_Rect gtree109 = {(int)(SCREEN_WIDTH*0.4)-450-80+100+160,(int)(SCREEN_HEIGHT*0.3)+30+330-15+110, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree109);
+                            SDL_Rect gtree110 = {(int)(SCREEN_WIDTH*0.4)-480-80+100+160,(int)(SCREEN_HEIGHT*0.3)+30+330-15+110, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree110);
+                            SDL_Rect gtree111 = {(int)(SCREEN_WIDTH*0.4)-510-80+100+160,(int)(SCREEN_HEIGHT*0.3)+30+330-15+110, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree111);
+                            SDL_Rect gtree112 = {(int)(SCREEN_WIDTH*0.4)-540-80+100+160,(int)(SCREEN_HEIGHT*0.3)+30+330-15+110, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree112);
+
+                            SDL_Rect gtree113 = {(int)(SCREEN_WIDTH*0.4)-450-80+100+160,(int)(SCREEN_HEIGHT*0.3)+60+330-15+110, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree113);
+                            SDL_Rect gtree114 = {(int)(SCREEN_WIDTH*0.4)-480-80+100+160,(int)(SCREEN_HEIGHT*0.3)+60+330-15+110, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree114);
+                            SDL_Rect gtree115 = {(int)(SCREEN_WIDTH*0.4)-510-80+100+160,(int)(SCREEN_HEIGHT*0.3)+60+330-15+110, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree115);
+                            SDL_Rect gtree116 = {(int)(SCREEN_WIDTH*0.4)-540-80+100+160,(int)(SCREEN_HEIGHT*0.3)+60+330-15+110, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree116);
+
+
+         
+
+
+                            SDL_Rect gtree121 = {(int)(SCREEN_WIDTH*0.4)-450-80+100+160+100+20,(int)(SCREEN_HEIGHT*0.3)+330-15+110, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree121);
+                            SDL_Rect gtree122 = {(int)(SCREEN_WIDTH*0.4)-480-80+100+160+100+20,(int)(SCREEN_HEIGHT*0.3)+330-15+110, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree122);
+                            SDL_Rect gtree123 = {(int)(SCREEN_WIDTH*0.4)-510-80+100+160+100+20,(int)(SCREEN_HEIGHT*0.3)+330-15+110, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree123);
+                            SDL_Rect gtree124 = {(int)(SCREEN_WIDTH*0.4)-540-80+100+160+100+20,(int)(SCREEN_HEIGHT*0.3)+330-15+110, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree124);
+
+
+                            SDL_Rect gtree125 = {(int)(SCREEN_WIDTH*0.4)-450-80+100+160+100+20,(int)(SCREEN_HEIGHT*0.3)+30+330-15+110, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree125);
+                            SDL_Rect gtree126 = {(int)(SCREEN_WIDTH*0.4)-480-80+100+160+100+20,(int)(SCREEN_HEIGHT*0.3)+30+330-15+110, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree126);
+                            SDL_Rect gtree127 = {(int)(SCREEN_WIDTH*0.4)-510-80+100+160+100+20,(int)(SCREEN_HEIGHT*0.3)+30+330-15+110, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree127);
+                            SDL_Rect gtree128 = {(int)(SCREEN_WIDTH*0.4)-540-80+100+160+100+20,(int)(SCREEN_HEIGHT*0.3)+30+330-15+110, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree128);
+
+                            SDL_Rect gtree129 = {(int)(SCREEN_WIDTH*0.4)-450-80+100+160+100+20,(int)(SCREEN_HEIGHT*0.3)+60+330-15+110, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree129);
+                            SDL_Rect gtree130 = {(int)(SCREEN_WIDTH*0.4)-480-80+100+160+100+20,(int)(SCREEN_HEIGHT*0.3)+60+330-15+110, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree130);
+                            SDL_Rect gtree131 = {(int)(SCREEN_WIDTH*0.4)-510-80+100+160+100+20,(int)(SCREEN_HEIGHT*0.3)+60+330-15+110, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree131);
+                            SDL_Rect gtree132 = {(int)(SCREEN_WIDTH*0.4)-540-80+100+160+100+20,(int)(SCREEN_HEIGHT*0.3)+60+330-15+110, 100,100};
+                            SDL_RenderCopy(gRenderer,gtree1Tex,NULL,&gtree132);
+
+                            
                             
 
 
@@ -3908,7 +4109,7 @@ int main(int argc, char const *argv[])
                             SDL_RenderCopy(gRenderer,angryProfessorTex,NULL,&angryProfessor1);
 
                             pair<int,int> prd= generateRandomPoint(5);
-                            SDL_Rect dog = {prd.first,prd.second,60,60};
+                            SDL_Rect dog = {prd.first,prd.second,80,80};
                             SDL_RenderCopy(gRenderer,hungryDogTex,NULL,&dog);
 
                             if(manhattanDistance({player1.x,player1.y},pr)<100 && notScolded){
@@ -4226,17 +4427,17 @@ int main(int argc, char const *argv[])
                             
                     }
 
-                    if(temp3Clip <120){
-                            if((temp3Clip/30)%4==0){
+                    if(temp3Clip <40){
+                            if((temp3Clip/10)%4==0){
                                 SDL_RenderCopy(gRenderer,messframe1Tex,NULL,&mess);
                             }
-                            else if((temp3Clip/30)%4==1){
+                            else if((temp3Clip/10)%4==1){
                                 SDL_RenderCopy(gRenderer,messframe2Tex,NULL,&mess);
                             }
-                            else if((temp3Clip/30)%4==2){
+                            else if((temp3Clip/10)%4==2){
                                 SDL_RenderCopy(gRenderer,messframe3Tex,NULL,&mess);
                             }
-                            else if((temp3Clip/30)%4==3){
+                            else if((temp3Clip/10)%4==3){
                                 SDL_RenderCopy(gRenderer,messframe4Tex,NULL,&mess);
                             }
                     }
@@ -5080,6 +5281,54 @@ int main(int argc, char const *argv[])
                                 
                         }
 
+                }
+                else if(player1.inCSC){
+                        SDL_Rect computerTable = {0,0,SCREEN_HEIGHT,SCREEN_HEIGHT};
+                        SDL_RenderCopy(gRenderer,cscInsideTex,NULL,&computerTable);
+                        if(delay()){
+
+                                        player1.energy = max(player1.energy-1,0);
+                                        player1.health = max(player1.health-1,0);
+                                        player1.knowledge = min(player1.knowledge+1,100);
+                                        if(player1.health<=0 || player1.energy<=0){
+                                                player1.hospitalize();
+                                        }
+                                        player1.happiness = max(player1.happiness-1,0);
+
+                                        
+                    }
+                    SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
+                    while( SDL_PollEvent( &e ) != 0 )
+                        {
+                                //User requests quit
+                                if( e.type == SDL_QUIT )
+                                {
+                                        quit = true;
+                                }
+                                else if(e.type == SDL_KEYDOWN){
+                                        switch (e.key.keysym.sym){
+                                                                case SDLK_UP:
+                                                                        player1.lastStepDirection = 1;
+                                                                        player1.move(KEY_PRESS_UP);
+                                                                        break;
+                                                                case SDLK_DOWN:
+                                                                        player1.lastStepDirection = 0;
+                                                                        player1.move(KEY_PRESS_DOWN);
+                                                                        break;
+                                                                case SDLK_LEFT:
+                                                                        player1.lastStepDirection = 2;
+                                                                        player1.move(KEY_PRESS_LEFT);
+                                                                        break;
+                                                                case SDLK_RIGHT:
+                                                                        player1.lastStepDirection = 3;
+                                                                        player1.move(KEY_PRESS_RIGHT);
+                                                                        break;
+                                                                case SDLK_w:
+                                                                        player1.enter();
+                                        }
+                                }
+                                
+                        }
                 }
                 
                 
