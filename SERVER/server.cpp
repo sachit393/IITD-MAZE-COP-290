@@ -2055,7 +2055,7 @@ int main(int argc, char const *argv[])
             musyulu = Mix_LoadMUS("sounds/sounds_yulusound.wav");
             mussnoring = Mix_LoadMUS("sounds/snoringsound.wav");
 
-            musmusic = Mix_LoadMUS("music-zapsplat-game-music-action-fun-funky-electro-disco-023_yKJBjSw4.wav");
+            musmusic = Mix_LoadMUS("sounds/music-zapsplat-game-music-action-fun-funky-electro-disco-023_yKJBjSw4.wav");
             //mus2 = Mix_LoadMUS("./mixer/aria.mp3");
             //wav = Mix_LoadWAV("./mixer/po_p2k.wav");
             //wav2 = Mix_LoadWAV("./mixer/start.wav");
