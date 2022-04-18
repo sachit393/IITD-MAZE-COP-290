@@ -63,7 +63,7 @@ SDL_Texture* loadFromFile( std::string path )
 
         //Load image at specified path
     
-    path="/Users/eshan/Main/OneDrive - IIT Delhi 2/Eshan/Sem-4/COP290/Task-2/sdl2-starter/src/"+path ;
+    path="/Users/eshan/Main/OneDrive - IIT Delhi 2/Eshan/Sem-4/COP290/Task-2/sdl2-starter/src/images/"+path ;
     
     
     
