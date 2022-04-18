@@ -27,7 +27,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <arpa/inet.h>
-#define MAX 38
+#define MAX 40
 #define PORT 8080
 #define SA struct sockaddr
 
@@ -40,8 +40,11 @@
 #include "helper.h"
 #include "resources.h"
 
-int temp2 = 0;
 
+int beforeJetx=0;
+int beforeJety=0;
+int temp2 = 0;
+int temp4 = 0;
 using namespace std;
 const int HOSPITAL_BILL = 50;
 const int SCREEN_WIDTH = 1520;
@@ -119,6 +122,14 @@ class Player{
                 SDL_Texture* colorTexBack = NULL;
                 SDL_Texture* colorTexLeft = NULL;
                 SDL_Texture* colorTexRight = NULL;
+                SDL_Texture* cycleTexFront = NULL;
+                SDL_Texture* cycleTexBack = NULL;
+                SDL_Texture* cycleTexLeft = NULL;
+                SDL_Texture* cycleTexRight = NULL;
+                SDL_Texture* jetPackTexBack = NULL;
+                SDL_Texture* jetPackTexLeft = NULL;
+                SDL_Texture* jetPackTexRight = NULL;
+                SDL_Texture* jetPackTexFront = NULL;
                 SDL_Texture* colorTexLeft2 = NULL;
                 int x;
                 int y;
@@ -156,7 +167,9 @@ class Player{
                 bool isStudying = false;
                 bool won = false;
                 bool lost = false;
+                bool inOAT = false;
                 int lastStepDirection = 0;
+                bool purchasedJetPack = false;
 
         Player(int xP,int yP,string colorP){
                 health = 50;
@@ -170,6 +183,17 @@ class Player{
                 colorTexFront = loadFromFile(colorP+"-char-front.png");
                 colorTexBack = loadFromFile(colorP+"-char-back.png");
                 colorTexLeft = loadFromFile(colorP+"-char-left.png");
+                cycleTexFront = loadFromFile(colorP+"-cyclefront.png");
+                cycleTexBack = loadFromFile(colorP+"-cycleback.png");
+                cycleTexLeft = loadFromFile(colorP+"-cycleleft.png");
+                cycleTexRight = loadFromFile(colorP+"-cycleright.png");
+
+                jetPackTexFront = loadFromFile(colorP+"-jetpackfront.png");
+                jetPackTexBack = loadFromFile(colorP+"-jetpackback.png");
+                jetPackTexLeft = loadFromFile(colorP+"-jetpackleft.png");
+                jetPackTexRight = loadFromFile(colorP+"-jetpackright.png");
+
+
                 colorTexLeft2 = loadFromFile(colorP+"-char-left.png");
         }
 
@@ -254,6 +278,9 @@ class Player{
                                         if(x>=850 && x<=865 && y-speed>=750){
                                                 y-=speed;
                                         }
+                                        if(purchasedJetPack && y-speed>=0){
+                                                y-=speed;
+                                        }
 
                                 }
                                 if(keyPress == KEY_PRESS_DOWN){
@@ -306,6 +333,9 @@ class Player{
                                         if(x>=850 && x<=865 && y+speed<=780 && y>=700){
                                                 y+=speed;
                                         }
+                                        if(purchasedJetPack && y+speed<=SCREEN_HEIGHT){
+                                                y+=speed;
+                                        }
                                 }
                                 if(keyPress == KEY_PRESS_LEFT){
                                         if(y>=335 && y<=350 &&  x-speed>=760){
@@ -341,6 +371,9 @@ class Player{
                                                 x-=speed;
                                         }
                                         if(y>=835 && y<=850 && x-speed>=980 && x>700){
+                                                x-=speed;
+                                        }
+                                        if(purchasedJetPack && x-speed>=0){
                                                 x-=speed;
                                         }
 
@@ -380,7 +413,9 @@ class Player{
                                         if(y>=835 && y<=850 && x+speed<=1040 && x>700){
                                                 x+=speed;
                                         }
-
+                                        if(purchasedJetPack && x+speed<=SCREEN_WIDTH){
+                                                x+=speed;
+                                        }
                                 }
                         }
                         else if(!inMain){
@@ -417,6 +452,7 @@ class Player{
                 if (!takenYulu && inMain && ((x>=740 && x<=820 && 455<=y && y<=480) )){
                         enterHostel = true;
                         lastx = x;
+                        purchasedJetPack = false;
                         lasty = y;
                         x = 0.1*SCREEN_WIDTH;
                         y = 0.4*SCREEN_HEIGHT;
@@ -556,6 +592,7 @@ class Player{
                 // entering largeGround
                 else if(!takenYulu && inMain && x>=120 && x<=220 && y>=540 && y<=570){
                         inLargeGround = true;
+                        purchasedJetPack = false;
                         inMain = false;
                         enterHostel = false;
                         x = 1300;
@@ -633,6 +670,7 @@ class Player{
                 // entering tennis court
                 else if(!takenYulu && inMain && y>=290 && y<=315 && x>=350 && x<=370){
                         inTennisCourt = true;
+                        purchasedJetPack = false;
                         inMain = false;
                         inLargeGround = false;
                         enterHostel = false;
@@ -709,6 +747,7 @@ class Player{
                 // enter volleyBall Court
                 else if(!takenYulu && inMain && y>=0.3*SCREEN_HEIGHT - 20 && y<=0.33*SCREEN_WIDTH +10  && x>=498 && x<=510){
                         inTennisCourt = false;
+                        purchasedJetPack = false;
                         inVolleyCourt = true;
                         inLargeGround = false;
                         enterHostel = false;
@@ -789,6 +828,7 @@ class Player{
                 // enter lhc
                 else if(!takenYulu && inMain && y>=870 && y<=890 && x>=140 && x<=220){
                         inLHC = true;
+                        purchasedJetPack = false;
                         inLargeGround = false;
                         enterHostel = false;
                         inTennisCourt = false;
@@ -1081,6 +1121,7 @@ class Player{
         
                 else if (!takenYulu && !enterRestaurant && (x>=(SCREEN_WIDTH / 22+120+130) && x<=(SCREEN_WIDTH / 22+150+130) && y<=(SCREEN_HEIGHT / 22+425 + (SCREEN_HEIGHT / 20)) && y>=(SCREEN_HEIGHT / 22+425) )                                                               //Masala Mix
                 && inMain){
+                        purchasedJetPack = false;
                         enterMasalaMix = true;
                         enterRestaurant = true;
                         inMain = false;
@@ -1114,6 +1155,7 @@ class Player{
                 else if (
                 (!takenYulu && !enterRestaurant && x>=(SCREEN_WIDTH / 22+95+160+100) && x<=(SCREEN_WIDTH / 22+95+185+100) && y<=(SCREEN_HEIGHT / 22+425 + (SCREEN_HEIGHT / 20)) && y>=SCREEN_HEIGHT / 22+425    )       //Rajdhani
                 && inMain){
+                        purchasedJetPack = false;
                         enterRajdhani = true;
                         enterRestaurant = true;
                         inMain = false;
@@ -1147,6 +1189,7 @@ class Player{
                 else if (!takenYulu && !enterRestaurant &&
                 (x>= SCREEN_WIDTH / 22+95+255+100 && x<=( SCREEN_WIDTH / 22+95+285+100) && y<=(SCREEN_HEIGHT / 22+425 + (SCREEN_HEIGHT / 20)) && y>=SCREEN_HEIGHT / 22+425)   // Chaayos
                 && inMain){
+                        purchasedJetPack = false;
                         enterChaayos = true;
                         enterRestaurant = true;
                         x = SCREEN_WIDTH - 290;
@@ -1181,6 +1224,7 @@ class Player{
                         // enter shiru
                 ( x>= SCREEN_WIDTH / 22+500 && x<=( SCREEN_WIDTH / 22+450 + (SCREEN_WIDTH / 18)) && y<=(SCREEN_HEIGHT / 22+695+ (SCREEN_HEIGHT / 18)) && y>=SCREEN_HEIGHT / 22+695  ) //Shiru Cafe
                 && inMain){
+                        purchasedJetPack = false;
                         enterShiru = true;
                         enterRestaurant = true;
                         inMain = false;
@@ -1216,6 +1260,7 @@ class Player{
                         // enter amul
                 (x>= SCREEN_WIDTH / 22+630 && x<=( SCREEN_WIDTH / 22+580 + (SCREEN_WIDTH / 18)) && y<=(SCREEN_HEIGHT / 22+695 + (SCREEN_HEIGHT / 18)) && y>=SCREEN_HEIGHT / 22+695 )  //Amul
                 && inMain){
+                        purchasedJetPack = false;
                         enterAmul = true;
                         enterRestaurant = true;
                         inMain = false;
@@ -1250,6 +1295,7 @@ class Player{
                 else if (!takenYulu && !enterRestaurant&&
                 (x>= SCREEN_WIDTH / 22+780 && x<=( SCREEN_WIDTH / 22+720 + (SCREEN_WIDTH / 18)) && y<=(SCREEN_HEIGHT / 22+695 + (SCREEN_HEIGHT / 18)) && y>=SCREEN_HEIGHT / 22+695)   //Nescafe
                 && inMain){
+                        purchasedJetPack = false;
                         // enter nescafe
                         enterNescafe = true;
                         enterRestaurant = true;
@@ -1285,6 +1331,7 @@ class Player{
                 else if (!takenYulu && !enterRestaurant&&
                 (x>= SCREEN_WIDTH / 22+880 && x<=( SCREEN_WIDTH / 22+880 + (SCREEN_WIDTH / 15)) && y<=(SCREEN_HEIGHT / 22+690 + (SCREEN_HEIGHT / 8)) && y>=SCREEN_HEIGHT / 22+780 )  //CCD
                 && inMain){
+                        purchasedJetPack = false;
                         // enter ccd
                         enterCCD = true;
                         enterRestaurant = true;
@@ -1320,6 +1367,7 @@ class Player{
                 else if (!takenYulu && !enterRestaurant&&
                 (x>= SCREEN_WIDTH / 22+80 && x<=( SCREEN_WIDTH / 22 + 110) && y<=(SCREEN_HEIGHT / 22+590 + (SCREEN_HEIGHT / 6)) && y>=SCREEN_HEIGHT / 22+725)  //Staff Canteen
                 && inMain){
+                        purchasedJetPack = false;
                         // enter staff canteen
                         enterStaffCanteen = true;
                         enterRestaurant = true;
@@ -1357,6 +1405,7 @@ class Player{
                         // enter dilli16
                 (x>= SCREEN_WIDTH / 22+95+130+40+160 && x<=( SCREEN_WIDTH / 22+95+130+40+160 + (SCREEN_WIDTH / 15)) && y<=(SCREEN_HEIGHT / 22+134 + (SCREEN_HEIGHT / 20)) && y>=SCREEN_HEIGHT / 22+134 ) //Dilli-16
                 && inMain){
+                        purchasedJetPack = false;
                     playaudio(musenter) ;
                     enterDilli16 = true;
                         enterRestaurant = true;
@@ -1412,6 +1461,7 @@ class Player{
 
                 else if (x>=SCREEN_WIDTH*0.75 && x<=0.9*SCREEN_WIDTH && y>=0.09*SCREEN_HEIGHT && y<=0.21*SCREEN_HEIGHT
                 && enterMasalaMix){
+                        purchasedJetPack = false;
                     playaudio(musenter) ;
                     enterRestaurant = false;
                         enterMasalaMix = false;
@@ -1423,6 +1473,7 @@ class Player{
 
                 else if (x>=SCREEN_WIDTH*0.75 && x<=0.9*SCREEN_WIDTH && y>=0.09*SCREEN_HEIGHT && y<=0.21*SCREEN_HEIGHT
                 && enterRajdhani){
+                        purchasedJetPack = false;
                     playaudio(musenter) ;
                     enterRestaurant = false;
                         enterRajdhani = false;
@@ -1434,6 +1485,7 @@ class Player{
 
                 else if (x>=SCREEN_WIDTH*0.75 && x<=0.9*SCREEN_WIDTH && y>=0.09*SCREEN_HEIGHT && y<=0.21*SCREEN_HEIGHT
                 && enterChaayos){
+                        purchasedJetPack = false;
                     playaudio(musenter) ;
                     enterRestaurant = false;
                         enterChaayos = false;
@@ -1445,6 +1497,7 @@ class Player{
 
                 else if (x>=SCREEN_WIDTH*0.75 && x<=0.9*SCREEN_WIDTH && y>=0.09*SCREEN_HEIGHT && y<=0.21*SCREEN_HEIGHT
                 && enterShiru){
+                        purchasedJetPack = false;
                     playaudio(musenter) ;
                     enterRestaurant = false;
                         enterShiru = false;
@@ -1456,6 +1509,7 @@ class Player{
 
                 else if (x>=SCREEN_WIDTH*0.75 && x<=0.9*SCREEN_WIDTH && y>=0.09*SCREEN_HEIGHT && y<=0.21*SCREEN_HEIGHT
                 && enterAmul){
+                        purchasedJetPack = false;
                     playaudio(musenter) ;
                     enterRestaurant = false;
                         enterAmul = false;
@@ -1467,6 +1521,7 @@ class Player{
 
                 else if (x>=SCREEN_WIDTH*0.75 && x<=0.9*SCREEN_WIDTH && y>=0.09*SCREEN_HEIGHT && y<=0.21*SCREEN_HEIGHT
                 && enterNescafe){
+                        purchasedJetPack = false;
                     playaudio(musenter) ;
                     enterRestaurant = false;
                         enterNescafe = false;
@@ -1479,6 +1534,7 @@ class Player{
 
                 else if (x>=SCREEN_WIDTH*0.75 && x<=0.9*SCREEN_WIDTH && y>=0.09*SCREEN_HEIGHT && y<=0.21*SCREEN_HEIGHT
                 && enterCCD){
+                        purchasedJetPack = false;
                         enterRestaurant = false;
                         enterCCD = false;
                         inMain = true;
@@ -1490,6 +1546,7 @@ class Player{
 
                 else if (x>=SCREEN_WIDTH*0.75 && x<=0.9*SCREEN_WIDTH && y>=0.09*SCREEN_HEIGHT && y<=0.21*SCREEN_HEIGHT
                 && enterStaffCanteen){
+                        purchasedJetPack = false;
                     playaudio(musenter) ;
                     enterRestaurant = false;
                         enterStaffCanteen = false;
@@ -1502,6 +1559,7 @@ class Player{
 
                 else if (x>=SCREEN_WIDTH*0.75 && x<=0.9*SCREEN_WIDTH && y>=0.09*SCREEN_HEIGHT && y<=0.21*SCREEN_HEIGHT
                 && enterDilli16){
+                        purchasedJetPack = false;
                     playaudio(musenter) ;
                     enterRestaurant = false;
                         enterDilli16 = false;
@@ -1547,6 +1605,7 @@ class Player{
 
                 else if (!takenYulu && x>=(0) && x<=SCREEN_WIDTH / 10 && y<=SCREEN_HEIGHT / 8  + SCREEN_HEIGHT / 22+220  && y>=SCREEN_HEIGHT / 22+220 && inMain){
                         enterSAC = true;
+                        purchasedJetPack = false;
                         x = SCREEN_WIDTH*0.09;
                         y = 0.75*SCREEN_HEIGHT;
                         inMain = false;
@@ -1607,6 +1666,68 @@ class Player{
                         
                 }
 
+                // enter OAT
+
+                else if(enterSAC && x>=0.49*SCREEN_WIDTH && x<=0.85*SCREEN_WIDTH && y>=0.43*SCREEN_HEIGHT && y<=0.89*SCREEN_HEIGHT){
+                        inOAT = true;
+                        purchasedJetPack = false;
+                        cout<<"PLAYER1ENTEREDOAT\n";
+                        inMain = false;
+                        enterHostel = false;
+                        inLargeGround = false;
+                        enterRestaurant = false;
+                        enterSAC = false;
+                        enterMasalaMix = false;
+                        enterRajdhani = false;
+                        enterChaayos = false;
+                        enterShiru = false;
+                        enterAmul = false;
+                        enterNescafe = false;
+                        enterCCD = false;
+                        enterStaffCanteen = false;
+                        enterDilli16 = false;
+                        enterLibrary = false;
+                        inLHC = false;
+                        inLHC108 = false;
+                        inLHC114 = false;
+                        inLHC325 = false;
+                        takenYulu = false;
+                        inVolleyCourt = false;
+                        inTennisCourt = false;
+                        inLargeGround = false;
+
+                }
+
+                //exit OAT
+                else if(inOAT){
+                        inOAT = false;
+                        enterSAC = true;
+                        inMain = false;
+
+                        x = (int)(0.66*SCREEN_WIDTH);
+                        y = (int)(0.66*(SCREEN_HEIGHT));
+                        enterHostel = false;
+                        inLargeGround = false;
+                        enterMasalaMix = false;
+                        enterRajdhani = false;
+                        enterChaayos = false;
+                        enterShiru = false;
+                        enterAmul = false;
+                        enterNescafe = false;
+                        enterCCD = false;
+                        enterStaffCanteen = false;
+                        enterLibrary = false;
+                        inLHC = false;
+                        inLHC108 = false;
+                        inLHC114 = false;
+                        inLHC325 = false;
+                        isSleeping = false;
+                        takenYulu = false;
+                        inVolleyCourt = false;
+                        inTennisCourt = false;
+                        inLargeGround = false;
+                }
+
 
 
 
@@ -1623,6 +1744,7 @@ class Player{
                         y = 0.58*SCREEN_HEIGHT;
                         inMain = false;
                         playaudio(musenter) ;
+                        purchasedJetPack = false;
 
                 }
                 // exit from Library
@@ -1638,7 +1760,7 @@ class Player{
                 //Chair
                 // change view to study
                 else if(enterLibrary && x>=0.6*SCREEN_WIDTH && x<=0.8*SCREEN_WIDTH && y>=0.18*SCREEN_HEIGHT && y<=0.43*SCREEN_HEIGHT){
-                        
+                        purchasedJetPack = false;
                         enterLibrary = false;
                         isStudying = true;
                 
@@ -1674,6 +1796,16 @@ class Player{
                             //cout<<"making hospitalized as true false\n";
                             hospitalized = false;
                         }
+                        if(purchasedJetPack){
+                                temp4++;
+                        }
+                        if(temp4==15){
+                                temp4=0;
+                                purchasedJetPack = false;
+                                x = beforeJetx;
+                                y = beforeJety;
+                        }
+
                     }
 
             }
@@ -1772,16 +1904,50 @@ class Player{
                 
         }
 
+        void changeJetPack(){
+                if(!purchasedJetPack){
+                        if(money>=60){
+                                money-=60;
+                                purchasedJetPack = true;
+                                beforeJetx = x;
+                                beforeJety = y;
+                        }
+                        else{
+                                insufficientMoney = true;
+                        }
+                }
+        }
+
         void renderPlayer(){
                 SDL_Rect player1 = {x,y,30,30};
-                if(lastStepDirection==0)
+                if(lastStepDirection==0 && !takenYulu && !purchasedJetPack)
                     SDL_RenderCopy(gRenderer,colorTexFront,NULL,&player1);
-                else if(lastStepDirection==1)
+                else if(lastStepDirection==1 && !takenYulu && !purchasedJetPack)
                     SDL_RenderCopy(gRenderer,colorTexBack,NULL,&player1);
-                else if(lastStepDirection==2)
+                else if(lastStepDirection==2 && !takenYulu && !purchasedJetPack)
                     SDL_RenderCopy(gRenderer,colorTexLeft,NULL,&player1);
-                else if(lastStepDirection==3)
+                else if(lastStepDirection==3 && !takenYulu && !purchasedJetPack)
                     SDL_RenderCopy(gRenderer,colorTexRight,NULL,&player1);
+
+
+
+                else if(lastStepDirection==0 && takenYulu && !purchasedJetPack)
+                    SDL_RenderCopy(gRenderer,cycleTexFront,NULL,&player1);
+                else if(lastStepDirection==1 && takenYulu && !purchasedJetPack)
+                    SDL_RenderCopy(gRenderer,cycleTexBack,NULL,&player1);
+                else if(lastStepDirection==2 && takenYulu && !purchasedJetPack)
+                    SDL_RenderCopy(gRenderer,cycleTexLeft,NULL,&player1);
+                else if(lastStepDirection==3 && takenYulu && !purchasedJetPack)
+                    SDL_RenderCopy(gRenderer,cycleTexRight,NULL,&player1);
+
+                else if(lastStepDirection==0 && purchasedJetPack)
+                    SDL_RenderCopy(gRenderer,jetPackTexFront,NULL,&player1);
+                else if(lastStepDirection==1 && purchasedJetPack)
+                    SDL_RenderCopy(gRenderer,jetPackTexBack,NULL,&player1);
+                else if(lastStepDirection==2 && purchasedJetPack)
+                    SDL_RenderCopy(gRenderer,jetPackTexLeft,NULL,&player1);
+                else if(lastStepDirection==3 && purchasedJetPack)
+                    SDL_RenderCopy(gRenderer,jetPackTexRight,NULL,&player1);
         }
 
 };
@@ -1906,6 +2072,8 @@ int main(int argc, char const *argv[])
             Mix_OpenAudio(22050,AUDIO_S16SYS,2,640);
             //Mix_Music *musenter , *musclick, *musmusic ;  // Background Music
             Mix_Chunk *wav , *wav2 ;  // For Sounds
+
+            SDL_Texture*jetTopTex = loadFromFile("jetpacktop.png");
             musenter = Mix_LoadMUS("/Users/eshan/Downloads/enter-sound.wav");
             musclick = Mix_LoadMUS("/Users/eshan/Downloads/click-sound.wav");
             musmusic = Mix_LoadMUS("/Users/eshan/Desktop/COP-290-TASK-2-master/sounds/music-zapsplat-game-music-action-fun-funky-electro-disco-023_yKJBjSw4.wav");
@@ -1924,8 +2092,10 @@ int main(int argc, char const *argv[])
             
             
             
-            
-            
+            //oat dancing tex
+            SDL_Texture* oatinsideTex1 = loadFromFile("oatinside1.png");
+            SDL_Texture* oatinsideTex2 = loadFromFile("oatinside2.png");
+            SDL_Texture* oatinsideTex3 = loadFromFile("oatinside3.png");
             // hostel textures
             SDL_Texture* hospitalizeTex = loadFromFile("hospitalized.png");
                 SDL_Texture* tileTex = loadFromFile("tile.png");
@@ -2362,6 +2532,18 @@ int main(int argc, char const *argv[])
                                 else{
                                     buff[37] = '0';
                                 }
+                                if(player1.takenYulu){
+                                        buff[38]='1';
+                                }
+                                else{
+                                        buff[38]='0';
+                                }
+                                if(player1.purchasedJetPack){
+                                        buff[39]='1';
+                                }
+                                else{
+                                        buff[39]='0';
+                                }
                                 // cout<<"IN CLIENT SIDE\n";
                                 // cout<<s1<<" "<<s2<<"\n";
                                 // cout<<buff[1]<<"\n";
@@ -2531,30 +2713,43 @@ int main(int argc, char const *argv[])
                                         player2.isStudying = false;
                                 }
                                 
-                    if(buff[35]=='1'){
-                        player2.isReady = true;
-                    }
-                    else{
-                        player2.isReady = false;
-                    }
-                    if(buff[36]=='1'){
-                        playaudio(muslose) ;
-                        player2.won = true;
-                        player1.lost = true;
-                    }
-                    else{
-                        player2.won = false;
-                    }
-                    if(buff[37]=='1'){
-                        playaudio(muswon) ;
-                        player2.lost = true;
-                        player1.won = true;
-                    }
-                    else{
-                        player2.lost = false;
-                    }
+                                if(buff[35]=='1'){
+                                        player2.isReady = true;
+                                }
+                                else{
+                                        player2.isReady = false;
+                                }
+                                if(buff[36]=='1'){
+                                        playaudio(muslose) ;
+                                        player2.won = true;
+                                        player1.lost = true;
+                                }
+                                else{
+                                        player2.won = false;
+                                }
+                                if(buff[37]=='1'){
+                                        playaudio(muswon) ;
+                                        player2.lost = true;
+                                        player1.won = true;
+                                }
+                                else{
+                                        player2.lost = false;
+                                }
+                                if(buff[38]=='1'){
+                                        player2.takenYulu = true;
+                                }
+                                else{
+                                        player2.takenYulu = false;
+                                }
+                                if(buff[39]=='1'){
+                                        player2.purchasedJetPack = true;
+                                }
+                                else{
+                                        player2.purchasedJetPack = false;
+                                }
+                    cout<<player1.x<<" "<<player1.y<<"\n";
                     //cout<<player1.won<<" "<<player1.isReady<<"\n";
-                    if(player1.isReady && player2.isReady && !player1.won && !player1.lost && !player1.inMain && !player1.enterHostel && !player1.inLargeGround && !player1.inTennisCourt && !player1.inVolleyCourt && !player1.inLHC && !player1.inLHC108 && !player1.inLHC114 && !player1.inLHC325 && !player1.enterSAC && !player1.enterRestaurant && !player1.enterMasalaMix && !player1.enterRajdhani && !player1.enterRestaurant && !player1.enterChaayos && !player1.enterShiru && !player1.enterAmul && !player1.enterNescafe && !player1.enterCCD && !player1.enterStaffCanteen && !player1.enterDilli16 && !player1.enterLibrary && !player1.isSleeping && !player1.isStudying){
+                    if(player1.isReady && player2.isReady && !player1.won && !player1.lost && !player1.inMain && !player1.enterHostel && !player1.inLargeGround && !player1.inTennisCourt && !player1.inVolleyCourt && !player1.inLHC && !player1.inLHC108 && !player1.inLHC114 && !player1.inLHC325 && !player1.enterSAC && !player1.enterRestaurant && !player1.enterMasalaMix && !player1.enterRajdhani && !player1.enterRestaurant && !player1.enterChaayos && !player1.enterShiru && !player1.enterAmul && !player1.enterNescafe && !player1.enterCCD && !player1.enterStaffCanteen && !player1.enterDilli16 && !player1.enterLibrary && !player1.isSleeping && !player1.isStudying && !player1.inOAT){
                         player1.inMain = true;
                         player2.inMain = true;
                                 }
@@ -3869,6 +4064,11 @@ int main(int argc, char const *argv[])
                             if(player1.takenYulu){
                                 SDL_RenderCopy(gRenderer,yuluTopTex,NULL,&yuluTop);
                             }
+
+                            SDL_Rect jetTop = {1220,104,300,300};
+                            if(player1.purchasedJetPack){
+                                    SDL_RenderCopy(gRenderer,jetTopTex,NULL,&jetTop);
+                            }
                 ///////////////////////////////////////////////////////////////////
 
 
@@ -3917,6 +4117,8 @@ int main(int argc, char const *argv[])
                                                                 case SDLK_y:
                                                                         player1.changeYulu();
                                                                         break;
+                                                                case SDLK_j:
+                                                                        player1.changeJetPack();
                                                         }
                                                 }
                                                 SDL_SetRenderDrawColor( gRenderer,235, 52, 155, 0xFF );
@@ -4828,6 +5030,59 @@ int main(int argc, char const *argv[])
                                 
                         }
                         temp10Clip+=1;
+                }
+                else if(player1.inOAT){
+                    SDL_Rect danceOAT = {0,0,SCREEN_WIDTH,SCREEN_HEIGHT};
+                                            if((tempClip/10)%5==0){
+                                                    SDL_RenderCopy(gRenderer,oatinsideTex1,NULL,&danceOAT);
+                                            }
+                                            else if((tempClip/10)%5==1){
+                                                    SDL_RenderCopy(gRenderer,oatinsideTex2,NULL,&danceOAT);
+                                            }
+                                            else if((tempClip/10)%5==2){
+                                                    SDL_RenderCopy(gRenderer,oatinsideTex3,NULL,&danceOAT);
+                                            }
+                                            else if((tempClip/10)%5==3){
+                                                    SDL_RenderCopy(gRenderer,oatinsideTex2,NULL,&danceOAT);
+                                            }
+                                            else if((tempClip/10)%5==4){
+                                                    SDL_RenderCopy(gRenderer,oatinsideTex1,NULL,&danceOAT);
+                                            }
+                                            if(delay()){
+                                                    player1.happiness = min(100,player1.happiness+1);
+                                            }
+                                            tempClip++;
+                                            while( SDL_PollEvent( &e ) != 0 )
+                                            {
+                                                    //User requests quit
+                                                    if( e.type == SDL_QUIT )
+                                                    {
+                                                            quit = true;
+                                                    }
+                                                    else if(e.type == SDL_KEYDOWN){
+                                                            switch (e.key.keysym.sym){
+                                                                                    case SDLK_UP:
+                                                                                            player1.lastStepDirection = 1;
+                                                                                            player1.move(KEY_PRESS_UP);
+                                                                                            break;
+                                                                                    case SDLK_DOWN:
+                                                                                            player1.lastStepDirection = 0;
+                                                                                            player1.move(KEY_PRESS_DOWN);
+                                                                                            break;
+                                                                                    case SDLK_LEFT:
+                                                                                            player1.lastStepDirection = 2;
+                                                                                            player1.move(KEY_PRESS_LEFT);
+                                                                                            break;
+                                                                                    case SDLK_RIGHT:
+                                                                                            player1.lastStepDirection = 3;
+                                                                                            player1.move(KEY_PRESS_RIGHT);
+                                                                                            break;
+                                                                                    case SDLK_w:
+                                                                                            player1.enter();
+                                                            }
+                                                    }
+                                                    
+                                            }
                 }
                 else if(player1.enterLibrary){
 
