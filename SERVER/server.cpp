@@ -50,7 +50,7 @@ int flose=0;
 
 
 
-Mix_Music *musenter, *musclick, *musmusic, *muspeacock, *musdisco, *muswon, *muslose, *mussnoring, *musyulu;
+Mix_Music *musenter, *musclick, *musmusic, *muspeacock, *musdisco, *muswon, *muslose, *mussnoring, *musyulu, *musjetpack;
 
 
 SDL_Renderer* gRenderer = NULL;
@@ -1819,6 +1819,7 @@ class Player{
         void changeJetPack(){
                 if(!purchasedJetPack){
                         if(money>=60){
+                                playaudio(musjetpack) ;
                                 money-=60;
                                 purchasedJetPack = true;
                                 beforeJetx = x;
@@ -2054,7 +2055,7 @@ int main(int argc, char const *argv[])
             muslose = Mix_LoadMUS("sounds/sounds_losesound.wav");
             musyulu = Mix_LoadMUS("sounds/sounds_yulusound.wav");
             mussnoring = Mix_LoadMUS("sounds/snoringsound.wav");
-
+                musjetpack = Mix_LoadMUS("sounds/jetpacksound.wav");
             musmusic = Mix_LoadMUS("sounds/music-zapsplat-game-music-action-fun-funky-electro-disco-023_yKJBjSw4.wav");
             //mus2 = Mix_LoadMUS("./mixer/aria.mp3");
             //wav = Mix_LoadWAV("./mixer/po_p2k.wav");
