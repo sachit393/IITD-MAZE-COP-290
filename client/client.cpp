@@ -83,7 +83,7 @@ int flose=0  ;
 int fwon=0  ;
 
 
-Mix_Music *musenter, *musclick, *musmusic, *muswon, *muslose, *mussport, *musyulu, *musinsufficientmoney, *museating, *muspeacock, *musdisco, *mussnoring  ;      //Background Music
+Mix_Music *musenter, *musclick, *musmusic, *muswon, *muslose, *mussport, *musyulu, *musinsufficientmoney, *museating, *muspeacock, *musdisco, *mussnoring, *musjetpack  ;      //Background Music
 SDL_Window* gWindow = NULL;
 SDL_Renderer* gRenderer = NULL;
 SDL_Texture* imageTexture = NULL;
@@ -1927,7 +1927,8 @@ class Player{
         void changeJetPack(){
                 if(!purchasedJetPack){
                         if(money>=60){
-                                money-=60;
+                                 playaudio(musjetpack) ;
+                                 money-=60;
                                 purchasedJetPack = true;
                                 beforeJetx = x;
                                 beforeJety = y;
@@ -2106,6 +2107,7 @@ int main(int argc, char const *argv[])
             muspeacock = Mix_LoadMUS("sounds/peacocksound.wav");
             musdisco = Mix_LoadMUS("sounds/discosound.wav");
             mussnoring = Mix_LoadMUS("sounds/snoringsound.wav");
+            musjetpack = Mix_LoadMUS("sounds/jetpacksound.wav");
 
 
             
