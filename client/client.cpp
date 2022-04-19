@@ -2095,19 +2095,19 @@ int main(int argc, char const *argv[])
             Mix_Chunk *wav , *wav2 ;  // For Sounds
 
             
-            musenter = Mix_LoadMUS("sounds/enter-sound.wav");
-            musclick = Mix_LoadMUS("sounds/click-sound.wav");
-            musmusic = Mix_LoadMUS("sounds/music-zapsplat-game-music-action-fun-funky-electro-disco-023_yKJBjSw4.wav");
-            musyulu = Mix_LoadMUS("sounds/yulusound.wav");
-            mussport = Mix_LoadMUS("sounds/sportsound.wav");
-            muswon = Mix_LoadMUS("sounds/wonsound.wav");
-            muslose = Mix_LoadMUS("sounds/losesound.wav");
-            musinsufficientmoney = Mix_LoadMUS("sounds/insufficientmoney.wav");
-            museating = Mix_LoadMUS("sounds/eatingsound.wav");
-            muspeacock = Mix_LoadMUS("sounds/peacocksound.wav");
-            musdisco = Mix_LoadMUS("sounds/discosound.wav");
-            mussnoring = Mix_LoadMUS("sounds/snoringsound.wav");
-            musjetpack = Mix_LoadMUS("sounds/jetpacksound.wav");
+            musenter = Mix_LoadMUS("/Users/eshan/Downloads/enter-sound.wav");
+            musclick = Mix_LoadMUS("/Users/eshan/Downloads/click-sound.wav");
+            musmusic = Mix_LoadMUS("/Users/eshan/Desktop/COP-290-TASK-2-master/sounds/music-zapsplat-game-music-action-fun-funky-electro-disco-023_yKJBjSw4.wav");
+            musyulu = Mix_LoadMUS("/Users/eshan/Desktop/yulusound.wav");
+            mussport = Mix_LoadMUS("/Users/eshan/Desktop/sportsound.wav");
+            muswon = Mix_LoadMUS("/Users/eshan/Desktop/wonsound.wav");
+            muslose = Mix_LoadMUS("/Users/eshan/Desktop/losesound.wav");
+            musinsufficientmoney = Mix_LoadMUS("/Users/eshan/Desktop/insufficientmoney.wav");
+            museating = Mix_LoadMUS("/Users/eshan/Desktop/eatingsound.wav");
+            muspeacock = Mix_LoadMUS("/Users/eshan/Main/OneDrive - IIT Delhi 2/Eshan/Sem-4/COP290/Task-2/sdl2-starter/src/sounds/peacocksound.wav");
+            musdisco = Mix_LoadMUS("/Users/eshan/Main/OneDrive - IIT Delhi 2/Eshan/Sem-4/COP290/Task-2/sdl2-starter/src/sounds/discosound.wav");
+            mussnoring = Mix_LoadMUS("/Users/eshan/Main/OneDrive - IIT Delhi 2/Eshan/Sem-4/COP290/Task-2/sdl2-starter/src/sounds/snoringsound.wav");
+            musjetpack = Mix_LoadMUS("/Users/eshan/Downloads/jetpacksound.wav");
 
 
             
@@ -4336,19 +4336,12 @@ int main(int argc, char const *argv[])
                     // rendering trees
                     
                     SDL_Rect tree_top = {  1140 , 850, 200, 200 };
-
                     SDL_RenderCopy(gRenderer,tree_topTex,NULL,&tree_top);
-
                     tree_top = {  160 , 850, 200, 200 };
-
                     SDL_RenderCopy(gRenderer,tree_topTex,NULL,&tree_top);
-
                     tree_top = {  1140 , 280, 200, 200 };
-
                     SDL_RenderCopy(gRenderer,tree_rightTex,NULL,&tree_top);
-
                     tree_top = {  230 , 250, 200, 200 };
-
                     SDL_RenderCopy(gRenderer,tree_leftTex,NULL,&tree_top);
                     */
 
